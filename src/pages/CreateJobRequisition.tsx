@@ -16,44 +16,7 @@ import LocationShift from "@/components/jr-form/LocationShift";
 import JobDescription from "@/components/jr-form/JobDescription";
 import OnsiteSpecific from "@/components/jr-form/OnsiteSpecific";
 import { useToast } from "@/hooks/use-toast";
-
-// Mock data - replace with actual data fetching
-const mockRequisitionData: Record<string, any> = {
-  "JR-001": {
-    id: "JR-001",
-    title: "Senior Full Stack Developer",
-    department: "Engineering",
-    requestedBy: "John Doe",
-    requestedDate: "2025-10-01",
-    hiringManager: "Jane Smith",
-    positions: 2,
-    status: "Submitted",
-    workArrangement: "Offshore",
-    jobType: "Permanent",
-    billable: "Yes",
-    clientBillingRate: 150,
-    totalBudget: { min: 100000, max: 150000 },
-    expectedSalary: { min: 80000, max: 120000 },
-    primarySkills: ["React", "TypeScript", "Node.js"],
-    secondarySkills: ["Python", "AWS", "Docker"],
-    certifications: ["AWS Certified", "React Certified"],
-    experience: 5,
-    education: "Bachelor's in Computer Science",
-    projectName: "E-commerce Platform",
-    clientName: "Tech Corp Inc.",
-    businessUnit: "Digital Solutions",
-    projectLocation: "Remote",
-    workMode: "Remote",
-    workShift: "Morning (9 AM - 5 PM)",
-    jobPurpose: "Lead the development of our next-generation e-commerce platform",
-    primaryDuties: "Design and implement scalable solutions, mentor junior developers, collaborate with cross-functional teams",
-    jobSpecifications: "Strong problem-solving skills, excellent communication, team player",
-    onboardingFrom: "2025-11-01",
-    onboardingTo: "2025-11-15",
-    location: "Bangalore, India",
-    daysInOffice: 3,
-  },
-};
+import { mockRequisitions } from "@/data/mockRequisitions";
 
 const steps = [
   { id: 1, name: "Basic Details", component: BasicDetails },
@@ -75,13 +38,23 @@ export default function CreateJobRequisition() {
   // Load existing data when in edit mode
   useEffect(() => {
     if (isEditMode && id) {
-      const existingData = mockRequisitionData[id];
+      const existingData = mockRequisitions[id];
       if (existingData) {
         setFormData(existingData);
         setWorkArrangement(existingData.workArrangement || "Offshore");
+        toast({
+          title: "Data Loaded",
+          description: `Editing ${existingData.title} (${id})`,
+        });
+      } else {
+        toast({
+          title: "Error",
+          description: `Job Requisition ${id} not found`,
+          variant: "destructive",
+        });
       }
     }
-  }, [id, isEditMode]);
+  }, [id, isEditMode, toast]);
 
   const visibleSteps = workArrangement === "Offshore" 
     ? steps.filter(s => !s.conditional)
