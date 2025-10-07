@@ -72,7 +72,7 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Label htmlFor="mandatorySkills">
-              Skills – Mandatory / Primary <span className="text-destructive">*</span>
+              Primary Skills <span className="text-destructive">*</span>
             </Label>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -87,7 +87,7 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
             options={skillsOptions}
             selected={mandatorySkills}
             onChange={setMandatorySkills}
-            placeholder="Select mandatory/primary skills (Min 1 skill)"
+            placeholder="Select primary skills"
             data-testid="multiselect-mandatory-skills"
           />
         </div>
@@ -95,7 +95,7 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Label htmlFor="secondarySkills">
-              Skills – Secondary <span className="text-destructive">*</span>
+              Secondary Skills <span className="text-destructive">*</span>
             </Label>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -110,7 +110,7 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
             options={skillsOptions}
             selected={secondarySkills}
             onChange={setSecondarySkills}
-            placeholder="Select secondary skills (Min 1 skill)"
+            placeholder="Select secondary skills"
             data-testid="multiselect-secondary-skills"
           />
         </div>
@@ -118,7 +118,7 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Label htmlFor="niceToHaveSkills">
-              Skills – Nice to Have <span className="text-destructive">*</span>
+              Skills – Nice to have <span className="text-destructive">*</span>
             </Label>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -133,7 +133,7 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
             options={skillsOptions}
             selected={niceToHaveSkills}
             onChange={setNiceToHaveSkills}
-            placeholder="Select nice-to-have skills (Min 1 skill)"
+            placeholder="Select nice to have skills"
             data-testid="multiselect-nice-to-have-skills"
           />
         </div>
@@ -183,7 +183,7 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
 
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <Label htmlFor="certifications">Certification (Mandatory & Good to Have)</Label>
+            <Label htmlFor="certifications">Certifications</Label>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Info className="h-4 w-4 text-muted-foreground cursor-help" />
@@ -228,9 +228,11 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="totalExpMax">
-              Total Experience (Max) <span className="text-destructive">*</span>
-            </Label>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="totalExpMax">
+                Total Experience (Max) <span className="text-destructive">*</span>
+              </Label>
+            </div>
             <Input 
               type="number" 
               id="totalExpMax" 
@@ -266,9 +268,11 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="relevantExpMax">
-              Relevant Experience (Max) <span className="text-destructive">*</span>
-            </Label>
+            <div className="flex items-center gap-2">
+              <Label htmlFor="relevantExpMax">
+                Relevant Experience (Max) <span className="text-destructive">*</span>
+              </Label>
+            </div>
             <Input 
               type="number" 
               id="relevantExpMax" 
