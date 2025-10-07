@@ -45,6 +45,14 @@ Preferred communication style: Simple, everyday language.
 - Conditional step rendering based on work arrangement (Offshore/Onsite)
 - Form state persistence across steps with central data object
 - Real-time validation and user feedback
+- Tooltips with Info icons for field guidance across all form sections
+- Conditional field rendering based on job type (Contract/Consultant)
+- Data-testid attributes on all interactive elements for testing
+
+**Recent Form Specification Updates (October 2025)**:
+- **Basic Details**: Changed "Department" to "Delivery Unit", updated date fields with tooltips
+- **Skills & Qualifications**: Added Nice to Have Skills, Qualification fields, Specific Qualification, Total/Relevant Experience ranges with validation notes
+- **Project & Client Info**: Added Client Country dropdown, Client Interview toggle (Yes/No), Project Role field (conditional for Contract/Consultant types), updated "Client Name" to "Client"
 
 ### Backend Architecture
 
