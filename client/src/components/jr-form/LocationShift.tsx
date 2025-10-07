@@ -14,6 +14,8 @@ interface LocationShiftProps {
   onUpdate: (data: Record<string, any>) => void;
   workArrangement: string;
   setWorkArrangement: (value: any) => void;
+  jobType?: string;
+  setJobType?: (value: string) => void;
 }
 
 export default function LocationShift({ data, onUpdate }: LocationShiftProps) {

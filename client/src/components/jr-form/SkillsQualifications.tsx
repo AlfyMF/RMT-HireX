@@ -2,36 +2,54 @@ import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { MultiSelect } from "@/components/ui/multi-select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Info } from "lucide-react";
 
 interface SkillsQualificationsProps {
   data: Record<string, any>;
   onUpdate: (data: Record<string, any>) => void;
   workArrangement: string;
   setWorkArrangement: (value: any) => void;
+  jobType?: string;
+  setJobType?: (value: string) => void;
 }
 
 export default function SkillsQualifications({ data, onUpdate }: SkillsQualificationsProps) {
-  const [primarySkills, setPrimarySkills] = useState<string[]>(data.primarySkills || []);
+  const [mandatorySkills, setMandatorySkills] = useState<string[]>(data.mandatorySkills || data.primarySkills || []);
   const [secondarySkills, setSecondarySkills] = useState<string[]>(data.secondarySkills || []);
+  const [niceToHaveSkills, setNiceToHaveSkills] = useState<string[]>(data.niceToHaveSkills || []);
+  const [qualifications, setQualifications] = useState<string[]>(data.qualifications || []);
   const [certifications, setCertifications] = useState<string[]>(data.certifications || []);
 
   // Update local state when data changes (for edit mode)
   useEffect(() => {
-    if (data.primarySkills) setPrimarySkills(data.primarySkills);
+    if (data.mandatorySkills) setMandatorySkills(data.mandatorySkills);
+    if (data.primarySkills && !data.mandatorySkills) setMandatorySkills(data.primarySkills);
     if (data.secondarySkills) setSecondarySkills(data.secondarySkills);
+    if (data.niceToHaveSkills) setNiceToHaveSkills(data.niceToHaveSkills);
+    if (data.qualifications) setQualifications(data.qualifications);
     if (data.certifications) setCertifications(data.certifications);
-  }, [data.primarySkills, data.secondarySkills, data.certifications]);
+  }, [data.mandatorySkills, data.primarySkills, data.secondarySkills, data.niceToHaveSkills, data.qualifications, data.certifications]);
 
-  const primarySkillsOptions = [
+  const skillsOptions = [
     "React", "TypeScript", "Node.js", "Python", "Java", "C++", "C#", 
     "JavaScript", "Angular", "Vue.js", "Express.js", "Django", "Flask",
-    "Spring Boot", "AWS", "Azure", "GCP", "Docker", "Kubernetes"
-  ];
-
-  const secondarySkillsOptions = [
+    "Spring Boot", "AWS", "Azure", "GCP", "Docker", "Kubernetes",
     "MongoDB", "PostgreSQL", "MySQL", "Redis", "GraphQL", "REST API",
     "Git", "CI/CD", "Jenkins", "Terraform", "Ansible", "Linux", "Bash",
     "Microservices", "Agile", "Scrum", "TDD", "Jest", "Mocha"
+  ];
+
+  const qualificationOptions = [
+    "Undergraduate",
+    "Graduate",
+    "Post-graduate",
+    "Diploma/Certification",
+    "Doctorate/PhD"
   ];
 
   const certificationsOptions = [
@@ -52,51 +70,213 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
 
       <div className="grid gap-6">
         <div className="space-y-2">
-          <Label htmlFor="primarySkills">
-            Primary Skills <span className="text-destructive">*</span>
-          </Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="mandatorySkills">
+              Skills – Mandatory / Primary <span className="text-destructive">*</span>
+            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Select the essential skills required for this role. Candidates must have all these skills.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <MultiSelect
-            options={primarySkillsOptions}
-            selected={primarySkills}
-            onChange={setPrimarySkills}
-            placeholder="Select primary skills"
+            options={skillsOptions}
+            selected={mandatorySkills}
+            onChange={setMandatorySkills}
+            placeholder="Select mandatory/primary skills (Min 1 skill)"
+            data-testid="multiselect-mandatory-skills"
           />
-          <p className="text-xs text-muted-foreground">
-            Select one or more primary skills
-          </p>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="secondarySkills">Secondary Skills</Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="secondarySkills">
+              Skills – Secondary <span className="text-destructive">*</span>
+            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Select additional skills that are beneficial but not essential.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <MultiSelect
-            options={secondarySkillsOptions}
+            options={skillsOptions}
             selected={secondarySkills}
             onChange={setSecondarySkills}
-            placeholder="Select secondary skills"
+            placeholder="Select secondary skills (Min 1 skill)"
+            data-testid="multiselect-secondary-skills"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="certifications">Certifications</Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="niceToHaveSkills">
+              Skills – Nice to Have <span className="text-destructive">*</span>
+            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Select skills that are nice to have but not required.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          <MultiSelect
+            options={skillsOptions}
+            selected={niceToHaveSkills}
+            onChange={setNiceToHaveSkills}
+            placeholder="Select nice-to-have skills (Min 1 skill)"
+            data-testid="multiselect-nice-to-have-skills"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Label htmlFor="qualification">
+              Qualification <span className="text-destructive">*</span>
+            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Select the minimum education level required for this role.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          <MultiSelect
+            options={qualificationOptions}
+            selected={qualifications}
+            onChange={setQualifications}
+            placeholder="Select qualifications"
+            data-testid="multiselect-qualification"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Label htmlFor="specificQualification">Specific Qualification</Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Specify the exact degree, major, or field required.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          <Input 
+            id="specificQualification" 
+            placeholder='e.g., "B.Tech in Computer Science"' 
+            defaultValue={data.specificQualification}
+            data-testid="input-specific-qualification"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Label htmlFor="certifications">Certification (Mandatory & Good to Have)</Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Select relevant certifications from the master list.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <MultiSelect
             options={certificationsOptions}
             selected={certifications}
             onChange={setCertifications}
             placeholder="Select certifications"
+            data-testid="multiselect-certifications"
           />
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="experience">
-              Experience (Years) <span className="text-destructive">*</span>
-            </Label>
-            <Input type="number" id="experience" min="0" placeholder="Years of experience" defaultValue={data.experience} />
+            <div className="flex items-center gap-2">
+              <Label htmlFor="totalExpMin">
+                Total Experience (Min) <span className="text-destructive">*</span>
+              </Label>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Enter the minimum and maximum total years of experience required.</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            <Input 
+              type="number" 
+              id="totalExpMin" 
+              min="0" 
+              placeholder="Min years" 
+              defaultValue={data.totalExperience?.min}
+              data-testid="input-total-exp-min"
+            />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="education">Education</Label>
-            <Input id="education" placeholder="e.g., Bachelor's in Computer Science" defaultValue={data.education} />
+            <Label htmlFor="totalExpMax">
+              Total Experience (Max) <span className="text-destructive">*</span>
+            </Label>
+            <Input 
+              type="number" 
+              id="totalExpMax" 
+              min="0" 
+              placeholder="Max years" 
+              defaultValue={data.totalExperience?.max}
+              data-testid="input-total-exp-max"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Label htmlFor="relevantExpMin">
+                Relevant Experience (Min) <span className="text-destructive">*</span>
+              </Label>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Enter the years of experience required specifically in the mandatory skills listed above.</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            <Input 
+              type="number" 
+              id="relevantExpMin" 
+              min="0" 
+              placeholder="Min years" 
+              defaultValue={data.relevantExperience?.min}
+              data-testid="input-relevant-exp-min"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="relevantExpMax">
+              Relevant Experience (Max) <span className="text-destructive">*</span>
+            </Label>
+            <Input 
+              type="number" 
+              id="relevantExpMax" 
+              min="0" 
+              placeholder="Max years" 
+              defaultValue={data.relevantExperience?.max}
+              data-testid="input-relevant-exp-max"
+            />
           </div>
         </div>
       </div>

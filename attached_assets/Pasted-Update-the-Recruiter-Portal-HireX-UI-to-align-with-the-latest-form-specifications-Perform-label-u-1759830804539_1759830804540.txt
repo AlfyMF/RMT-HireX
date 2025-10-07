@@ -1,0 +1,90 @@
+Update the Recruiter Portal (HireX) UI to align with the latest form specifications.
+Perform label updates, new field additions, and ensure all listed fields exist in their respective sections.
+If any field is missing, add it with the defined properties, validations, and tooltips.
+
+1️⃣ Basic Details Section
+
+UI Changes:
+
+Label Change
+
+Change field label:
+Department → Delivery Unit
+
+Modify Field:
+
+Replace Expected Date of Onboarding with a Date Range Picker.
+
+New Label: Expected Date of Onboarding (Start – End)
+
+Field Type: Date Range Picker
+
+Validation: Optional
+
+Tooltip: “Select the expected date range for onboarding.”
+
+Add New Field:
+
+Field Label: Ideal Start Date
+
+Field Type: Date Range Picker
+
+Placement: Below or near the “Expected Date of Onboarding” field
+
+Validation: Optional
+
+Tooltip: “Select the ideal start date range for candidate onboarding.”
+
+2️⃣ Skills & Qualifications Section
+
+Ensure all the following fields exist. If any are missing, add them with the given attributes:
+
+Field Name	Field Type	Applicable To	Mandatory	Possible Values / Input Format	Rules & Dependencies	Info Tooltip
+Skills – Mandatory / Primary	Multi-select Dropdown	OFFSHORE / ONSITE	✅ Yes	Select from Skills Master (Min 1 skill)	-	“Select the essential skills required for this role. Candidates must have all these skills.”
+Skills – Secondary	Multi-select Dropdown	OFFSHORE / ONSITE	✅ Yes	Select from Skills Master (Min 1 skill)	-	“Select additional skills that are beneficial but not essential.”
+Skills – Nice to Have	Multi-select Dropdown	OFFSHORE / ONSITE	✅ Yes	Select from Skills Master (Min 1 skill)	-	“Select skills that are nice to have but not required.”
+Qualification	Multi-select Dropdown	OFFSHORE / ONSITE	✅ Yes	Undergraduate, Graduate, Post-graduate, Diploma/Certification, Doctorate/PhD	-	“Select the minimum education level required for this role.”
+Specific Qualification	Text Field	OFFSHORE / ONSITE	❌ No	Free text (e.g., “B.Tech in Computer Science”)	-	“Specify the exact degree, major, or field required.”
+Certification (Mandatory & Good to Have)	Multi-select Dropdown	OFFSHORE / ONSITE	❌ No	Select from Certification Master	-	“Select relevant certifications from the master list.”
+Total Experience	Min/Max Number Input	OFFSHORE / ONSITE	✅ Yes	Numeric (Years)	-	“Enter the minimum and maximum total years of experience required.”
+Relevant Experience	Min/Max Number Input	OFFSHORE / ONSITE	✅ Yes	Numeric (Years)	Must be ≤ Total Experience	“Enter the years of experience required specifically in the mandatory skills listed above.”
+
+Additional Notes:
+
+Multi-select dropdowns should fetch options from master tables (Skills Master, Certification Master).
+
+Apply standard validation and error messages.
+
+Maintain consistent design and field spacing.
+
+3️⃣ Project & Client Information Section
+
+Ensure all the following fields exist. If missing, add them with the specified logic and tooltips:
+
+Field Name	Field Type	Applicable To	Mandatory	Possible Values / Input Format	Rules & Dependencies	Info Tooltip
+Project Name	Text Input	OFFSHORE / ONSITE	✅ Yes	-	-	“Enter the name of the project this role is for.”
+Project Role / Job Title	Text Input	OFFSHORE / ONSITE	⚙️ Conditional	Visible only if Contract/Consultant	-	“Enter the project-specific job title, if applicable.”
+Client	Text Input	OFFSHORE / ONSITE	✅ Yes	-	-	“Enter the client’s name for whom the position is being raised.”
+Client Country	Dropdown	OFFSHORE / ONSITE	✅ Yes	ISO Country List	-	“Select the client’s country from the list.”
+Client Interview	Boolean (Yes/No Toggle)	OFFSHORE / ONSITE	✅ Yes	Yes / No	-	“Will the client be conducting interviews for this position?”
+⚙️ Implementation Requirements
+
+Verify if each field already exists; add only missing fields.
+
+Ensure proper field ordering and responsive layout.
+
+Maintain consistent validation, styling, and tooltips.
+
+Integrate form data bindings to backend (Prisma or API).
+
+Use consistent input components such as:
+
+<TextInput />
+
+<MultiSelectDropdown />
+
+<NumberInputRange />
+
+<DateRangePicker />
+
+<ToggleSwitch />

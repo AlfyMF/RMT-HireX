@@ -32,6 +32,7 @@ export default function CreateJobRequisition() {
   const isEditMode = !!id;
   const [currentStep, setCurrentStep] = useState(1);
   const [workArrangement, setWorkArrangement] = useState<"Offshore" | "Onsite">("Offshore");
+  const [jobType, setJobType] = useState<string>("");
   const [formData, setFormData] = useState<Record<string, any>>({});
   const { toast } = useToast();
 
@@ -157,6 +158,8 @@ export default function CreateJobRequisition() {
           onUpdate={updateFormData}
           workArrangement={workArrangement}
           setWorkArrangement={setWorkArrangement}
+          jobType={jobType}
+          setJobType={setJobType}
         />
       </Card>
 

@@ -14,6 +14,8 @@ interface OnsiteSpecificProps {
   onUpdate: (data: Record<string, any>) => void;
   workArrangement: string;
   setWorkArrangement: (value: any) => void;
+  jobType?: string;
+  setJobType?: (value: string) => void;
 }
 
 export default function OnsiteSpecific({ data, onUpdate }: OnsiteSpecificProps) {
