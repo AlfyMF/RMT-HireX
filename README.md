@@ -1,73 +1,155 @@
-# Welcome to your Lovable project
+# HireX - Job Requisition Management System
 
-## Project info
+A full-stack application for managing job requisitions with a modern tech stack.
 
-**URL**: https://lovable.dev/projects/70a6d733-9ba2-4688-ace2-800604b8b536
+## 📁 Project Structure
 
-## How can I edit this code?
+```
+hirex/
+├── client/                         # Frontend (React + TypeScript + Vite)
+│   ├── public/                     # Static assets (favicon, logos, etc.)
+│   ├── src/                        # Application source
+│   │   ├── assets/                 # Images, icons, etc.
+│   │   ├── components/             # Reusable UI components
+│   │   │   ├── ui/                 # shadcn/ui components
+│   │   │   └── jr-form/            # Job requisition form components
+│   │   ├── config/                 # App configuration & environment setup
+│   │   ├── constants/              # App-wide constants/enums
+│   │   ├── data/                   # Mock data
+│   │   ├── hooks/                  # Custom React hooks
+│   │   ├── lib/                    # Utility functions
+│   │   ├── modules/                # Feature-based modules (pages/views)
+│   │   ├── routes/                 # Client-side routing configuration
+│   │   ├── services/               # API service layer
+│   │   ├── types/                  # TypeScript type definitions
+│   │   ├── App.tsx                 # Root component
+│   │   └── main.tsx                # ReactDOM entry point
+│   ├── vite.config.ts              # Vite configuration
+│   ├── tsconfig*.json              # TypeScript configs
+│   └── package.json                # Client dependencies
+│
+├── server/                         # Backend (Node.js + Express + TypeScript)
+│   ├── src/
+│   │   ├── config/                 # Environment, database setup
+│   │   ├── middleware/             # Express middleware
+│   │   ├── routes/                 # API route definitions
+│   │   ├── types/                  # TypeScript type definitions
+│   │   ├── utils/                  # Helpers, response formatters
+│   │   ├── app.ts                  # Express app configuration
+│   │   └── index.ts                # Server bootstrap (entry point)
+│   ├── tsconfig.json               # TypeScript config
+│   ├── nodemon.json                # Dev server auto-restart config
+│   └── package.json                # Server dependencies
+│
+├── .gitignore
+├── README.md                       # Project documentation
+└── package.json                    # Root workspace configuration
+```
 
-There are several ways of editing your application.
+## 🚀 Getting Started
 
-**Use Lovable**
+### Prerequisites
+- Node.js (v18 or higher)
+- npm
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/70a6d733-9ba2-4688-ace2-800604b8b536) and start prompting.
+### Installation
 
-Changes made via Lovable will be committed automatically to this repo.
+1. Install dependencies:
+```bash
+npm install
+```
 
-**Use your preferred IDE**
+This will install dependencies for both client and server workspaces.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+### Development
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
-
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
-npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
+Run the frontend development server:
+```bash
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+Run the backend development server (when ready):
+```bash
+npm run dev:server
+```
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Run frontend or backend separately:
+```bash
+npm run dev:client    # Frontend only
+npm run dev:server    # Backend only
+```
 
-**Use GitHub Codespaces**
+### Building for Production
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+Build the client:
+```bash
+npm run build:client
+```
 
-## What technologies are used for this project?
+Build the server:
+```bash
+npm run build:server
+```
 
-This project is built with:
+## 🛠️ Technologies Used
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+### Frontend
+- **React 18** - UI library
+- **TypeScript** - Type safety
+- **Vite** - Build tool and dev server
+- **React Router** - Client-side routing
+- **TanStack Query** - Data fetching and caching
+- **shadcn/ui** - UI components
+- **Tailwind CSS** - Styling
 
-## How can I deploy this project?
+### Backend
+- **Node.js** - Runtime
+- **Express** - Web framework
+- **TypeScript** - Type safety
+- **Helmet** - Security middleware
+- **Morgan** - HTTP request logger
+- **CORS** - Cross-origin resource sharing
 
-Simply open [Lovable](https://lovable.dev/projects/70a6d733-9ba2-4688-ace2-800604b8b536) and click on Share -> Publish.
+## 📝 Features
 
-## Can I connect a custom domain to my Lovable project?
+- Dashboard with job requisition overview
+- Create and manage job requisitions
+- Filter and search functionality
+- Responsive design
+- User profile management
 
-Yes, you can!
+## 🔧 Configuration
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+### Environment Variables
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+Create a `.env` file in the server directory:
+
+```env
+NODE_ENV=development
+PORT=3000
+```
+
+## 📦 Workspace Structure
+
+This project uses npm workspaces to manage the monorepo:
+
+- `client/` - Frontend workspace
+- `server/` - Backend workspace
+
+Each workspace has its own `package.json` and can be managed independently.
+
+## 🤝 Development
+
+### Lovable Integration
+
+This project was created with Lovable. Visit [Lovable Project](https://lovable.dev/projects/70a6d733-9ba2-4688-ace2-800604b8b536) to make changes via prompting.
+
+Changes made via Lovable will be committed automatically to this repo.
+
+### Local Development
+
+You can also work locally using your preferred IDE. Clone this repo and push changes - they will be reflected in Lovable.
+
+## 📄 License
+
+This project is private and proprietary.
