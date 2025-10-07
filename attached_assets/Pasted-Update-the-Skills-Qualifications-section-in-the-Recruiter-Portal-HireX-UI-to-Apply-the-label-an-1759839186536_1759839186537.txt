@@ -1,0 +1,43 @@
+Update the Skills & Qualifications section in the Recruiter Portal (HireX) UI to:
+Apply the label and placeholder changes as listed in skills and Skills & Qualifications
+In entire jr form screens:-  Fix all UI alignment issues, especially when tooltips are added.
+Ensure labels, input fields, dropdowns, and tooltips are properly aligned and responsive.
+Maintain proper spacing between fields and correct placement of validation/error messages.
+Fix UI alignment issues, especially when tooltips are added to fields without creating extra spacing or misalignment.
+
+
+1️⃣ Label Updates
+Existing Label	New Label
+Skills – Mandatory / Primary	Primary Skills
+Skills – Secondary	Secondary Skills
+Skills – Nice to Have	Skills – Nice to have
+Certification (Mandatory & Good to Have)	Certifications
+2️⃣ Placeholder Updates
+Existing Placeholder	New Placeholder
+Select mandatory/primary skills (Min 1 skill)	Select primary skills
+Select secondary skills (Min 1 skill)	Select secondary skills
+Select nice-to-have skills (Min 1 skill)	Select nice to have skills
+3️⃣ UI Alignment / Form Fixes
+Problem: When tooltips are added to fields without adding a new field, the form shows misalignment (labels, inputs, or dropdowns are shifted).
+Solution Requirements:
+1. Tooltip Placement:
+    * Tooltip icon should be aligned inline with the field label.
+    * Tooltip should not push or shift the input field.
+    * Maintain consistent spacing with other fields.
+2. Field Alignment:
+    * Ensure all labels and input components (dropdowns, multi-selects) line up vertically and horizontally.
+    * Maintain equal spacing between fields.
+    * Fix any wrapping issues when tooltips are present.
+3. Responsive Layout:
+    * UI should look consistent in desktop, tablet, and mobile views.
+    * Multi-select dropdown widths should not exceed container width when tooltips are present.
+4. Validation Messages:
+    * Error messages or hints should appear below the input field, not pushing other fields out of alignment.
+
+4️⃣ Action Items for AI / Developer
+* Apply label changes and placeholder updates as listed.
+* Fix UI alignment issues in the form (particularly when tooltips are added).
+* Check all multi-select fields in Skills & Qualifications for proper spacing and alignment.
+* Ensure tooltip behavior is consistent and does not interfere with the layout.
+* Verify that form remains fully responsive across devices.
+
