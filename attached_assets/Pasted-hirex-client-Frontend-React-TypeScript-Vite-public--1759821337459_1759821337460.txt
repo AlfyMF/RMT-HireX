@@ -1,0 +1,42 @@
+hirex/
+├── client/                         # Frontend (React + TypeScript + Vite)
+│   ├── public/                     # Static assets (favicon, logos, etc.)
+│   ├── src/                        # Application source
+│   │   ├── assets/                 # Images, icons, etc.
+│   │   ├── components/             # Reusable UI components
+│   │   ├── config/                 # App configuration & environment setup
+│   │   ├── constants/              # App-wide constants/enums
+│   │   ├── hooks/                  # Custom React hooks
+│   │   ├── modules/                # Feature-based modules (pages/views)
+│   │   ├── routes/                 # Client-side routing
+│   │   ├── services/               # API service layer (Axios/fetch)
+│   │   ├── types/                  # TypeScript type definitions
+│   │   ├── App.tsx                 # Root component
+│   │   └── main.tsx                # ReactDOM entry point
+│   ├── vite.config.ts              # Vite config
+│   ├── tsconfig*.json              # TypeScript configs
+│   └── eslint.config.js            # ESLint rules/config
+│
+├── server/                         # Backend (Node.js + Express + TypeScript)
+│   ├── prisma/                     # Prisma ORM schema & migrations
+│   ├── src/
+│   │   ├── config/                 # Environment, database, and logger setup
+│   │   ├── constants/              # App enums and static messages
+│   │   ├── controllers/            # Request handlers (link routes → services)
+│   │   ├── services/               # Business logic and DB interactions
+│   │   ├── routes/                 # API route definitions (v1, etc.)
+│   │   ├── middleware/             # Auth, validation, logging, rate limiting
+│   │   ├── validators/             # Request payload validation
+│   │   ├── utils/                  # Helpers, error handlers, response formatters
+│   │   ├── dtos/                   # Data Transfer Objects (typed payloads)
+│   │   ├── docs/                   # Swagger/OpenAPI documentation
+│   │   ├── templates/              # Email templates (reset, verification, etc.)
+│   │   ├── types/                  # Global and custom TypeScript types
+│   │   ├── app.ts                  # Express app configuration
+│   │   └── index.ts                # Server bootstrap (entry point)
+│   ├── tsconfig*.json              # TypeScript configs
+│   └── nodemon.json                # Dev server auto-restart config
+│
+├── .gitignore
+├── README.md                       # Project documentation
+└── package.json                    # Root-level package/workspace config
