@@ -1,6 +1,8 @@
+import { useState, useEffect } from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Switch } from "@/components/ui/switch";
 import {
   Select,
   SelectContent,
@@ -8,6 +10,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { MultiSelect } from "@/components/ui/multi-select";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Info } from "lucide-react";
 
 interface OnsiteSpecificProps {
   data: Record<string, any>;
@@ -19,83 +28,290 @@ interface OnsiteSpecificProps {
 }
 
 export default function OnsiteSpecific({ data, onUpdate }: OnsiteSpecificProps) {
+  const [rateUnit, setRateUnit] = useState<string>(data.rateUnit || "per hour");
+  const [rateCurrency, setRateCurrency] = useState<string>(data.rateCurrency || "USD");
+  const [contractDurationUnit, setContractDurationUnit] = useState<string>(data.contractDurationUnit || "months");
+  const [preferredVisaStatus, setPreferredVisaStatus] = useState<string[]>(data.preferredVisaStatus || []);
+  const [acceptH1Transfer, setAcceptH1Transfer] = useState<boolean>(data.acceptH1Transfer || false);
+  const [travelRequired, setTravelRequired] = useState<boolean>(data.travelRequired || false);
+
+  const visaStatusOptions = [
+    "US Citizen",
+    "Green Card",
+    "H1B",
+    "L1",
+    "TN Visa",
+    "OPT/CPT",
+    "E3 Visa"
+  ];
+
+  useEffect(() => {
+    onUpdate({
+      rateUnit,
+      rateCurrency,
+      contractDurationUnit,
+      preferredVisaStatus,
+      acceptH1Transfer,
+      travelRequired
+    });
+  }, [rateUnit, rateCurrency, contractDurationUnit, preferredVisaStatus, acceptH1Transfer, travelRequired, onUpdate]);
+
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold">Onsite Specific Information</h2>
+        <h2 className="text-2xl font-bold">Onsite-Specific Information</h2>
         <p className="text-muted-foreground">
           Additional details for onsite positions
         </p>
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
+        {/* Rate (for Contract) */}
         <div className="space-y-2">
-          <Label htmlFor="onsiteWorkMode">
-            Onsite Work Mode <span className="text-destructive">*</span>
-          </Label>
-          <Select defaultValue={data.onsiteWorkMode}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select work mode" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="remote">Remote</SelectItem>
-              <SelectItem value="hybrid">Hybrid</SelectItem>
-              <SelectItem value="wfo">Work From Office</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="onsiteLocation">
-            Onsite Location <span className="text-destructive">*</span>
-          </Label>
-          <Input id="onsiteLocation" placeholder="Enter onsite location" defaultValue={data.onsiteLocation} />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="onsiteDays">
-            Days in Office <span className="text-destructive">*</span>
-          </Label>
-          <Input 
-            type="number" 
-            id="onsiteDays" 
-            min="0" 
-            max="7" 
-            placeholder="Number of days"
-            defaultValue={data.onsiteDays}
+          <div className="flex items-center gap-2">
+            <Label htmlFor="rate">
+              Rate (for Contract) <span className="text-destructive">*</span>
+            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Enter the rate for contract positions. Select the appropriate unit and currency.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          <Input
+            type="number"
+            id="rate"
+            placeholder="Enter rate amount"
+            defaultValue={data.rate}
+            onChange={(e) => onUpdate({ rate: e.target.value })}
+            data-testid="input-rate"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="onsiteShift">
-            Work Shift <span className="text-destructive">*</span>
-          </Label>
-          <Select defaultValue={data.onsiteShift}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select shift" />
+          <Label htmlFor="rateUnit">Rate Unit <span className="text-destructive">*</span></Label>
+          <Select value={rateUnit} onValueChange={setRateUnit}>
+            <SelectTrigger data-testid="select-rate-unit">
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="morning">Morning (9 AM - 5 PM)</SelectItem>
-              <SelectItem value="afternoon">Afternoon (2 PM - 10 PM)</SelectItem>
-              <SelectItem value="night">Night (10 PM - 6 AM)</SelectItem>
-              <SelectItem value="flexible">Flexible</SelectItem>
+              <SelectItem value="per hour">Per Hour</SelectItem>
+              <SelectItem value="per month">Per Month</SelectItem>
+              <SelectItem value="per year">Per Year</SelectItem>
+              <SelectItem value="per contract">Per Contract</SelectItem>
             </SelectContent>
           </Select>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="onsiteTimezone">Preferred Timezone</Label>
-          <Select defaultValue={data.onsiteTimezone}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select timezone" />
+          <Label htmlFor="rateCurrency">Currency <span className="text-destructive">*</span></Label>
+          <Select value={rateCurrency} onValueChange={setRateCurrency}>
+            <SelectTrigger data-testid="select-rate-currency">
+              <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="ist">IST (UTC+5:30)</SelectItem>
-              <SelectItem value="est">EST (UTC-5)</SelectItem>
-              <SelectItem value="pst">PST (UTC-8)</SelectItem>
-              <SelectItem value="gmt">GMT (UTC+0)</SelectItem>
+              <SelectItem value="USD">USD</SelectItem>
+              <SelectItem value="EUR">EUR</SelectItem>
+              <SelectItem value="GBP">GBP</SelectItem>
+              <SelectItem value="INR">INR</SelectItem>
+              <SelectItem value="AUD">AUD</SelectItem>
+              <SelectItem value="CAD">CAD</SelectItem>
             </SelectContent>
           </Select>
+        </div>
+
+        {/* Payment Cycle */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Label htmlFor="paymentCycle">
+              Payment Cycle <span className="text-destructive">*</span>
+            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Select how often payments should be processed for this role.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          <Select
+            defaultValue={data.paymentCycle}
+            onValueChange={(value) => onUpdate({ paymentCycle: value })}
+          >
+            <SelectTrigger data-testid="select-payment-cycle">
+              <SelectValue placeholder="Select payment cycle" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="Weekly">Weekly</SelectItem>
+              <SelectItem value="Bi-weekly">Bi-weekly</SelectItem>
+              <SelectItem value="Monthly">Monthly</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Preferred Visa Status */}
+        <div className="space-y-2 md:col-span-2">
+          <div className="flex items-center gap-2">
+            <Label htmlFor="preferredVisaStatus">
+              Preferred Visa Status <span className="text-destructive">*</span>
+            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Select the preferred visa status for the candidate, if applicable.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          <MultiSelect
+            options={visaStatusOptions}
+            selected={preferredVisaStatus}
+            onChange={setPreferredVisaStatus}
+            placeholder="Select visa status options"
+            data-testid="multiselect-visa-status"
+          />
+        </div>
+
+        {/* Contract Duration */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Label htmlFor="contractDuration">
+              Contract Duration <span className="text-destructive">*</span>
+            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Enter the contract duration and select the unit (months or years).</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          <Input
+            type="number"
+            id="contractDuration"
+            placeholder="Enter duration"
+            defaultValue={data.contractDuration}
+            onChange={(e) => onUpdate({ contractDuration: e.target.value })}
+            data-testid="input-contract-duration"
+          />
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="contractDurationUnit">Duration Unit <span className="text-destructive">*</span></Label>
+          <Select value={contractDurationUnit} onValueChange={setContractDurationUnit}>
+            <SelectTrigger data-testid="select-contract-duration-unit">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="months">Months</SelectItem>
+              <SelectItem value="years">Years</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Reporting Manager */}
+        <div className="space-y-2 md:col-span-2">
+          <div className="flex items-center gap-2">
+            <Label htmlFor="reportingManager">
+              Reporting Manager <span className="text-destructive">*</span>
+            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Enter the name of the reporting manager (Experion or Client Manager).</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          <Input
+            id="reportingManager"
+            placeholder="Enter reporting manager name"
+            defaultValue={data.reportingManager}
+            onChange={(e) => onUpdate({ reportingManager: e.target.value })}
+            data-testid="input-reporting-manager"
+          />
+        </div>
+
+        {/* Interview Process */}
+        <div className="space-y-2 md:col-span-2">
+          <div className="flex items-center gap-2">
+            <Label htmlFor="interviewProcess">Interview Process</Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Describe the interview process, including the number of rounds and panel members.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          <Textarea
+            id="interviewProcess"
+            rows={4}
+            placeholder="Describe the interview process (# Rounds, Panel Names, etc.)"
+            defaultValue={data.interviewProcess}
+            onChange={(e) => onUpdate({ interviewProcess: e.target.value })}
+            data-testid="textarea-interview-process"
+          />
+        </div>
+
+        {/* Accept H1 Transfer */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Label htmlFor="acceptH1Transfer">Accept H1 Transfer</Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Is H1B visa transfer acceptable for this role?</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          <div className="flex items-center gap-3">
+            <Switch
+              id="acceptH1Transfer"
+              checked={acceptH1Transfer}
+              onCheckedChange={setAcceptH1Transfer}
+              data-testid="switch-accept-h1-transfer"
+            />
+            <span className="text-sm text-muted-foreground">
+              {acceptH1Transfer ? "Yes" : "No"}
+            </span>
+          </div>
+        </div>
+
+        {/* Travel Required */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Label htmlFor="travelRequired">Travel Required</Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Will the candidate be required to travel for this role?</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          <div className="flex items-center gap-3">
+            <Switch
+              id="travelRequired"
+              checked={travelRequired}
+              onCheckedChange={setTravelRequired}
+              data-testid="switch-travel-required"
+            />
+            <span className="text-sm text-muted-foreground">
+              {travelRequired ? "Yes" : "No"}
+            </span>
+          </div>
         </div>
       </div>
     </div>
