@@ -50,9 +50,13 @@ Preferred communication style: Simple, everyday language.
 - Data-testid attributes on all interactive elements for testing
 
 **Recent Form Specification Updates (October 2025)**:
-- **Basic Details**: Changed "Department" to "Delivery Unit", updated date fields with tooltips
-- **Skills & Qualifications**: Added Nice to Have Skills, Qualification fields, Specific Qualification, Total/Relevant Experience ranges with validation notes
-- **Project & Client Info**: Added Client Country dropdown, Client Interview toggle (Yes/No), Project Role field (conditional for Contract/Consultant types), updated "Client Name" to "Client"
+- **Work Arrangement Selection**: Implemented dedicated selection screen with Offshore/Onsite cards, change confirmation dialog, and progress reset warning
+- **Basic Details**: Updated to use "Department" (not Delivery Unit), corrected certification field labels with tooltips
+- **Skills & Qualifications**: Added Nice to Have Skills, Qualification fields, Specific Qualification, Total/Relevant Experience ranges with validation notes and proper tooltip alignment
+- **Project & Client Info**: Removed non-spec fields (Business Unit, Project Location), added Client Country dropdown, Client Interview toggle (Yes/No), Project Role field (conditional for Contract/Consultant types), updated "Client Name" to "Client"
+- **LocationShift**: Completely rebuilt with conditional logic - Offshore shows multi-select work locations and shift times; Onsite shows work mode, location, and timezone fields
+- **Job Description**: Updated labels to match spec exactly - "Mandatory/ Primary Duties", "Good-to-Have / Not Mandatory Duties", "Job Specification / Skills" with comprehensive tooltips
+- **Onsite-Specific**: Rebuilt with contract rate fields (amount, unit, currency), payment cycle, visa status multi-select, contract duration, reporting manager, interview process, H1 transfer toggle, and travel required toggle
 
 ### Backend Architecture
 
