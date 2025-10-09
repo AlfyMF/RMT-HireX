@@ -49,14 +49,23 @@ Preferred communication style: Simple, everyday language.
 - Conditional field rendering based on job type (Contract/Consultant)
 - Data-testid attributes on all interactive elements for testing
 
-**Recent Form Specification Updates (October 2025)**:
+**Recent Form Specification Updates (October 9, 2025)**:
+
+**Phase 1 - Initial Implementation**:
 - **Work Arrangement Selection**: Implemented dedicated selection screen with Offshore/Onsite cards, change confirmation dialog, and progress reset warning
 - **Basic Details**: Updated to use "Department" (not Delivery Unit), corrected certification field labels with tooltips
 - **Skills & Qualifications**: Added Nice to Have Skills, Qualification fields, Specific Qualification, Total/Relevant Experience ranges with validation notes and proper tooltip alignment
 - **Project & Client Info**: Removed non-spec fields (Business Unit, Project Location), added Client Country dropdown, Client Interview toggle (Yes/No), Project Role field (conditional for Contract/Consultant types), updated "Client Name" to "Client"
 - **LocationShift**: Completely rebuilt with conditional logic - Offshore shows multi-select work locations and shift times; Onsite shows work mode, location, and timezone fields
-- **Job Description**: Updated labels to match spec exactly - "Mandatory/ Primary Duties", "Good-to-Have / Not Mandatory Duties", "Job Specification / Skills" with comprehensive tooltips
+- **Job Description**: Updated labels to match spec exactly - "Primary Duties", "Good-to-Have Duties", "Job Specification" with comprehensive tooltips
 - **Onsite-Specific**: Rebuilt with contract rate fields (amount, unit, currency), payment cycle, visa status multi-select, contract duration, reporting manager, interview process, H1 transfer toggle, and travel required toggle
+
+**Phase 2 - Refinements (Latest)**:
+- **Basic Details - Conditional Date Fields**: Fixed conditional display logic so Expected Date of Onboarding (Start/End) appears only for Offshore positions, and Ideal Start Date (Start/End) appears only for Onsite positions
+- **Basic Details - Complete Tooltips**: Added comprehensive tooltips to all fields including Work Arrangement, Job Type, Job Title, Requested Date, Department, Requested By, Hiring Manager, Number of Positions, Billable, Client Billing Rate, Total Budget, and Expected Salary Range
+- **Basic Details - Conditional Field Display**: Client Billing Rate now only shows when Billable = Yes; Total Budget fields only show for Contract/Consultant job types
+- **Skills & Qualifications**: Changed certification label from "Certification (Mandatory & good to have)" to simply "Certification" per spec
+- **Job Description**: Simplified labels to "Primary Duties", "Good-to-Have Duties", and "Job Specification" (removed slash separators)
 
 ### Backend Architecture
 
