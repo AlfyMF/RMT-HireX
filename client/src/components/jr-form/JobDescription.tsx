@@ -54,7 +54,7 @@ export default function JobDescription({ data, onUpdate }: JobDescriptionProps) 
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Label htmlFor="mandatoryDuties">
-              Mandatory/ Primary Duties <span className="text-destructive">*</span>
+              Primary Duties <span className="text-destructive">*</span>
             </Label>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -78,7 +78,7 @@ export default function JobDescription({ data, onUpdate }: JobDescriptionProps) 
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Label htmlFor="goodToHaveDuties">
-              Good-to-Have / Not Mandatory Duties <span className="text-destructive">*</span>
+              Good-to-Have Duties <span className="text-destructive">*</span>
             </Label>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -102,7 +102,7 @@ export default function JobDescription({ data, onUpdate }: JobDescriptionProps) 
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Label htmlFor="jobSpecificationSkills">
-              Job Specification / Skills <span className="text-destructive">*</span>
+              Job Specification <span className="text-destructive">*</span>
             </Label>
             <Tooltip>
               <TooltipTrigger asChild>
