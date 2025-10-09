@@ -1,0 +1,81 @@
+
+
+Update the Recruiter Portal (HireX) UI to align with the latest form specifications. Focus only on adding new fields and ensuring all listed fields exist in their respective sections. Do not change existing field labels or placeholders.
+
+Instructions:
+1. Review all sections and fields listed below.
+2. If a field is missing, add it with the specified field type, attributes, validations, dependencies, and info tooltip.
+3. If a field exists but is missing a tooltip, add the tooltip.
+4. Ensure conditional fields are displayed only when their defined conditions are met.
+5. Validate all input formats, possible values, and rules as described.
+6. Ensure all fields align properly vertically and horizontally, even when tooltips are present.
+7. Maintain:
+    * ✅ Consistent spacing across all fields in forms
+    * 
+
+1. Basic Details
+	Field Name	Field Type	Applicable to	Mandatory	Possible Values / Input Format	Rules & Dependencies	Info Tooltip
+1	Work Arrangement	Radio	N/A	Yes	Onsite, Offshore	Drives conditional display of all subsequent fields	Select whether the position is Onsite or Offshore. This will determine which fields are shown next.
+2	Job Type	Dropdown	Offshore Onsite	Yes	Permanent, Contract, Consultant	N/A	
+3	Job Title	Dropdown	Offshore Onsite	Yes	Select from JobTitle Master	Populate from JobTitle master	
+4	Requested Date	Date Picker	Offshore Onsite	Yes	Auto-filled (DD-MM-YYYY)	System-generated	
+5	Department	Dropdown	Offshore Onsite	Yes	List of Department names, auto fill based on the user	N/A	
+6	Requested By	Auto-filled User Field	Offshore Onsite	Yes	User session	Logged-in user	
+7	Hiring Manager	Dropdown (filtered)	Offshore Onsite	Yes	Show users with 'Hiring Manager' and ‘DU Head’’ role within selected Department.	System-generated	Select the hiring manager for this request. Only hiring managers and DU Head in the selected Department are shown.
+8	Number of Positions	Number	Offshore Onsite	Yes	Min: 1	N/A	Enter the number of positions to be filled. Minimum is 1.
+9	Expected Date of Onboarding	Date Range Picker	Offshore	Yes	Start and End date, both future	-	Select the expected joining date range.
+10	Ideal Start Date	Date Range Picker	Onsite	Yes	Start and End date, both future	Shown if Onsite	Enter the ideal start date range for onsite positions.
+11	Billable	Boolean (Yes/No)	Offshore Onsite	Yes	N/A	-	Is this position billable to the client?
+12	Client Billing Rate	Number	Offshore Onsite	Conditional	Currency/hour	Mandatory if Billable = Yes	Enter the billing rate (per hour) for the client. Required if the position is billable.
+13	Total Budget	Min/Max Number Input	Offshore Onsite	Conditional	Min/Max in lakhs, Min ≤ Max	If Job type = Contract/Consultant, Budget on a monthly basis	Enter the total budget range for this position. Required for contract/consultant roles.
+14	Expected Salary Range	Min/Max Number Input	Offshore	Yes	Min/Max in lakhs, Min ≤ Max		Enter the expected salary range for this position in lakhs.
+ 
+2. Skills & Qualifications
+	Field Name	Field Type	Applicable to	Mandatory	Possible Values / Input Format	Rules & Dependencies	Info Tooltip
+1	Skills – Primary	Multi-select Dropdown	Offshore Onsite	Yes	Min 1 skill, Select from Skills Master	-	Select the essential skills required for this role. Candidates must have all these skills.
+2	Skills – Secondary	Multi-select Dropdown	Offshore Onsite	Yes	Min 1 skill, Select from Skills Master	-	Select additional skills that are beneficial but not essential.
+3	Skills – Nice to have	Multi-select Dropdown	Offshore Onsite	Yes	Min 1 skill, Select from Skills Master	-	Select skills that are nice to have but not required.
+4	Qualification	Multi-select Dropdown	Offshore Onsite	Yes	Undergraduate, Graduate, Post-graduate, Diploma/Certification, Doctorate/PhD	-	Select the minimum education level required for this role.
+5	Specific Qualification	Text field	Offshore Onsite	No	Specify degree, major, or field as needed	-	Specify the exact degree, major, or field required (e.g., “B.Tech in Computer Science”).
+6	Certification (Mandatory & good to have)	Multi-select Dropdown	Offshore Onsite	No	Select from Certification Master	-	Select relevant certifications from the master list.
+7	Total Experience	Min/Max Number Input	Offshore Onsite	Yes	Years	-	Enter the minimum and maximum total years of experience required.
+8	Relevant Experience	Min/Max Number Input	Offshore Onsite	Yes	≤ Total Experience	-	Enter the years of experience required specifically in the mandatory skills listed above.
+ 
+3. Project & Client Information
+	Field Name	Field Type	Applicable to	Mandatory	Possible Values / Input Format	Rules & Dependencies	Info Tooltip
+1	Project Name	Text	Offshore Onsite	Yes	-	-	Enter the name of the project this role is for.
+2	Project Role / Job Title	Text	Offshore Onsite	Conditional	If Contract/Consultant	-	Enter the project-specific job title, if applicable.
+3	Client	Text	Offshore Onsite	Yes	-	Client name	Enter the client’s name for whom the position is being raised.
+4	Client Country	Dropdown	Offshore Onsite	Yes	ISO country list	-	Select the client's country from the list.
+5	Client Interview	Boolean (Yes/No)	Offshore Onsite	Yes	-	-	Will the client be conducting interviews for this position?
+ 
+4. Location & Shift Details
+	Field Name	Field Type	Applicable to	Mandatory	Possible Values / Input Format	Rules & Dependencies	Info Tooltip
+1	Work Location	Multi-select Dropdown	Offshore	Yes	Trivandrum, Kochi, Bangalore, Remote	-	Select all applicable work locations for this role
+2	Work Shifts	Multi-Dropdown	Offshore	Yes	General: 9am - 6pm, UK, US, Australia, Other	-	Select all applicable work shifts. If you choose UK/US/Australia/Other, specify the Indian time below.
+3	Shift Time	Text	Offshore	Conditional	Display only if UK/US/Australia/Other is selected. Prompt for Indian time specification.		Enter the working hours in Indian Standard Time for the selected shift(s) (e.g., “1pm – 10pm IST”).
+4	Onsite Work Mode	Dropdown	Onsite	Yes	Remote / Hybrid / WFO	-	Select the onsite work mode: Remote, Hybrid, or Work From Office (WFO).
+5	Onsite Location	Text	Onsite	Conditional	Required if Work Mode = WFO or Hybrid	-	Enter the onsite office location if the work mode is WFO or Hybrid.
+6	Onsite Days in Office per Week	Number (1–7)	Onsite	Conditional	Required if Work Mode = WFO or Hybrid	-	Enter the number of days per week the candidate is expected in the office (1–7).
+7	Preferred Work Time Zone	Dropdown	Onsite	Yes	EST / PST / IST etc. (To specify)	-	Select the preferred time zone for this role.
+ 
+5. Job Description & Expectations
+	Field Name	Field Type	Applicable to	Mandatory	Possible Values / Input Format	Rules & Dependencies	Info Tooltip
+1	Job Purpose	Rich Text	Offshore Onsite	Yes	-	-	Describe the main objective and intent of the job
+2	Mandatory/ Primary Duties	Rich Text	Offshore Onsite	Yes	-	-	List all essential job duties and responsibilities. These are must-have tasks for the role.
+3	Good-to-Have / Not Mandatory Duties	Rich Text	Offshore Onsite	Yes	-		List additional duties or responsibilities that are desirable but not required for the role.
+4	Job Specification / Skills	Rich Text	Offshore Onsite	Yes	-	-	Provide detailed job specifications and required skills for the position.
+ 
+6. Onsite-Specific (Conditional Display)
+ 
+ 
+	Field Name	Field Type	Applicable to	Mandatory	Possible Values / Input Format	Rules & Dependencies	Info Tooltip
+1	Rate (for Contract)	Number + Dropdowns	Onsite	Yes	User selects unit (per hour, per month, per year, per contract) and currency	-	Enter the rate for contract positions. Select the appropriate unit and currency.
+2	Payment Cycle	Dropdown	Onsite	Yes	Weekly, Bi-weekly, Monthly		Select how often payments should be processed for this role.
+3	Preferred Visa Status	Multi-select	Onsite	Yes	US Citizen / H1B etc. (To be defined)	-	Select the preferred visa status for the candidate, if applicable.
+4	Contract Duration	Number + Dropdown	Onsite	Yes	Unit dropdown (months/years)	-	Enter the contract duration and select the unit (months or years).
+5	Reporting Manager	Text	Onsite	Yes	Experion / Client Manager	-	Enter the name of the reporting manager (Experion or Client Manager).
+6	Interview Process	Rich Text	Onsite	No	# Rounds, Panel Names	-	Describe the interview process, including the number of rounds and panel members.
+7	Accept H1 Transfer	Boolean (Yes/No)	Onsite	No	-	-	Is H1B visa transfer acceptable for this role?
+8	Travel Required	Boolean (Yes/No)	Onsite	No	-	-	Will the candidate be required to travel for this role?
+

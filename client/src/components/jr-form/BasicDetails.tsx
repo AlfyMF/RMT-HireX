@@ -123,12 +123,12 @@ export default function BasicDetails({
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="deliveryUnit">
-            Delivery Unit <span className="text-destructive">*</span>
+          <Label htmlFor="department">
+            Department <span className="text-destructive">*</span>
           </Label>
-          <Select defaultValue={data.deliveryUnit || data.department}>
-            <SelectTrigger data-testid="select-delivery-unit">
-              <SelectValue placeholder="Select delivery unit" />
+          <Select defaultValue={data.department || data.deliveryUnit}>
+            <SelectTrigger data-testid="select-department">
+              <SelectValue placeholder="Select department" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="Engineering">Engineering</SelectItem>
