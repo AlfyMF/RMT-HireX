@@ -1,5 +1,11 @@
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { Info } from "lucide-react";
 
 interface JobDescriptionProps {
   data: Record<string, any>;
@@ -22,48 +28,98 @@ export default function JobDescription({ data, onUpdate }: JobDescriptionProps) 
 
       <div className="grid gap-6">
         <div className="space-y-2">
-          <Label htmlFor="jobPurpose">
-            Job Purpose <span className="text-destructive">*</span>
-          </Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="jobPurpose">
+              Job Purpose <span className="text-destructive">*</span>
+            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Describe the main objective and intent of the job</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <Textarea
             id="jobPurpose"
             rows={4}
             placeholder="Describe the primary purpose of this role..."
             defaultValue={data.jobPurpose}
+            onChange={(e) => onUpdate({ jobPurpose: e.target.value })}
+            data-testid="textarea-job-purpose"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="primaryDuties">
-            Primary Duties <span className="text-destructive">*</span>
-          </Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="mandatoryDuties">
+              Mandatory/ Primary Duties <span className="text-destructive">*</span>
+            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>List all essential job duties and responsibilities. These are must-have tasks for the role.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <Textarea
-            id="primaryDuties"
+            id="mandatoryDuties"
             rows={6}
             placeholder="List the main responsibilities and duties..."
-            defaultValue={data.primaryDuties}
+            defaultValue={data.mandatoryDuties || data.primaryDuties}
+            onChange={(e) => onUpdate({ mandatoryDuties: e.target.value })}
+            data-testid="textarea-mandatory-duties"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="goodToHave">Good to Have</Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="goodToHaveDuties">
+              Good-to-Have / Not Mandatory Duties <span className="text-destructive">*</span>
+            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>List additional duties or responsibilities that are desirable but not required for the role.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <Textarea
-            id="goodToHave"
+            id="goodToHaveDuties"
             rows={4}
             placeholder="Additional skills or qualifications that are beneficial..."
-            defaultValue={data.goodToHave}
+            defaultValue={data.goodToHaveDuties || data.goodToHave}
+            onChange={(e) => onUpdate({ goodToHaveDuties: e.target.value })}
+            data-testid="textarea-good-to-have-duties"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="jobSpecs">
-            Job Specifications <span className="text-destructive">*</span>
-          </Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="jobSpecificationSkills">
+              Job Specification / Skills <span className="text-destructive">*</span>
+            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Provide detailed job specifications and required skills for the position.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <Textarea
-            id="jobSpecs"
+            id="jobSpecificationSkills"
             rows={6}
             placeholder="Detailed specifications and requirements for the role..."
-            defaultValue={data.jobSpecifications}
+            defaultValue={data.jobSpecificationSkills || data.jobSpecifications}
+            onChange={(e) => onUpdate({ jobSpecificationSkills: e.target.value })}
+            data-testid="textarea-job-specification-skills"
           />
         </div>
       </div>
