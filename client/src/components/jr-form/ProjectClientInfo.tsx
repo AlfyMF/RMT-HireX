@@ -153,37 +153,6 @@ export default function ProjectClientInfo({ data, onUpdate, jobType }: ProjectCl
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="businessUnit">
-            Business Unit <span className="text-destructive">*</span>
-          </Label>
-          <Select 
-            defaultValue={data.businessUnit}
-            onValueChange={(value) => onUpdate({ businessUnit: value })}
-          >
-            <SelectTrigger data-testid="select-business-unit">
-              <SelectValue placeholder="Select business unit" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Enterprise Solutions">Enterprise Solutions</SelectItem>
-              <SelectItem value="Digital Solutions">Digital Solutions</SelectItem>
-              <SelectItem value="Consulting Services">Consulting Services</SelectItem>
-              <SelectItem value="Innovation Lab">Innovation Lab</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="projectLocation">Project Location</Label>
-          <Input 
-            id="projectLocation" 
-            placeholder="Enter project location" 
-            defaultValue={data.projectLocation}
-            onChange={(e) => onUpdate({ projectLocation: e.target.value })}
-            data-testid="input-project-location"
-          />
-        </div>
-
-        <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Label htmlFor="clientInterview">
               Client Interview <span className="text-destructive">*</span>
