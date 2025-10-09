@@ -65,8 +65,9 @@ export default function BasicDetails({
           <Select 
             value={workArrangement} 
             onValueChange={(value: "Offshore" | "Onsite") => setWorkArrangement(value)}
+            disabled
           >
-            <SelectTrigger data-testid="select-work-arrangement">
+            <SelectTrigger data-testid="select-work-arrangement" className="cursor-not-allowed opacity-75">
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
