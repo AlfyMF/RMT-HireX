@@ -58,10 +58,21 @@ export default function BasicDetails({
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
+        {/* Work Arrangement */}
         <div className="space-y-2">
-          <Label htmlFor="workArrangement">
-            Work Arrangement <span className="text-destructive">*</span>
-          </Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="workArrangement">
+              Work Arrangement <span className="text-destructive">*</span>
+            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Select whether the position is Onsite or Offshore. This will determine which fields are shown next.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <Select 
             value={workArrangement} 
             onValueChange={(value: "Offshore" | "Onsite") => setWorkArrangement(value)}
@@ -77,10 +88,21 @@ export default function BasicDetails({
           </Select>
         </div>
 
+        {/* Job Type */}
         <div className="space-y-2">
-          <Label htmlFor="jobType">
-            Job Type <span className="text-destructive">*</span>
-          </Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="jobType">
+              Job Type <span className="text-destructive">*</span>
+            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Select the type of job employment (Permanent, Contract, or Consultant).</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <Select value={jobType} onValueChange={setJobType}>
             <SelectTrigger data-testid="select-job-type">
               <SelectValue placeholder="Select job type" />
@@ -93,10 +115,21 @@ export default function BasicDetails({
           </Select>
         </div>
 
+        {/* Job Title */}
         <div className="space-y-2">
-          <Label htmlFor="jobTitle">
-            Job Title <span className="text-destructive">*</span>
-          </Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="jobTitle">
+              Job Title <span className="text-destructive">*</span>
+            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Select the job title from the predefined JobTitle Master list.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <Select defaultValue={data.title}>
             <SelectTrigger data-testid="select-job-title">
               <SelectValue placeholder="Select job title" />
@@ -110,10 +143,21 @@ export default function BasicDetails({
           </Select>
         </div>
 
+        {/* Requested Date */}
         <div className="space-y-2">
-          <Label htmlFor="requestedDate">
-            Requested Date <span className="text-destructive">*</span>
-          </Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="requestedDate">
+              Requested Date <span className="text-destructive">*</span>
+            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Auto-filled with the request creation date.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <Input 
             type="date" 
             id="requestedDate" 
@@ -122,10 +166,21 @@ export default function BasicDetails({
           />
         </div>
 
+        {/* Department */}
         <div className="space-y-2">
-          <Label htmlFor="department">
-            Department <span className="text-destructive">*</span>
-          </Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="department">
+              Department <span className="text-destructive">*</span>
+            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Select the department this position belongs to. Auto-fills based on logged-in user if applicable.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <Select defaultValue={data.department || data.deliveryUnit}>
             <SelectTrigger data-testid="select-department">
               <SelectValue placeholder="Select department" />
@@ -139,10 +194,21 @@ export default function BasicDetails({
           </Select>
         </div>
 
+        {/* Requested By */}
         <div className="space-y-2">
-          <Label htmlFor="requestedBy">
-            Requested By <span className="text-destructive">*</span>
-          </Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="requestedBy">
+              Requested By <span className="text-destructive">*</span>
+            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Automatically populated with the name of the logged-in user.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <Select defaultValue={data.requestedBy}>
             <SelectTrigger data-testid="select-requested-by">
               <SelectValue placeholder="Select user" />
@@ -155,10 +221,21 @@ export default function BasicDetails({
           </Select>
         </div>
 
+        {/* Hiring Manager */}
         <div className="space-y-2">
-          <Label htmlFor="hiringManager">
-            Hiring Manager <span className="text-destructive">*</span>
-          </Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="hiringManager">
+              Hiring Manager <span className="text-destructive">*</span>
+            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Select the hiring manager for this request. Only users with 'Hiring Manager' or 'DU Head' roles in the selected Department are shown.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <Select defaultValue={data.hiringManager}>
             <SelectTrigger data-testid="select-hiring-manager">
               <SelectValue placeholder="Select hiring manager" />
@@ -172,10 +249,21 @@ export default function BasicDetails({
           </Select>
         </div>
 
+        {/* Number of Positions */}
         <div className="space-y-2">
-          <Label htmlFor="positions">
-            Number of Positions <span className="text-destructive">*</span>
-          </Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="positions">
+              Number of Positions <span className="text-destructive">*</span>
+            </Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Enter the number of positions to be filled. Minimum is 1.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <Input 
             type="number" 
             id="positions" 
@@ -185,70 +273,119 @@ export default function BasicDetails({
           />
         </div>
 
+        {/* Expected Date of Onboarding - OFFSHORE ONLY */}
+        {workArrangement === "Offshore" && (
+          <>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="onboardingFrom">
+                  Expected Date of Onboarding (Start) <span className="text-destructive">*</span>
+                </Label>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Select the expected date range for onboarding new hires (Offshore only).</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              <Input 
+                type="date" 
+                id="onboardingFrom" 
+                defaultValue={data.onboardingFrom}
+                data-testid="input-onboarding-start"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="onboardingTo">
+                  Expected Date of Onboarding (End) <span className="text-destructive">*</span>
+                </Label>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Select the expected date range for onboarding new hires (Offshore only).</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              <Input 
+                type="date" 
+                id="onboardingTo" 
+                defaultValue={data.onboardingTo}
+                data-testid="input-onboarding-end"
+              />
+            </div>
+          </>
+        )}
+
+        {/* Ideal Start Date - ONSITE ONLY */}
+        {workArrangement === "Onsite" && (
+          <>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="idealStartFrom">
+                  Ideal Start Date (Start) <span className="text-destructive">*</span>
+                </Label>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Select the ideal start date range for Onsite positions.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              <Input 
+                type="date" 
+                id="idealStartFrom" 
+                defaultValue={data.idealStartFrom || data.startDateFrom}
+                data-testid="input-ideal-start-from"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="idealStartTo">
+                  Ideal Start Date (End) <span className="text-destructive">*</span>
+                </Label>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Select the ideal start date range for Onsite positions.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              <Input 
+                type="date" 
+                id="idealStartTo" 
+                defaultValue={data.idealStartTo || data.startDateTo}
+                data-testid="input-ideal-start-to"
+              />
+            </div>
+          </>
+        )}
+
+        {/* Billable */}
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            <Label htmlFor="onboardingFrom">Expected Date of Onboarding (Start)</Label>
+            <Label htmlFor="billable">
+              Billable <span className="text-destructive">*</span>
+            </Label>
             <Tooltip>
               <TooltipTrigger asChild>
                 <Info className="h-4 w-4 text-muted-foreground cursor-help" />
               </TooltipTrigger>
               <TooltipContent>
-                <p>Select the expected date range for onboarding.</p>
+                <p>Specify whether this position is billable to a client.</p>
               </TooltipContent>
             </Tooltip>
           </div>
-          <Input 
-            type="date" 
-            id="onboardingFrom" 
-            defaultValue={data.onboardingFrom}
-            data-testid="input-onboarding-start"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="onboardingTo">Expected Date of Onboarding (End)</Label>
-          <Input 
-            type="date" 
-            id="onboardingTo" 
-            defaultValue={data.onboardingTo}
-            data-testid="input-onboarding-end"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Label htmlFor="idealStartFrom">Ideal Start Date (Start)</Label>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Select the ideal start date range for candidate onboarding.</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-          <Input 
-            type="date" 
-            id="idealStartFrom" 
-            defaultValue={data.idealStartFrom || data.startDateFrom}
-            data-testid="input-ideal-start-from"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="idealStartTo">Ideal Start Date (End)</Label>
-          <Input 
-            type="date" 
-            id="idealStartTo" 
-            defaultValue={data.idealStartTo || data.startDateTo}
-            data-testid="input-ideal-start-to"
-          />
-        </div>
-
-        <div className="space-y-2">
-          <Label htmlFor="billable">
-            Billable <span className="text-destructive">*</span>
-          </Label>
           <Select value={billable} onValueChange={setBillable}>
             <SelectTrigger data-testid="select-billable">
               <SelectValue placeholder="Select" />
@@ -260,46 +397,100 @@ export default function BasicDetails({
           </Select>
         </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="billingRate">Client Billing Rate</Label>
-          <Input 
-            type="number" 
-            id="billingRate" 
-            placeholder="Enter rate"
-            defaultValue={data.clientBillingRate}
-            disabled={billable !== "yes"}
-            data-testid="input-billing-rate"
-          />
-        </div>
+        {/* Client Billing Rate */}
+        {billable === "yes" && (
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <Label htmlFor="billingRate">
+                Client Billing Rate <span className="text-destructive">*</span>
+              </Label>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Enter the billing rate (per hour) for the client. Required if the position is billable.</p>
+                </TooltipContent>
+              </Tooltip>
+            </div>
+            <Input 
+              type="number" 
+              id="billingRate" 
+              placeholder="Enter rate"
+              defaultValue={data.clientBillingRate}
+              data-testid="input-billing-rate"
+            />
+          </div>
+        )}
 
-        <div className="space-y-2">
-          <Label htmlFor="budgetMin">Total Budget (Min)</Label>
-          <Input 
-            type="number" 
-            id="budgetMin" 
-            placeholder="Minimum budget"
-            defaultValue={data.totalBudget?.min}
-            disabled={jobType === "permanent"}
-            data-testid="input-budget-min"
-          />
-        </div>
+        {/* Total Budget - Contract/Consultant only */}
+        {(jobType === "contract" || jobType === "consultant") && (
+          <>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="budgetMin">
+                  Total Budget (Min) <span className="text-destructive">*</span>
+                </Label>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Enter the total budget range (in lakhs). Applicable for Contract or Consultant positions.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              <Input 
+                type="number" 
+                id="budgetMin" 
+                placeholder="Minimum budget"
+                defaultValue={data.totalBudget?.min}
+                data-testid="input-budget-min"
+              />
+            </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="budgetMax">Total Budget (Max)</Label>
-          <Input 
-            type="number" 
-            id="budgetMax" 
-            placeholder="Maximum budget"
-            defaultValue={data.totalBudget?.max}
-            disabled={jobType === "permanent"}
-            data-testid="input-budget-max"
-          />
-        </div>
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Label htmlFor="budgetMax">
+                  Total Budget (Max) <span className="text-destructive">*</span>
+                </Label>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Enter the total budget range (in lakhs). Applicable for Contract or Consultant positions.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              <Input 
+                type="number" 
+                id="budgetMax" 
+                placeholder="Maximum budget"
+                defaultValue={data.totalBudget?.max}
+                data-testid="input-budget-max"
+              />
+            </div>
+          </>
+        )}
 
+        {/* Expected Salary Range - Offshore only */}
         {workArrangement === "Offshore" && (
           <>
             <div className="space-y-2">
-              <Label htmlFor="salaryMin">Expected Salary Range (Min)</Label>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="salaryMin">
+                  Expected Salary Range (Min) <span className="text-destructive">*</span>
+                </Label>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Enter the expected salary range for this position in lakhs.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <Input 
                 type="number" 
                 id="salaryMin" 
@@ -309,7 +500,19 @@ export default function BasicDetails({
               />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="salaryMax">Expected Salary Range (Max)</Label>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="salaryMax">
+                  Expected Salary Range (Max) <span className="text-destructive">*</span>
+                </Label>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Enter the expected salary range for this position in lakhs.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
               <Input 
                 type="number" 
                 id="salaryMax" 

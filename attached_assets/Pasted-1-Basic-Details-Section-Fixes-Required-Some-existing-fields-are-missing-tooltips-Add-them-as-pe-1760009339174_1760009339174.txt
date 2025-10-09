@@ -1,0 +1,46 @@
+1. Basic Details Section
+Fixes Required:
+
+Some existing fields are missing tooltips → Add them as per the table below.
+
+Conditional display not working for the following fields — fix logic so these appear only under defined conditions:
+
+Expected Date of Onboarding (Start) → Display only when Work Arrangement = Offshore
+
+Expected Date of Onboarding (End) → Display only when Work Arrangement = Offshore
+
+Ideal Start Date (Start) → Display only when Work Arrangement = Onsite
+
+Ideal Start Date (End) → Display only when Work Arrangement = Onsite
+
+Basic Details Table (Updated)
+#	Field Name	Field Type	Applicable To	Mandatory	Possible Values / Input Format	Rules & Dependencies	Info Tooltip (Add if Missing)
+1	Work Arrangement	Radio	N/A	Yes	Onsite, Offshore	Drives conditional display of all subsequent fields	Select whether the position is Onsite or Offshore. This will determine which fields are shown next.
+2	Job Type	Dropdown	Offshore, Onsite	Yes	Permanent, Contract, Consultant	N/A	Select the type of job employment (Permanent, Contract, or Consultant).
+3	Job Title	Dropdown	Offshore, Onsite	Yes	Select from JobTitle Master	Populate from JobTitle master	Select the job title from the predefined JobTitle Master list.
+4	Requested Date	Date Picker	Offshore, Onsite	Yes	Auto-filled (DD-MM-YYYY)	System-generated	Auto-filled with the request creation date.
+5	Department	Dropdown	Offshore, Onsite	Yes	List of Department names, auto-filled based on the user	N/A	Select the department this position belongs to. Auto-fills based on logged-in user if applicable.
+6	Requested By	Auto-filled User Field	Offshore, Onsite	Yes	User session	Logged-in user	Automatically populated with the name of the logged-in user.
+7	Hiring Manager	Dropdown (filtered)	Offshore, Onsite	Yes	Show users with 'Hiring Manager' or ‘DU Head’ roles in selected Department	System-generated	Select the hiring manager for this request. Only users with ‘Hiring Manager’ or ‘DU Head’ roles in the selected Department are shown.
+8	Number of Positions	Number	Offshore, Onsite	Yes	Min: 1	N/A	Enter the number of positions to be filled. Minimum is 1.
+9	Expected Date of Onboarding	Date Range Picker	Offshore	Yes	Start and End date, both future	Display only if Work Arrangement = Offshore	Select the expected date range for onboarding new hires (Offshore only).
+10	Ideal Start Date	Date Range Picker	Onsite	Yes	Start and End date, both future	Display only if Work Arrangement = Onsite	Select the ideal start date range for Onsite positions.
+11	Billable	Boolean (Yes/No)	Offshore, Onsite	Yes	N/A	-	Specify whether this position is billable to a client.
+12	Client Billing Rate	Number	Offshore, Onsite	Conditional	Currency/hour	Mandatory if Billable = Yes	Enter the billing rate (per hour) for the client. Required if the position is billable.
+13	Total Budget	Min/Max Number Input	Offshore, Onsite	Conditional	Min/Max in lakhs (Min ≤ Max)	Required if Job Type = Contract/Consultant	Enter the total budget range (in lakhs). Applicable for Contract or Consultant positions.
+14	Expected Salary Range	Min/Max Number Input	Offshore	Yes	Min/Max in lakhs (Min ≤ Max)	-	Enter the expected salary range for this position in lakhs.
+2. Skills & Qualifications
+
+Change Label:
+
+Certification (Mandatory & good to have) → Certification
+
+3. Job Description & Expectations
+
+Update Field Labels:
+
+Mandatory / Primary Duties → Primary Duties
+
+Good-to-Have / Not Mandatory Duties → Good-to-Have Duties
+
+Job Specification / Skills → Job Specification
