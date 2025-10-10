@@ -1,0 +1,211 @@
+Please integrate the backend using Node.js and Express.js with TypeScript, Prisma ORM, and PostgreSQL for the existing UI (UI/design already implemented) so the UI becomes fully functional. The integration should cover all functionalities, including the Dashboard screen and Job Requisition (JR) form screens — such as JR listing(in cards format), field-based filtering(status, department, work arrangement, location fields), field-based search(jr ID, job title, department fields) on the dashboard, creating, editing, deleting, and viewing Job Requisitions — all through proper API calls. The Dashboard should display status-wise counts of Job Requisitions in a Stats Grid, showing each status and its corresponding count value.please replace the label “Open Positions” with “Draft” throughout the Dashboard.
+The database url created using NeonDB is given below.
+DATABASE_URL="postgresql://neondb_owner:npg_ZJDpO5Br8nHi@ep-wispy-thunder-ad58lq2w-pooler.c-2.us-east-1.aws.neon.tech/neondb?sslmode=require&channel_binding=require"
+Please create a Database setup using the above mentioned url.
+Create the necessary master tables based on the provided table structure and ensure all API endpoints are fully integrated with the front end. After a successful JR form submission, the record should be saved to the database, and the newly created JR should appear in the dashboard list. When the Edit button is clicked, the specific JR should be fetched and editable via an API call.
+Please also provide the Swagger documentation for all the implemented APIs.
+
+
+High-level requirements
+1.	Implement a TypeScript Express server with well-structured folders 
+2.	Use Prisma for DB access and migrations; target RDBMS: PostgreSQL.
+3.	Implement full CRUD for JobRequisition: create, view, edit, delete. All operations must persist to DB and return appropriate responses for the UI to consume.
+4.	Implement dashboard endpoints for listing, pagination, filtering (by the required fields(status, department, work arrangement, location fields)), and searching (by  jr ID, job title, department fields). Filtering and search must support combined queries.
+5.	Implement all the master tables (certifications
+•	countries
+•	delivery_units
+•	designations
+•	job_titles
+•	job_types
+•	office_locations
+•	qualifications
+•	roles
+•	skills
+•	skills_qualifications
+•	users
+•	visa_statuses
+•	work_shifts
+work_timezones) and seed data for all the forms and all.
+1.	Produce a Swagger/OpenAPI document covering all endpoints (YAML or JSON). Include example request/response payloads and query parameters for filtering/search. Provide instructions to generate or update Swagger (e.g., swagger-jsdoc + swagger-ui-express).
+       2.	Provide README steps for running locally, migrations, seeding, and generating Swagger.
+The master tables for JR screen with their table definition and seed values is listed below
+
+
+CREATE TABLE JobType (
+    Id CHAR(36) PRIMARY KEY AUTO_INCREMENT,
+    Name VARCHAR(25) NOT NULL UNIQUE,
+    Description TEXT,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    IsActive BOOLEAN DEFAULT TRUE
+);
+Table Name : Certification
+CREATE TABLE Certification (
+    Id CHAR(36)  PRIMARY KEY,
+    Name VARCHAR(255) NOT NULL,
+    IssuingOrganization VARCHAR(255) NOT NULL,
+    Description TEXT,
+    CreatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    IsActive BOOLEAN DEFAULT TRUE
+    CONSTRAINT certifications_name_unique UNIQUE (Name)
+);
+CREATE INDEX certifications_issuing_organization_index
+    ON certification (IssuingOrganization);
+
+CREATE TABLE Country (
+    Id VARCHAR(36) PRIMARY KEY,
+    Name VARCHAR(255) NOT NULL UNIQUE,
+    Code VARCHAR(3) NOT NULL UNIQUE,
+    PhoneCode VARCHAR(5),
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    IsActive BOOLEAN DEFAULT TRUE
+);
+-- Index for phoneCode
+CREATE INDEX countries_phone_code_index ON Country(PhoneCode);
+
+CREATE TABLE Department (
+    Id VARCHAR(36) PRIMARY KEY,
+    Name VARCHAR(255) NOT NULL,
+    Code VARCHAR(255) NOT NULL,
+    Description TEXT,
+    DUHead		VARCHAR(36),				
+    CDO			VARCHAR(36),
+    RecruiterLead	VARCHAR(36),
+    CreatedAt TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    IsActive BOOLEAN DEFAULT TRUE,
+    CONSTRAINT delivery_units_name_unique UNIQUE (Name),
+    CONSTRAINT delivery_units_code_unique UNIQUE (Code)
+);
+-- Create additional indexes
+CREATE INDEX delivery_units_code_index ON Department (Code);
+
+CREATE TABLE JobTitle (
+    Id VARCHAR(36) PRIMARY KEY,
+    Title VARCHAR(255) NOT NULL UNIQUE,
+    Description TEXT,
+    Level INTEGER,
+    CreatedAt TIMESTAMP(0) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    IsActive BOOLEAN DEFAULT TRUE,
+);
+-- Add index separately
+CREATE INDEX job_titles_level_index ON JobTitle(Level);
+
+CREATE TABLE Qualification (
+    Id VARCHAR(36) PRIMARY KEY,
+    Name VARCHAR(255) NOT NULL UNIQUE,
+    Level VARCHAR(255),
+    Description TEXT,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    IsActive BOOLEAN DEFAULT TRUE
+);
+
+-- Index on level column
+CREATE INDEX qualifications_level_index ON Qualification(Level);
+
+CREATE TABLE Role (
+    Id VARCHAR(36) PRIMARY KEY,
+    Name VARCHAR(255) NOT NULL UNIQUE,
+    Description TEXT,
+    Permissions JSON,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    IsActive BOOLEAN DEFAULT TRUE
+);
+
+CREATE TABLE Skill (
+    Id VARCHAR(36) PRIMARY KEY,
+    Name VARCHAR(255) NOT NULL UNIQUE,
+    Category VARCHAR(255),
+    IsTechnical  BOOLEAN DEFAULT TRUE,
+    Importance VARCHAR(20) NOT NULL DEFAULT 'primary' CHECK (Importance IN ('primary', 'secondary', 'nice_to_have')),
+    CreatedAt TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    IsActive BOOLEAN DEFAULT TRUE
+);
+-- Additional indexes
+CREATE INDEX skills_category_is_technical_index ON Skill(Category, "isTechnical");
+CREATE INDEX skills_importance_index ON Skill(Importance);
+CREATE INDEX skills_is_technical_index ON Skill(IsTechnical);
+
+CREATE TABLE OfficeLocation (
+    Id VARCHAR(36) PRIMARY KEY,
+    Name VARCHAR(255) NOT NULL UNIQUE,
+    Address TEXT NOT NULL,
+    CountryId VARCHAR(36) NOT NULL,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    IsActive BOOLEAN DEFAULT TRUE
+);
+-- Additional index
+CREATE INDEX office_locations_country_id_is_active_index 
+ON OfficeLocation (CountryId);
+ALTER TABLE OfficeLocation 
+    ADD CONSTRAINT office_locations_country_id_fkey FOREIGN KEY (CountryId) REFERENCES Country(Id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+CREATE TYPE user_role AS ENUM ('Admin', 'Hiring Manager', 'DU Head', 'COO', 'CDO', 'Recruiter Lead', 'Recruiter POC', 'Interview Panel Member', 'Candidate', 'Vendor', 'Employee');’
+CREATE TABLE "User" (
+    Id VARCHAR(36) PRIMARY KEY,
+    Email VARCHAR(255) NOT NULL,
+    Name VARCHAR(255),
+    Role user_role NOT NULL DEFAULT 'Employee',
+    RoleId VARCHAR(36),
+    DepartmentId VARCHAR(36),
+    DeactivatedAt TIMESTAMP,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    IsActive BOOLEAN DEFAULT TRUE
+);
+-- Create unique constraint on email
+CREATE UNIQUE INDEX idx_user_email ON "User"(Email);
+-- Create indexes
+CREATE INDEX idx_users_department_id ON "User"( DepartmentId);
+CREATE INDEX idx_users_email_active ON "User"(Email, IsActive);
+ALTER TABLE "User" 
+    ADD CONSTRAINT users_ibfk_1 FOREIGN KEY (DepartmentId) REFERENCES Department(Id) ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "User" 
+    ADD CONSTRAINT users_ibfk_2 FOREIGN KEY (RoleId) REFERENCES Role(Id) ON DELETE CASCADE ON UPDATE CASCADE;
+
+
+CREATE TABLE VisaStatus (
+    Id VARCHAR(36) PRIMARY KEY,
+    Status VARCHAR(255) NOT NULL UNIQUE,
+    Description TEXT,
+    IsWorkPermit BOOLEAN DEFAULT false,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    IsActive BOOLEAN DEFAULT TRUE
+);
+-- Create an index for isWorkPermit
+CREATE INDEX visa_statuses_is_work_permit_index ON VisaStatus (IsWorkPermit);
+
+CREATE TABLE WorkShift (
+    Id VARCHAR(36) PRIMARY KEY,
+    Name VARCHAR(255) NOT NULL,
+    StartTime TIME NOT NULL,
+    EndTime TIME NOT NULL,
+    Description TEXT,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    IsActive BOOLEAN DEFAULT TRUE
+);
+-- Unique constraint on name
+CREATE UNIQUE INDEX workshift_name_idx ON WorkShift(Name);
+-- Index on startTime and endTime
+CREATE INDEX workshift_start_end_idx ON WorkShift(StartTime, EndTime);
+
+CREATE TABLE WorkTimeZone (
+    Id VARCHAR(36) NOT NULL PRIMARY KEY,
+    Name VARCHAR(255) NOT NULL UNIQUE,
+    Description TEXT,
+    TimezoneValue VARCHAR(255) NOT NULL UNIQUE,
+    CreatedAt TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    UpdatedAt TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    IsActive BOOLEAN DEFAULT TRUE
+);
+

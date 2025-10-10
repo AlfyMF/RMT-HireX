@@ -1,0 +1,458 @@
+Instead of using comprehensive seed data, please use the below mentioned seed data for the master tables.
+
+Seed data for JobType:
+Name	Description	IsActive
+Permanent	Permanent employment type	TRUE
+Consultant	Consultant job type	TRUE
+Contract	Contract-based employment	TRUE
+
+Seed data for Certification:
+Name	IssuingOrganization	Description	IsActive
+CISSP	(ISC)²	Certified Information Systems Security Professional - Advanced cybersecurity certification	TRUE
+CCNP	Cisco	Cisco Certified Network Professional - Advanced networking certification	TRUE
+AWS Certified Solutions Architect - Professional	Amazon Web Services	Expert-level AWS cloud architecture certification	TRUE
+PMP	PMI	Project Management Professional - Global standard for project managers	TRUE
+ISTQB Advanced	ISTQB	International Software Testing Qualifications Board - Advanced software testing certification	TRUE
+Microsoft Certified: Azure Solutions Architect Expert	Microsoft	Expert-level Microsoft Azure cloud solutions certification	TRUE
+Google Professional Cloud Architect	Google	Google Cloud Platform architecture certification	TRUE
+CEH	EC-Council	Certified Ethical Hacker - Cybersecurity penetration testing certification	TRUE
+ITIL 4 Managing Professional	AXELOS	IT service management best practices certification	TRUE
+CompTIA Security+	CompTIA	Foundational cybersecurity certification	TRUE
+Red Hat Certified Engineer (RHCE)	Red Hat	Enterprise Linux system administration certification	TRUE
+Certified Kubernetes Administrator (CKA)	Cloud Native Computing Foundation	Kubernetes cluster administration certification	TRUE
+Oracle Certified Professional: Java SE Developer	Oracle	Advanced Java programming certification	TRUE
+SAP Certified Application Associate	SAP	SAP product implementation certification	TRUE
+ServiceNow Certified System Administrator	ServiceNow	ServiceNow platform administration certification	TRUE
+
+Seed data for Country:
+Name	Code	PhoneCode	IsActive
+Afghanistan	AF	+93	TRUE
+Albania	AL	+355	TRUE
+Algeria	DZ	+213	TRUE
+Andorra	AD	+376	TRUE
+Angola	AO	+244	TRUE
+Antigua and Barbuda	AG	+1268	TRUE
+Argentina	AR	+54	TRUE
+Armenia	AM	+374	TRUE
+Australia	AU	+61	TRUE
+Austria	AT	+43	TRUE
+Azerbaijan	AZ	+994	TRUE
+Bahamas	BS	+1242	TRUE
+Bahrain	BH	+973	TRUE
+Bangladesh	BD	+880	TRUE
+Barbados	BB	+1246	TRUE
+Belarus	BY	+375	TRUE
+Belgium	BE	+32	TRUE
+Belize	BZ	+501	TRUE
+Benin	BJ	+229	TRUE
+Bhutan	BT	+975	TRUE
+Bolivia	BO	+591	TRUE
+Bosnia and Herzegovina	BA	+387	TRUE
+Botswana	BW	+267	TRUE
+Brazil	BR	+55	TRUE
+Brunei Darussalam	BN	+673	TRUE
+Bulgaria	BG	+359	TRUE
+Burkina Faso	BF	+226	TRUE
+Burundi	BI	+257	TRUE
+Cabo Verde	CV	+238	TRUE
+Cambodia	KH	+855	TRUE
+Cameroon	CM	+237	TRUE
+Canada	CA	+1	TRUE
+Central African Republic	CF	+236	TRUE
+Chad	TD	+235	TRUE
+Chile	CL	+56	TRUE
+China	CN	+86	TRUE
+Colombia	CO	+57	TRUE
+Comoros	KM	+269	TRUE
+Congo	CG	+242	TRUE
+Costa Rica	CR	+506	TRUE
+Croatia	HR	+385	TRUE
+Cuba	CU	+53	TRUE
+Cyprus	CY	+357	TRUE
+Czech Republic	CZ	+420	TRUE
+Denmark	DK	+45	TRUE
+Djibouti	DJ	+253	TRUE
+Dominica	DM	+1767	TRUE
+Dominican Republic	DO	+1809	TRUE
+Ecuador	EC	+593	TRUE
+Egypt	EG	+20	TRUE
+El Salvador	SV	+503	TRUE
+Equatorial Guinea	GQ	+240	TRUE
+Eritrea	ER	+291	TRUE
+Estonia	EE	+372	TRUE
+Eswatini	SZ	+268	TRUE
+Ethiopia	ET	+251	TRUE
+Fiji	FJ	+679	TRUE
+Finland	FI	+358	TRUE
+France	FR	+33	TRUE
+Gabon	GA	+241	TRUE
+Gambia	GM	+220	TRUE
+Georgia	GE	+995	TRUE
+Germany	DE	+49	TRUE
+Ghana	GH	+233	TRUE
+Greece	GR	+30	TRUE
+Grenada	GD	+1473	TRUE
+Guatemala	GT	+502	TRUE
+Guinea	GN	+224	TRUE
+Guinea-Bissau	GW	+245	TRUE
+Guyana	GY	+592	TRUE
+Haiti	HT	+509	TRUE
+Honduras	HN	+504	TRUE
+Hungary	HU	+36	TRUE
+Iceland	IS	+354	TRUE
+India	IN	+91	TRUE
+Indonesia	ID	+62	TRUE
+Iran	IR	+98	TRUE
+Iraq	IQ	+964	TRUE
+Ireland	IE	+353	TRUE
+Israel	IL	+972	TRUE
+Italy	IT	+39	TRUE
+Jamaica	JM	+1876	TRUE
+Japan	JP	+81	TRUE
+Jordan	JO	+962	TRUE
+Kazakhstan	KZ	+7	TRUE
+Kenya	KE	+254	TRUE
+Kiribati	KI	+686	TRUE
+Korea (North)	KP	+850	TRUE
+Korea (South)	KR	+82	TRUE
+Kuwait	KW	+965	TRUE
+Kyrgyzstan	KG	+996	TRUE
+Laos	LA	+856	TRUE
+Latvia	LV	+371	TRUE
+Lebanon	LB	+961	TRUE
+Lesotho	LS	+266	TRUE
+Liberia	LR	+231	TRUE
+Libya	LY	+218	TRUE
+Liechtenstein	LI	+423	TRUE
+Lithuania	LT	+370	TRUE
+Luxembourg	LU	+352	TRUE
+Madagascar	MG	+261	TRUE
+Malawi	MW	+265	TRUE
+Malaysia	MY	+60	TRUE
+Maldives	MV	+960	TRUE
+Mali	ML	+223	TRUE
+Malta	MT	+356	TRUE
+Marshall Islands	MH	+692	TRUE
+Mauritania	MR	+222	TRUE
+Mauritius	MU	+230	TRUE
+Mexico	MX	+52	TRUE
+Micronesia	FM	+691	TRUE
+Moldova	MD	+373	TRUE
+Monaco	MC	+377	TRUE
+Mongolia	MN	+976	TRUE
+Montenegro	ME	+382	TRUE
+Morocco	MA	+212	TRUE
+Mozambique	MZ	+258	TRUE
+Myanmar	MM	+95	TRUE
+Namibia	NA	+264	TRUE
+Nauru	NR	+674	TRUE
+Nepal	NP	+977	TRUE
+Netherlands	NL	+31	TRUE
+New Zealand	NZ	+64	TRUE
+Nicaragua	NI	+505	TRUE
+Niger	NE	+227	TRUE
+Nigeria	NG	+234	TRUE
+North Macedonia	MK	+389	TRUE
+Norway	NO	+47	TRUE
+Oman	OM	+968	TRUE
+Pakistan	PK	+92	TRUE
+Palau	PW	+680	TRUE
+Panama	PA	+507	TRUE
+Papua New Guinea	PG	+675	TRUE
+Paraguay	PY	+595	TRUE
+Peru	PE	+51	TRUE
+Philippines	PH	+63	TRUE
+Poland	PL	+48	TRUE
+Portugal	PT	+351	TRUE
+Qatar	QA	+974	TRUE
+Romania	RO	+40	TRUE
+Russia	RU	+7	TRUE
+Rwanda	RW	+250	TRUE
+Saint Kitts and Nevis	KN	+1869	TRUE
+Saint Lucia	LC	+1758	TRUE
+Saint Vincent and the Grenadines	VC	+1784	TRUE
+Samoa	WS	+685	TRUE
+San Marino	SM	+378	TRUE
+Sao Tome and Principe	ST	+239	TRUE
+Saudi Arabia	SA	+966	TRUE
+Senegal	SN	+221	TRUE
+Serbia	RS	+381	TRUE
+Seychelles	SC	+248	TRUE
+Sierra Leone	SL	+232	TRUE
+Singapore	SG	+65	TRUE
+Slovakia	SK	+421	TRUE
+Slovenia	SI	+386	TRUE
+Solomon Islands	SB	+677	TRUE
+Somalia	SO	+252	TRUE
+South Africa	ZA	+27	TRUE
+South Sudan	SS	+211	TRUE
+Spain	ES	+34	TRUE
+Sri Lanka	LK	+94	TRUE
+Sudan	SD	+249	TRUE
+Suriname	SR	+597	TRUE
+Sweden	SE	+46	TRUE
+Switzerland	CH	+41	TRUE
+Syria	SY	+963	TRUE
+Taiwan	TW	+886	TRUE
+Tajikistan	TJ	+992	TRUE
+Tanzania	TZ	+255	TRUE
+Thailand	TH	+66	TRUE
+Timor-Leste	TL	+670	TRUE
+Togo	TG	+228	TRUE
+Tonga	TO	+676	TRUE
+Trinidad and Tobago	TT	+1868	TRUE
+Tunisia	TN	+216	TRUE
+Turkey	TR	+90	TRUE
+Turkmenistan	TM	+993	TRUE
+Tuvalu	TV	+688	TRUE
+Uganda	UG	+256	TRUE
+Ukraine	UA	+380	TRUE
+United Arab Emirates	AE	+971	TRUE
+United Kingdom	GB	+44	TRUE
+United States	US	+1	TRUE
+Uruguay	UY	+598	TRUE
+Uzbekistan	UZ	+998	TRUE
+Vanuatu	VU	+678	TRUE
+Vatican City	VA	+379	TRUE
+Venezuela	VE	+58	TRUE
+Vietnam	VN	+84	TRUE
+Yemen	YE	+967	TRUE
+Zambia	ZM	+260	TRUE
+Zimbabwe	ZW	+263	TRUE
+
+Seed data for Department:
+Name	Code	Description	IsActive
+Automotive. Travel & Transportation, Construction Solutions	ATC	Automotive, Travel, Transportation & Hospitality, Construction & Infrastructure	TRUE
+Digital & Commerce Solutions	DES	Digital Experiences & E-commerce (across all verticals); Insurance	TRUE
+Retail & Warehouse Automation Solutions	RWA	Retail, Warehouse Automation, Dealer Management	TRUE
+Data & AI Solutions	DAI	Data & AI Solutions, DevOps/ Cloud Engineering (across all verticals)	TRUE
+Experience Design Studio	EDS	Digital Experience Services (across all verticals)	TRUE
+Digital Technology Services	DTS	Healthcare, Edutech, Banking; Automation, Cybersecurity (across all verticals)	TRUE
+IOT & Embedded Solutions	IES	IOT and Embedded (across all verticals)	TRUE
+VantX Financial Solutions	VTX	VantX products (VantX is the new name for Vantage)	TRUE
+Facilities & Support Services	FSS	Facilities & Support Services	TRUE
+Talent Acquisition	TAC	Talent Acquisition	TRUE
+Contracts & Legal Services	CLS	Contracts & Legal Services	TRUE
+Information Systems	INS	Information Systems	TRUE
+
+Seed data for JobTitle:
+Title	Description	IsActive
+Associate Software Engineer	Associate Software Engineer	TRUE
+Software Engineer	Software Engineer	TRUE
+Senior Software Engineer	Senior Software Engineer	TRUE
+Technical Specialist	Technical Specialist	TRUE
+Senior Technical Specialist	Senior Technical Specialist	TRUE
+Associate Consultant - Software Engineering	Associate Consultant - Software Engineering	TRUE
+Consultant - Software Engineering	Consultant - Software Engineering	TRUE
+Senior Consultant - Software Engineering	Senior Consultant - Software Engineering	TRUE
+Principal Consultant - Software Engineering (Grade 1)	Principal Consultant - Software Engineering (Grade 1)	TRUE
+Associate Data & AI Engineer	Associate Data & AI Engineer	TRUE
+Data & AI Engineer	Data & AI Engineer	TRUE
+Data & AI Specialist	Data & AI Specialist	TRUE
+Consultant - Data & AI	Consultant - Data & AI	TRUE
+Principal Consultant - Data & AI (Grade 1)	Principal Consultant - Data & AI (Grade 1)	TRUE
+Test Automation Engineer	Test Automation Engineer	TRUE
+Consultant - Test Automation	Consultant - Test Automation	TRUE
+UI Engineer	UI Engineer	TRUE
+
+Seed data for Qualification:
+Name	Level	Description	IsActive
+High School Diploma	Secondary	Completion of secondary education (12th grade or equivalent)	TRUE
+Undergraduate Degree	Bachelor	Bachelor's degree in any field (typically 3-4 year program)	TRUE
+Bachelor of Technology (B.Tech)
+Bachelor	4-year undergraduate degree in engineering/technology	TRUE
+Bachelor of Computer Applications (BCA)	Bachelor	3-year undergraduate degree in computer applications	TRUE
+Graduate Degree	Master	Master's degree in any field (typically 2 year program)	TRUE
+Master of Technology (M.Tech)
+Master	Postgraduate degree in engineering/technology specialization	TRUE
+Master of Computer Applications (MCA)	Master	Postgraduate degree in computer applications	TRUE
+Post Graduate Diploma	Postgraduate	1-2 year specialized diploma after bachelor's degree	TRUE
+Doctorate (PhD)	Doctorate	Highest academic degree involving original research	TRUE
+Diploma in Engineering	Diploma	3-year technical diploma after 10th grade	TRUE
+IT Certification Program	Certificate	Industry-recognized IT certification (e.g., Microsoft, Cisco)	TRUE
+Vocational Training Certificate	Certificate	Job-specific skills training program	TRUE
+Associate Degree	Associate	2-year undergraduate degree (common in some countries)	TRUE
+Integrated Dual Degree	Bachelor+Master	5-year combined bachelor's and master's program	TRUE
+Post Doctoral Research	Post-Doctorate	Advanced research following PhD completion	TRUE
+
+Seed data for Role:
+Name	Description	IsActive
+Admin	Full Privilege	TRUE
+Hiring Manager	Responsible for initiating and overseeing hiring processes	TRUE
+DU Head	Delivery Unit Head with overall responsibility for the DU	TRUE
+CDO	Chief Delivery Officer with organization-wide delivery oversight	TRUE
+COO	Chief Operating Officer with executive leadership responsibilities	TRUE
+Recruiter Lead	Leads the recruitment team and processes	TRUE
+Recruiter POC	Recruiter Point of Contact for specific hiring needs	TRUE
+Interview Panel Member	Participates in candidate interviews and evaluations	TRUE
+Candidate	Individual applying for a position	TRUE
+Vendor	Representative from vendor or partner organizations	TRUE
+Employee	Regular employee within the organization	TRUE
+
+Seed data for Skill:
+Name	Category	IsTechnical	IsActive
+C#	Programming Language	TRUE	TRUE
+Java	Programming Language	TRUE	TRUE
+Python	Programming Language	TRUE	TRUE
+JavaScript	Programming Language	TRUE	TRUE
+TypeScript	Programming Language	TRUE	TRUE
+Go	Programming Language	TRUE	TRUE
+Ruby	Programming Language	TRUE	TRUE
+PHP	Programming Language	TRUE	TRUE
+Swift	Programming Language	TRUE	TRUE
+Kotlin	Programming Language	TRUE	TRUE
+.NET	Framework	TRUE	TRUE
+Node.js	Framework	TRUE	TRUE
+Spring	Framework	TRUE	TRUE
+Django	Framework	TRUE	TRUE
+Flask	Framework	TRUE	TRUE
+React	Framework	TRUE	TRUE
+Angular	Framework	TRUE	TRUE
+Vue.js	Framework	TRUE	TRUE
+Express	Framework	TRUE	TRUE
+Laravel	Framework	TRUE	TRUE
+MS SQL	Database	TRUE	TRUE
+MySQL	Database	TRUE	TRUE
+PostgreSQL	Database	TRUE	TRUE
+MongoDB	Database	TRUE	TRUE
+Redis	Database	TRUE	TRUE
+Oracle	Database	TRUE	TRUE
+Cassandra	Database	TRUE	TRUE
+Elasticsearch	Database	TRUE	TRUE
+DynamoDB	Database	TRUE	TRUE
+Firebase	Database	TRUE	TRUE
+Docker	DevOps	TRUE	TRUE
+Kubernetes	DevOps	TRUE	TRUE
+AWS	Cloud	TRUE	TRUE
+Azure	Cloud	TRUE	TRUE
+GCP	Cloud	TRUE	TRUE
+Terraform	DevOps	TRUE	TRUE
+Ansible	DevOps	TRUE	TRUE
+Jenkins	DevOps	TRUE	TRUE
+GitLab CI/CD	DevOps	TRUE	TRUE
+GitHub Actions	DevOps	TRUE	TRUE
+Selenium	Testing	TRUE	TRUE
+Jest	Testing	TRUE	TRUE
+Mocha	Testing	TRUE	TRUE
+Cypress	Testing	TRUE	TRUE
+JUnit	Testing	TRUE	TRUE
+TestNG	Testing	TRUE	TRUE
+Postman	Testing	TRUE	TRUE
+JMeter	Testing	TRUE	TRUE
+Cucumber	Testing	TRUE	TRUE
+Playwright	Testing	TRUE	TRUE
+Tableau	Data Visualization	TRUE	TRUE
+Power BI	Data Visualization	TRUE	TRUE
+Pandas	Data Analysis	TRUE	TRUE
+NumPy	Data Analysis	TRUE	TRUE
+Spark	Big Data	TRUE	TRUE
+Hadoop	Big Data	TRUE	TRUE
+TensorFlow	Machine Learning	TRUE	TRUE
+PyTorch	Machine Learning	TRUE	TRUE
+Scikit-learn	Machine Learning	TRUE	TRUE
+R	Data Analysis	TRUE	TRUE
+React Native	Mobile Development	TRUE	TRUE
+Flutter	Mobile Development	TRUE	TRUE
+Android SDK	Mobile Development	TRUE	TRUE
+iOS SDK	Mobile Development	TRUE	TRUE
+Xamarin	Mobile Development	TRUE	TRUE
+GraphQL	API	TRUE	TRUE
+REST API	API	TRUE	TRUE
+SOAP	API	TRUE	TRUE
+Kafka	Messaging	TRUE	TRUE
+RabbitMQ	Messaging	TRUE	TRUE
+Nginx	Web Server	TRUE	TRUE
+Apache	Web Server	TRUE	TRUE
+Linux	Operating System	TRUE	TRUE
+Windows Server	Operating System	TRUE	TRUE
+Bash	Scripting	TRUE	TRUE
+PowerShell	Scripting	TRUE	TRUE
+
+Seed data for OfficeLocation:
+Name	Address	CountryId	IsActive
+Cochin	Infopark, Kochi, Kerala, India	[India's UUID]	TRUE
+Trivandrum	Technopark, Thiruvananthapuram, Kerala, India	[India's UUID]	TRUE
+Bangalore	Manyata Tech Park, Bangalore, Karnataka, India	[India's UUID]	TRUE
+Remote	Work from Home/Remote Location	[India's UUID]	TRUE
+
+Seed data for User:
+Id	Email	Name	Role	RoleId	DepartmentId	IsActive	CreatedAt	UpdatedAt
+[UUID]	david.brown@company.com
+David Brown	Hiring Manager	[Hiring Manager Role UUID]	[DTS Department UUID]	TRUE	[timestamp]	[timestamp]
+[UUID]	catherine.lee@company.com
+Catherine Lee	Hiring Manager	[Hiring Manager Role UUID]	[DAI Department UUID]	TRUE	[timestamp]	[timestamp]
+[UUID]	michael.wilson@company.com
+Michael Wilson	Hiring Manager	[Hiring Manager Role UUID]	[TAC Department UUID]	TRUE	[timestamp]	[timestamp]
+[UUID]	admin.user@company.com
+Admin User	Admin	[Admin Role UUID]	[INS Department UUID]	TRUE	[timestamp]	[timestamp]
+[UUID]	sarah.johnson@company.com
+Sarah Johnson	Recruiter Lead	[Recruiter Role UUID]	[TAC Department UUID]	TRUE	[timestamp]	[timestamp]
+[UUID]	robert.garcia@company.com
+Robert Garcia	Recruiter Lead	[Recruiter Role UUID]	[TAC Department UUID]	TRUE	[timestamp]	[timestamp]
+[UUID]	emily.chen@company.com
+Emily Chen	Employee	[Employee Role UUID]	[DTS Department UUID]	TRUE	[timestamp]	[timestamp]
+[UUID]	james.smith@company.com
+James Smith	Employee	[Employee Role UUID]	[EDS Department UUID]	TRUE	[timestamp]	[timestamp]
+[UUID]	inactive.user@company.com
+Inactive User	Employee	[Employee Role UUID]	[FSS Department UUID]	FALSE	[timestamp]	[timestamp]
+
+
+Seed data for VisaStatus:
+Status	Description	IsWorkPermit
+US Citizen	United States citizen with unrestricted work authorization	TRUE
+Green Card Holder	Permanent resident of the United States	TRUE
+H1B Visa	Specialty occupation worker visa (USA)	TRUE
+L1 Visa	Intracompany transferee visa (USA)	TRUE
+TN Visa	NAFTA professional visa (USA-Canada-Mexico)	TRUE
+F1 OPT/CPT	Student visa with work authorization (USA)	TRUE
+Canadian Citizen/PR	Canadian citizen or permanent resident	TRUE
+UK Work Visa	United Kingdom work authorization	TRUE
+EU Blue Card	European Union work permit for highly skilled workers	TRUE
+Australian Work Visa	Australia work authorization	TRUE
+Indian Citizen	Citizen of India with local work rights	TRUE
+Dependent Visa	Work authorization dependent on primary visa holder	TRUE
+B1/B2 Visa	Visitor visa with no work authorization (USA)	FALSE
+J1 Visa	Exchange visitor visa (USA)	FALSE
+No Work Authorization	Requires visa sponsorship for employment	FALSE
+
+Seed data for WorkShift:
+Name	StartTime	EndTime	Description
+Standard Day Shift	09:00:00	18:00:00	Regular 9am-6pm shift with 1 hour lunch break
+UK Shift	12:00:00	21:00:00	Shift aligned with UK business hours (GMT/BST)
+US East Coast Shift	14:00:00	23:00:00	Shift aligned with US Eastern Time (ET)
+US West Coast Shift	17:00:00	02:00:00	Shift aligned with US Pacific Time (PT)
+Australia Shift	04:00:00	13:00:00	Shift aligned with Australian Eastern Time (AET)
+Early Morning Shift	06:00:00	15:00:00	Early start shift for morning coverage
+Late Evening Shift	15:00:00	00:00:00	Late shift for evening/night coverage
+Night Shift	22:00:00	07:00:00	Overnight shift for 24/7 operations
+Flexible Shift	10:00:00	19:00:00	Flexible timing with core hours
+Part-time Morning	09:00:00	14:00:00	Half-day morning shift
+Part-time Afternoon	14:00:00	19:00:00	Half-day afternoon shift
+Weekend Shift	10:00:00	18:00:00	Weekend working hours
+Rotational Shift	08:00:00	20:00:00	Rotating between day and evening shifts
+
+Seed data for WorkTimeZone:
+Name	Description	TimezoneValue
+Baker Island Time	UTC−12:00 — Baker Island	Etc/GMT+12
+Niue Time	UTC−11:00 — Niue, American Samoa	Pacific/Niue
+Hawaii-Aleutian Standard Time	UTC−10:00 — Hawaii, Cook Islands	Pacific/Honolulu
+Alaska Standard Time	UTC−09:00 — Anchorage, Alaska	America/Anchorage
+Pacific Standard Time	UTC−08:00 — Los Angeles, Vancouver	America/Los_Angeles
+Mountain Standard Time	UTC−07:00 — Denver, Phoenix	America/Denver
+Central Standard Time	UTC−06:00 — Chicago, Mexico City	America/Chicago
+Eastern Standard Time	UTC−05:00 — New York, Toronto	America/New_York
+Greenwich Mean Time	UTC±00:00 — London, Lisbon	Europe/London
+Central European Time	UTC+01:00 — Berlin, Paris, Madrid	Europe/Berlin
+Eastern European Time	UTC+02:00 — Athens, Cairo, Jerusalem	Europe/Athens
+Moscow Standard Time	UTC+03:00 — Moscow, Nairobi, Riyadh	Europe/Moscow
+Gulf Standard Time	UTC+04:00 — Dubai, Baku	Asia/Dubai
+Pakistan Standard Time	UTC+05:00 — Karachi, Tashkent	Asia/Karachi
+India Standard Time	UTC+05:30 — India, Sri Lanka	Asia/Kolkata
+Bangladesh Standard Time	UTC+06:00 — Dhaka, Bhutan	Asia/Dhaka
+Indochina Time	UTC+07:00 — Bangkok, Hanoi, Jakarta	Asia/Bangkok
+China Standard Time	UTC+08:00 — Beijing, Singapore, Perth	Asia/Shanghai
+Japan Standard Time	UTC+09:00 — Tokyo, Seoul	Asia/Tokyo
+Australian Eastern Standard Time	UTC+10:00 — Sydney, Melbourne	Australia/Sydney
+New Zealand Standard Time	UTC+12:00 — Auckland, Fiji	Pacific/Auckland
+
+
