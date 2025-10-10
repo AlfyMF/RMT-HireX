@@ -35,6 +35,15 @@ export default function BasicDetails({
   const [billable, setBillable] = useState<string>(data.billable?.toLowerCase() || "");
   const [jobType, setJobType] = useState<string>(data.jobType?.toLowerCase() || parentJobType || "");
 
+  const skillsOptions = [
+    "React", "TypeScript", "Node.js", "Python", "Java", "C++", "C#", 
+    "JavaScript", "Angular", "Vue.js", "Express.js", "Django", "Flask",
+    "Spring Boot", "AWS", "Azure", "GCP", "Docker", "Kubernetes",
+    "MongoDB", "PostgreSQL", "MySQL", "Redis", "GraphQL", "REST API",
+    "Git", "CI/CD", "Jenkins", "Terraform", "Ansible", "Linux", "Bash",
+    "Microservices", "Agile", "Scrum", "TDD", "Jest", "Mocha"
+  ];
+
   // Update local state when data changes (for edit mode)
   useEffect(() => {
     if (data.billable) setBillable(data.billable.toLowerCase());
@@ -58,36 +67,6 @@ export default function BasicDetails({
       </div>
 
       <div className="grid gap-6 md:grid-cols-2">
-        {/* Work Arrangement */}
-        <div className="space-y-2">
-          <div className="flex items-center gap-2">
-            <Label htmlFor="workArrangement">
-              Work Arrangement <span className="text-destructive">*</span>
-            </Label>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Select whether the position is Onsite or Offshore. This will determine which fields are shown next.</p>
-              </TooltipContent>
-            </Tooltip>
-          </div>
-          <Select 
-            value={workArrangement} 
-            onValueChange={(value: "Offshore" | "Onsite") => setWorkArrangement(value)}
-            disabled
-          >
-            <SelectTrigger data-testid="select-work-arrangement" className="cursor-not-allowed opacity-75">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="Offshore">Offshore</SelectItem>
-              <SelectItem value="Onsite">Onsite</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
         {/* Job Type */}
         <div className="space-y-2">
           <div className="flex items-center gap-2">
@@ -111,6 +90,33 @@ export default function BasicDetails({
               <SelectItem value="permanent">Permanent</SelectItem>
               <SelectItem value="contract">Contract</SelectItem>
               <SelectItem value="consultant">Consultant</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Core Skill */}
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <Label htmlFor="coreSkill">Core Skill</Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Select the primary skill required for this position (optional).</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
+          <Select defaultValue={data.coreSkill}>
+            <SelectTrigger data-testid="select-core-skill">
+              <SelectValue placeholder="Select core skill" />
+            </SelectTrigger>
+            <SelectContent>
+              {skillsOptions.map((skill) => (
+                <SelectItem key={skill} value={skill}>
+                  {skill}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
