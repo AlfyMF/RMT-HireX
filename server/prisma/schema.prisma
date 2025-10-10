@@ -1,0 +1,255 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model JobType {
+  id          String   @id @default(uuid())
+  name        String   @unique @db.VarChar(25)
+  description String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  isActive    Boolean  @default(true) @map("is_active")
+  
+  jobRequisitions JobRequisition[]
+
+  @@map("job_types")
+}
+
+model Certification {
+  id                  String   @id @default(uuid())
+  name                String   @unique @db.VarChar(255)
+  issuingOrganization String   @db.VarChar(255) @map("issuing_organization")
+  description         String?  @db.Text
+  createdAt           DateTime @default(now()) @map("created_at")
+  updatedAt           DateTime @updatedAt @map("updated_at")
+  isActive            Boolean  @default(true) @map("is_active")
+
+  @@index([issuingOrganization])
+  @@map("certifications")
+}
+
+model Country {
+  id        String   @id @default(uuid())
+  name      String   @unique @db.VarChar(255)
+  code      String   @unique @db.VarChar(3)
+  phoneCode String?  @db.VarChar(5) @map("phone_code")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  isActive  Boolean  @default(true) @map("is_active")
+  
+  officeLocations OfficeLocation[]
+
+  @@index([phoneCode])
+  @@map("countries")
+}
+
+model Department {
+  id            String   @id @default(uuid())
+  name          String   @unique @db.VarChar(255)
+  code          String   @unique @db.VarChar(255)
+  description   String?  @db.Text
+  duHead        String?  @db.VarChar(36) @map("du_head")
+  cdo           String?  @db.VarChar(36)
+  recruiterLead String?  @db.VarChar(36) @map("recruiter_lead")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  isActive      Boolean  @default(true) @map("is_active")
+  
+  users           User[]
+  jobRequisitions JobRequisition[]
+
+  @@index([code])
+  @@map("departments")
+}
+
+model JobTitle {
+  id          String   @id @default(uuid())
+  title       String   @unique @db.VarChar(255)
+  description String?  @db.Text
+  level       Int?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  isActive    Boolean  @default(true) @map("is_active")
+  
+  jobRequisitions JobRequisition[]
+
+  @@index([level])
+  @@map("job_titles")
+}
+
+model Qualification {
+  id          String   @id @default(uuid())
+  name        String   @unique @db.VarChar(255)
+  level       String?  @db.VarChar(255)
+  description String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  isActive    Boolean  @default(true) @map("is_active")
+
+  @@index([level])
+  @@map("qualifications")
+}
+
+model Role {
+  id          String   @id @default(uuid())
+  name        String   @unique @db.VarChar(255)
+  description String?  @db.Text
+  permissions Json?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  isActive    Boolean  @default(true) @map("is_active")
+  
+  users User[]
+
+  @@map("roles")
+}
+
+model Skill {
+  id         String   @id @default(uuid())
+  name       String   @unique @db.VarChar(255)
+  category   String?  @db.VarChar(255)
+  isTechnical Boolean @default(true) @map("is_technical")
+  importance String   @default("primary") @db.VarChar(20)
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  isActive   Boolean  @default(true) @map("is_active")
+
+  @@index([category, isTechnical])
+  @@index([importance])
+  @@index([isTechnical])
+  @@map("skills")
+}
+
+model OfficeLocation {
+  id        String   @id @default(uuid())
+  name      String   @unique @db.VarChar(255)
+  address   String   @db.Text
+  countryId String   @db.VarChar(36) @map("country_id")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  isActive  Boolean  @default(true) @map("is_active")
+  
+  country         Country          @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  jobRequisitions JobRequisition[]
+
+  @@index([countryId])
+  @@map("office_locations")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique @db.VarChar(255)
+  name          String?   @db.VarChar(255)
+  role          String    @db.VarChar(50)
+  roleId        String?   @db.VarChar(36) @map("role_id")
+  departmentId  String?   @db.VarChar(36) @map("department_id")
+  deactivatedAt DateTime? @map("deactivated_at")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+  isActive      Boolean   @default(true) @map("is_active")
+  
+  roleRef       Role?       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  department    Department? @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  
+  jobRequisitions JobRequisition[]
+
+  @@index([email, isActive])
+  @@index([departmentId])
+  @@map("users")
+}
+
+model VisaStatus {
+  id           String   @id @default(uuid())
+  status       String   @unique @db.VarChar(255)
+  description  String?  @db.Text
+  isWorkPermit Boolean  @default(false) @map("is_work_permit")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  isActive     Boolean  @default(true) @map("is_active")
+
+  @@index([isWorkPermit])
+  @@map("visa_statuses")
+}
+
+model WorkShift {
+  id          String   @id @default(uuid())
+  name        String   @unique @db.VarChar(255)
+  startTime   String   @db.VarChar(8) @map("start_time")
+  endTime     String   @db.VarChar(8) @map("end_time")
+  description String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  isActive    Boolean  @default(true) @map("is_active")
+
+  @@index([startTime, endTime])
+  @@map("work_shifts")
+}
+
+model WorkTimeZone {
+  id            String   @id @default(uuid())
+  name          String   @unique @db.VarChar(255)
+  description   String?  @db.Text
+  timezoneValue String   @unique @db.VarChar(255) @map("timezone_value")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+  isActive      Boolean  @default(true) @map("is_active")
+
+  @@map("work_timezones")
+}
+
+model JobRequisition {
+  id                    String   @id @default(uuid())
+  jrId                  String   @unique @db.VarChar(50) @map("jr_id")
+  jobTitleId            String   @db.VarChar(36) @map("job_title_id")
+  departmentId          String   @db.VarChar(36) @map("department_id")
+  jobTypeId             String   @db.VarChar(36) @map("job_type_id")
+  workArrangement       String   @db.VarChar(50) @map("work_arrangement")
+  locationId            String   @db.VarChar(36) @map("location_id")
+  positions             Int      @default(1)
+  experience            String?  @db.VarChar(100)
+  salaryRange           String?  @db.VarChar(100) @map("salary_range")
+  primarySkills         String[] @map("primary_skills")
+  secondarySkills       String[] @default([]) @map("secondary_skills")
+  niceToHaveSkills      String[] @default([]) @map("nice_to_have_skills")
+  qualifications        String[] @default([])
+  certifications        String[] @default([])
+  projectName           String?  @db.VarChar(255) @map("project_name")
+  projectDescription    String?  @db.Text @map("project_description")
+  clientName            String?  @db.VarChar(255) @map("client_name")
+  projectDuration       String?  @db.VarChar(100) @map("project_duration")
+  jobDescription        String?  @db.Text @map("job_description")
+  responsibilities      String[] @default([])
+  requirements          String[] @default([])
+  preferredQualifications String[] @default([]) @map("preferred_qualifications")
+  benefits              String[] @default([])
+  workMode              String?  @db.VarChar(50) @map("work_mode")
+  workShift             String?  @db.VarChar(100) @map("work_shift")
+  workTimezone          String?  @db.VarChar(100) @map("work_timezone")
+  clientLocation        String?  @db.VarChar(255) @map("client_location")
+  visaRequirement       String?  @db.VarChar(100) @map("visa_requirement")
+  travelRequired        Boolean  @default(false) @map("travel_required")
+  travelPercentage      Int?     @map("travel_percentage")
+  requestedBy           String   @db.VarChar(36) @map("requested_by")
+  hiringManager         String?  @db.VarChar(255) @map("hiring_manager")
+  status                String   @default("Draft") @db.VarChar(50)
+  createdAt             DateTime @default(now()) @map("created_at")
+  updatedAt             DateTime @updatedAt @map("updated_at")
+  
+  jobTitle    JobTitle       @relation(fields: [jobTitleId], references: [id])
+  department  Department     @relation(fields: [departmentId], references: [id])
+  jobType     JobType        @relation(fields: [jobTypeId], references: [id])
+  location    OfficeLocation @relation(fields: [locationId], references: [id])
+  requester   User           @relation(fields: [requestedBy], references: [id])
+
+  @@index([status])
+  @@index([departmentId])
+  @@index([workArrangement])
+  @@index([locationId])
+  @@index([jrId])
+  @@map("job_requisitions")
+}
