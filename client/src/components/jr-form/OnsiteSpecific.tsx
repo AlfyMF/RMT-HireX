@@ -92,7 +92,17 @@ export default function OnsiteSpecific({ data, onUpdate }: OnsiteSpecificProps) 
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="rateUnit">Rate Unit <span className="text-destructive">*</span></Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="rateUnit">Rate Unit <span className="text-destructive">*</span></Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Select the unit for the rate (per hour, month, year, or contract).</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <Select value={rateUnit} onValueChange={setRateUnit}>
             <SelectTrigger data-testid="select-rate-unit">
               <SelectValue />
@@ -107,7 +117,17 @@ export default function OnsiteSpecific({ data, onUpdate }: OnsiteSpecificProps) 
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="rateCurrency">Currency <span className="text-destructive">*</span></Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="rateCurrency">Currency <span className="text-destructive">*</span></Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Select the currency for the rate.</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <Select value={rateCurrency} onValueChange={setRateCurrency}>
             <SelectTrigger data-testid="select-rate-currency">
               <SelectValue />
@@ -203,7 +223,17 @@ export default function OnsiteSpecific({ data, onUpdate }: OnsiteSpecificProps) 
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="contractDurationUnit">Duration Unit <span className="text-destructive">*</span></Label>
+          <div className="flex items-center gap-2">
+            <Label htmlFor="contractDurationUnit">Duration Unit <span className="text-destructive">*</span></Label>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Select the unit for contract duration (months or years).</p>
+              </TooltipContent>
+            </Tooltip>
+          </div>
           <Select value={contractDurationUnit} onValueChange={setContractDurationUnit}>
             <SelectTrigger data-testid="select-contract-duration-unit">
               <SelectValue />
