@@ -60,12 +60,21 @@ Preferred communication style: Simple, everyday language.
 - **Job Description**: Updated labels to match spec exactly - "Primary Duties", "Good-to-Have Duties", "Job Specification" with comprehensive tooltips
 - **Onsite-Specific**: Rebuilt with contract rate fields (amount, unit, currency), payment cycle, visa status multi-select, contract duration, reporting manager, interview process, H1 transfer toggle, and travel required toggle
 
-**Phase 2 - Refinements (Latest)**:
+**Phase 2 - Refinements**:
 - **Basic Details - Conditional Date Fields**: Fixed conditional display logic so Expected Date of Onboarding (Start/End) appears only for Offshore positions, and Ideal Start Date (Start/End) appears only for Onsite positions
 - **Basic Details - Complete Tooltips**: Added comprehensive tooltips to all fields including Work Arrangement, Job Type, Job Title, Requested Date, Department, Requested By, Hiring Manager, Number of Positions, Billable, Client Billing Rate, Total Budget, and Expected Salary Range
 - **Basic Details - Conditional Field Display**: Client Billing Rate now only shows when Billable = Yes; Total Budget fields only show for Contract/Consultant job types
 - **Skills & Qualifications**: Changed certification label from "Certification (Mandatory & good to have)" to simply "Certification" per spec
 - **Job Description**: Simplified labels to "Primary Duties", "Good-to-Have Duties", and "Job Specification" (removed slash separators)
+
+**Phase 3 - Master Data Integration (October 13, 2025)**:
+- **React Query Configuration**: Configured default queryFn in api.ts for centralized API fetching with automatic API_BASE_URL prefix
+- **BasicDetails.tsx**: All dropdowns now fetch from master data APIs (Job Types, Skills, Job Titles, Departments, Users); implemented department-based filtering for Hiring Manager and Requested By fields (filters by "Hiring Manager" or "DU Head" role); added jobType casing normalization (lowercase for storage, title case for display with capitalize helper)
+- **SkillsQualifications.tsx**: Integrated with Skills, Qualifications, and Certifications master data APIs; added useEffect to propagate selections to parent state
+- **ProjectClientInfo.tsx**: Integrated with Countries master data API for Client Country dropdown
+- **LocationShift.tsx**: Integrated with Office Locations, Work Shifts, and Work Timezones master data APIs
+- **OnsiteSpecific.tsx**: Integrated with Visa Statuses master data API
+- **Data Persistence**: All form components now properly call onUpdate handlers to persist selections to parent state, ensuring data consistency across form steps
 
 ### Backend Architecture
 
