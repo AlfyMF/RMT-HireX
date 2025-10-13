@@ -75,6 +75,9 @@ Preferred communication style: Simple, everyday language.
 - **LocationShift.tsx**: Integrated with Office Locations, Work Shifts, and Work Timezones master data APIs
 - **OnsiteSpecific.tsx**: Integrated with Visa Statuses master data API
 - **Data Persistence**: All form components now properly call onUpdate handlers to persist selections to parent state, ensuring data consistency across form steps
+- **Database Setup**: Ran Prisma migrations and seeded database with comprehensive master data (76 skills, 193 countries, 15 certifications, etc.)
+- **API Response Handling**: Fixed apiRequest to unwrap backend response envelope and extract data property
+- **Form Submission Flow**: Added automatic navigation to Dashboard after successful JR submission with 1.5s delay to display success toast
 
 ### Backend Architecture
 

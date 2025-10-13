@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -44,6 +44,7 @@ const steps = [
 
 export default function CreateJobRequisition() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const isEditMode = !!id;
   const [currentStep, setCurrentStep] = useState(1);
   const [workArrangement, setWorkArrangement] = useState<"Offshore" | "Onsite" | null>(null);
@@ -133,6 +134,11 @@ export default function CreateJobRequisition() {
         ? "Your job requisition has been updated successfully."
         : "Your job requisition has been submitted for approval.",
     });
+    
+    // Navigate to dashboard after a short delay to show the toast
+    setTimeout(() => {
+      navigate("/dashboard");
+    }, 1500);
   };
 
   const updateFormData = (stepData: Record<string, any>) => {
