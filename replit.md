@@ -68,15 +68,15 @@ Preferred communication style: Simple, everyday language.
 - **Job Description**: Simplified labels to "Primary Duties", "Good-to-Have Duties", and "Job Specification" (removed slash separators)
 
 **Phase 3 - Master Data Integration (October 13, 2025)**:
+- **Database Setup**: Configured Neon PostgreSQL database using App Secrets for DATABASE_URL; pushed Prisma schema to create 14 tables; seeded database with comprehensive master data (12 departments, 20 skills, 15 job titles, 5 users, 15 certifications, 94 countries, office locations, work shifts, timezones, visa statuses)
 - **React Query Configuration**: Configured default queryFn in api.ts for centralized API fetching with automatic API_BASE_URL prefix
+- **API Response Handling**: Fixed apiRequest to unwrap backend response envelope and extract data property from {success, message, data} format
 - **BasicDetails.tsx**: All dropdowns now fetch from master data APIs (Job Types, Skills, Job Titles, Departments, Users); implemented department-based filtering for Hiring Manager and Requested By fields (filters by "Hiring Manager" or "DU Head" role); added jobType casing normalization (lowercase for storage, title case for display with capitalize helper)
 - **SkillsQualifications.tsx**: Integrated with Skills, Qualifications, and Certifications master data APIs; added useEffect to propagate selections to parent state
 - **ProjectClientInfo.tsx**: Integrated with Countries master data API for Client Country dropdown
 - **LocationShift.tsx**: Integrated with Office Locations, Work Shifts, and Work Timezones master data APIs
 - **OnsiteSpecific.tsx**: Integrated with Visa Statuses master data API
 - **Data Persistence**: All form components now properly call onUpdate handlers to persist selections to parent state, ensuring data consistency across form steps
-- **Database Setup**: Ran Prisma migrations and seeded database with comprehensive master data (76 skills, 193 countries, 15 certifications, etc.)
-- **API Response Handling**: Fixed apiRequest to unwrap backend response envelope and extract data property
 - **Form Submission Flow**: Added automatic navigation to Dashboard after successful JR submission with 1.5s delay to display success toast
 
 ### Backend Architecture
