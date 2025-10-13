@@ -2,15 +2,6 @@ import { QueryClient } from "@tanstack/react-query";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
-export const queryClient = new QueryClient({
-  defaultOptions: {
-    queries: {
-      refetchOnWindowFocus: false,
-      retry: 1,
-    },
-  },
-});
-
 export const apiRequest = async (url: string, options?: RequestInit) => {
   const response = await fetch(`${API_BASE_URL}${url}`, {
     ...options,
@@ -26,6 +17,19 @@ export const apiRequest = async (url: string, options?: RequestInit) => {
 
   return response.json();
 };
+
+export const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      queryFn: async ({ queryKey }) => {
+        const url = queryKey[0] as string;
+        return apiRequest(url);
+      },
+      refetchOnWindowFocus: false,
+      retry: 1,
+    },
+  },
+});
 
 export const api = {
   get: (url: string) => apiRequest(url),

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -35,15 +36,11 @@ export default function OnsiteSpecific({ data, onUpdate }: OnsiteSpecificProps) 
   const [acceptH1Transfer, setAcceptH1Transfer] = useState<boolean>(data.acceptH1Transfer || false);
   const [travelRequired, setTravelRequired] = useState<boolean>(data.travelRequired || false);
 
-  const visaStatusOptions = [
-    "US Citizen",
-    "Green Card",
-    "H1B",
-    "L1",
-    "TN Visa",
-    "OPT/CPT",
-    "E3 Visa"
-  ];
+  // Fetch master data
+  const { data: visaStatuses } = useQuery<any[]>({ queryKey: ['/visa-statuses'] });
+
+  // Convert master data to options array
+  const visaStatusOptions = visaStatuses?.map(visa => visa.status) || [];
 
   useEffect(() => {
     onUpdate({

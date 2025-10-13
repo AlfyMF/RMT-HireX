@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import {
@@ -33,9 +34,15 @@ export default function LocationShift({ data, onUpdate, workArrangement }: Locat
   // Onsite state
   const [onsiteWorkMode, setOnsiteWorkMode] = useState<string>(data.onsiteWorkMode || "");
   
-  const workLocationOptions = ["Trivandrum", "Kochi", "Bangalore", "Remote"];
-  const workShiftOptions = ["General: 9am - 6pm", "UK", "US", "Australia", "Other"];
-  const timezoneOptions = ["EST", "PST", "IST", "GMT", "CET", "JST", "AEST"];
+  // Fetch master data
+  const { data: officeLocations } = useQuery<any[]>({ queryKey: ['/office-locations'] });
+  const { data: workShiftsData } = useQuery<any[]>({ queryKey: ['/work-shifts'] });
+  const { data: workTimezones } = useQuery<any[]>({ queryKey: ['/work-timezones'] });
+
+  // Convert master data to options arrays
+  const workLocationOptions = officeLocations?.map(loc => loc.name) || [];
+  const workShiftOptions = workShiftsData?.map(shift => shift.name) || [];
+  const timezoneOptions = workTimezones?.map(tz => tz.name) || [];
 
   // Check if shift time field should be shown (if UK/US/Australia/Other is selected)
   const showShiftTime = workShifts.some(shift => 

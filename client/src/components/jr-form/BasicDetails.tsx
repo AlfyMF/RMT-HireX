@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import {
@@ -32,28 +33,40 @@ export default function BasicDetails({
   jobType: parentJobType,
   setJobType: setParentJobType
 }: BasicDetailsProps) {
+  // Helper to capitalize first letter
+  const capitalize = (str: string) => str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+  
   const [billable, setBillable] = useState<string>(data.billable?.toLowerCase() || "");
-  const [jobType, setJobType] = useState<string>(data.jobType?.toLowerCase() || parentJobType || "");
+  const [jobType, setJobType] = useState<string>(capitalize(data.jobType || parentJobType || ""));
+  const [selectedDepartment, setSelectedDepartment] = useState<string>(data.department || data.deliveryUnit || "");
 
-  const skillsOptions = [
-    "React", "TypeScript", "Node.js", "Python", "Java", "C++", "C#", 
-    "JavaScript", "Angular", "Vue.js", "Express.js", "Django", "Flask",
-    "Spring Boot", "AWS", "Azure", "GCP", "Docker", "Kubernetes",
-    "MongoDB", "PostgreSQL", "MySQL", "Redis", "GraphQL", "REST API",
-    "Git", "CI/CD", "Jenkins", "Terraform", "Ansible", "Linux", "Bash",
-    "Microservices", "Agile", "Scrum", "TDD", "Jest", "Mocha"
-  ];
+  // Fetch master data
+  const { data: jobTypes } = useQuery<any[]>({ queryKey: ['/job-types'] });
+  const { data: skills } = useQuery<any[]>({ queryKey: ['/skills'] });
+  const { data: jobTitles } = useQuery<any[]>({ queryKey: ['/job-titles'] });
+  const { data: departments } = useQuery<any[]>({ queryKey: ['/departments'] });
+  const { data: users } = useQuery<any[]>({ queryKey: ['/users'] });
+
+  // Filter users for Hiring Manager and Requested By based on selected department and role
+  const filteredUsers = useMemo(() => {
+    if (!users || !selectedDepartment) return [];
+    return users.filter(user => 
+      user.department?.name === selectedDepartment && 
+      (user.roleRef?.name === "Hiring Manager" || user.roleRef?.name === "DU Head")
+    );
+  }, [users, selectedDepartment]);
 
   // Update local state when data changes (for edit mode)
   useEffect(() => {
     if (data.billable) setBillable(data.billable.toLowerCase());
-    if (data.jobType) setJobType(data.jobType.toLowerCase());
-  }, [data.billable, data.jobType]);
+    if (data.jobType) setJobType(capitalize(data.jobType));
+    if (data.department || data.deliveryUnit) setSelectedDepartment(data.department || data.deliveryUnit);
+  }, [data.billable, data.jobType, data.department, data.deliveryUnit]);
 
   // Update parent jobType when local jobType changes
   useEffect(() => {
     if (setParentJobType && jobType) {
-      setParentJobType(jobType);
+      setParentJobType(jobType.toLowerCase());
     }
   }, [jobType, setParentJobType]);
 
@@ -82,14 +95,19 @@ export default function BasicDetails({
               </TooltipContent>
             </Tooltip>
           </div>
-          <Select value={jobType} onValueChange={setJobType}>
+          <Select value={jobType} onValueChange={(value) => {
+            setJobType(value);
+            onUpdate({ jobType: value.toLowerCase() });
+          }}>
             <SelectTrigger data-testid="select-job-type">
               <SelectValue placeholder="Select job type" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="permanent">Permanent</SelectItem>
-              <SelectItem value="contract">Contract</SelectItem>
-              <SelectItem value="consultant">Consultant</SelectItem>
+              {jobTypes?.map((type) => (
+                <SelectItem key={type.id} value={type.name}>
+                  {type.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -107,14 +125,17 @@ export default function BasicDetails({
               </TooltipContent>
             </Tooltip>
           </div>
-          <Select defaultValue={data.coreSkill}>
+          <Select 
+            defaultValue={data.coreSkill}
+            onValueChange={(value) => onUpdate({ coreSkill: value })}
+          >
             <SelectTrigger data-testid="select-core-skill">
               <SelectValue placeholder="Select core skill" />
             </SelectTrigger>
             <SelectContent>
-              {skillsOptions.map((skill) => (
-                <SelectItem key={skill} value={skill}>
-                  {skill}
+              {skills?.map((skill) => (
+                <SelectItem key={skill.id} value={skill.name}>
+                  {skill.name}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -136,15 +157,19 @@ export default function BasicDetails({
               </TooltipContent>
             </Tooltip>
           </div>
-          <Select defaultValue={data.title}>
+          <Select 
+            defaultValue={data.title}
+            onValueChange={(value) => onUpdate({ title: value })}
+          >
             <SelectTrigger data-testid="select-job-title">
               <SelectValue placeholder="Select job title" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Software Developer">Software Developer</SelectItem>
-              <SelectItem value="Senior Full Stack Developer">Senior Full Stack Developer</SelectItem>
-              <SelectItem value="Tech Lead">Tech Lead</SelectItem>
-              <SelectItem value="Engineering Manager">Engineering Manager</SelectItem>
+              {jobTitles?.map((title) => (
+                <SelectItem key={title.id} value={title.title}>
+                  {title.title}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -187,15 +212,19 @@ export default function BasicDetails({
               </TooltipContent>
             </Tooltip>
           </div>
-          <Select defaultValue={data.department || data.deliveryUnit}>
+          <Select value={selectedDepartment} onValueChange={(value) => {
+            setSelectedDepartment(value);
+            onUpdate({ department: value });
+          }}>
             <SelectTrigger data-testid="select-department">
               <SelectValue placeholder="Select department" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Engineering">Engineering</SelectItem>
-              <SelectItem value="Product">Product</SelectItem>
-              <SelectItem value="Design">Design</SelectItem>
-              <SelectItem value="Sales">Sales</SelectItem>
+              {departments?.map((dept) => (
+                <SelectItem key={dept.id} value={dept.name}>
+                  {dept.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -215,14 +244,19 @@ export default function BasicDetails({
               </TooltipContent>
             </Tooltip>
           </div>
-          <Select defaultValue={data.requestedBy}>
+          <Select 
+            defaultValue={data.requestedBy}
+            onValueChange={(value) => onUpdate({ requestedBy: value })}
+          >
             <SelectTrigger data-testid="select-requested-by">
               <SelectValue placeholder="Select user" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="John Doe">John Doe</SelectItem>
-              <SelectItem value="Jane Smith">Jane Smith</SelectItem>
-              <SelectItem value="Bob Wilson">Bob Wilson</SelectItem>
+              {filteredUsers?.map((user) => (
+                <SelectItem key={user.id} value={user.name}>
+                  {user.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -242,15 +276,19 @@ export default function BasicDetails({
               </TooltipContent>
             </Tooltip>
           </div>
-          <Select defaultValue={data.hiringManager}>
+          <Select 
+            defaultValue={data.hiringManager}
+            onValueChange={(value) => onUpdate({ hiringManager: value })}
+          >
             <SelectTrigger data-testid="select-hiring-manager">
               <SelectValue placeholder="Select hiring manager" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="Alice Johnson">Alice Johnson</SelectItem>
-              <SelectItem value="Carol Martinez">Carol Martinez</SelectItem>
-              <SelectItem value="Jane Smith">Jane Smith</SelectItem>
-              <SelectItem value="David Lee">David Lee</SelectItem>
+              {filteredUsers?.map((user) => (
+                <SelectItem key={user.id} value={user.name}>
+                  {user.name}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>

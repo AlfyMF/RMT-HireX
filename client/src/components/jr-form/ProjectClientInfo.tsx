@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import {
@@ -28,6 +29,9 @@ interface ProjectClientInfoProps {
 export default function ProjectClientInfo({ data, onUpdate, jobType }: ProjectClientInfoProps) {
   const [clientInterview, setClientInterview] = useState<boolean>(data.clientInterview || false);
 
+  // Fetch master data
+  const { data: countries } = useQuery<any[]>({ queryKey: ['/countries'] });
+
   // Show Project Role/Job Title only for Contract/Consultant
   const showProjectRole = jobType === "contract" || jobType === "consultant";
 
@@ -35,12 +39,6 @@ export default function ProjectClientInfo({ data, onUpdate, jobType }: ProjectCl
   useEffect(() => {
     onUpdate({ clientInterview });
   }, [clientInterview, onUpdate]);
-
-  const countries = [
-    "United States", "United Kingdom", "Canada", "Australia", "Germany", 
-    "France", "India", "Singapore", "Japan", "China", "Brazil", "Mexico",
-    "Netherlands", "Switzerland", "UAE", "South Africa", "Spain", "Italy"
-  ];
 
   return (
     <div className="space-y-6">
@@ -143,9 +141,9 @@ export default function ProjectClientInfo({ data, onUpdate, jobType }: ProjectCl
               <SelectValue placeholder="Select client country" />
             </SelectTrigger>
             <SelectContent>
-              {countries.map((country) => (
-                <SelectItem key={country} value={country}>
-                  {country}
+              {countries?.map((country) => (
+                <SelectItem key={country.id} value={country.name}>
+                  {country.name}
                 </SelectItem>
               ))}
             </SelectContent>

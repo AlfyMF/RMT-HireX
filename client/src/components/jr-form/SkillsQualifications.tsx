@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { MultiSelect } from "@/components/ui/multi-select";
@@ -25,6 +26,16 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
   const [qualifications, setQualifications] = useState<string[]>(data.qualifications || []);
   const [certifications, setCertifications] = useState<string[]>(data.certifications || []);
 
+  // Fetch master data
+  const { data: skills } = useQuery<any[]>({ queryKey: ['/skills'] });
+  const { data: qualificationsData } = useQuery<any[]>({ queryKey: ['/qualifications'] });
+  const { data: certificationsData } = useQuery<any[]>({ queryKey: ['/certifications'] });
+
+  // Convert master data to options arrays
+  const skillsOptions = skills?.map(skill => skill.name) || [];
+  const qualificationOptions = qualificationsData?.map(qual => qual.name) || [];
+  const certificationsOptions = certificationsData?.map(cert => cert.name) || [];
+
   // Update local state when data changes (for edit mode)
   useEffect(() => {
     if (data.mandatorySkills) setMandatorySkills(data.mandatorySkills);
@@ -35,29 +46,17 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
     if (data.certifications) setCertifications(data.certifications);
   }, [data.mandatorySkills, data.primarySkills, data.secondarySkills, data.niceToHaveSkills, data.qualifications, data.certifications]);
 
-  const skillsOptions = [
-    "React", "TypeScript", "Node.js", "Python", "Java", "C++", "C#", 
-    "JavaScript", "Angular", "Vue.js", "Express.js", "Django", "Flask",
-    "Spring Boot", "AWS", "Azure", "GCP", "Docker", "Kubernetes",
-    "MongoDB", "PostgreSQL", "MySQL", "Redis", "GraphQL", "REST API",
-    "Git", "CI/CD", "Jenkins", "Terraform", "Ansible", "Linux", "Bash",
-    "Microservices", "Agile", "Scrum", "TDD", "Jest", "Mocha"
-  ];
-
-  const qualificationOptions = [
-    "Undergraduate",
-    "Graduate",
-    "Post-graduate",
-    "Diploma/Certification",
-    "Doctorate/PhD"
-  ];
-
-  const certificationsOptions = [
-    "AWS Certified Solutions Architect", "AWS Certified Developer",
-    "Azure Developer Associate", "Google Cloud Professional",
-    "Certified Kubernetes Administrator", "PMP", "Scrum Master",
-    "Oracle Certified Professional", "Microsoft Certified", "React Certified"
-  ];
+  // Update parent when state changes
+  useEffect(() => {
+    onUpdate({ 
+      mandatorySkills, 
+      primarySkills: mandatorySkills,
+      secondarySkills, 
+      niceToHaveSkills, 
+      qualifications, 
+      certifications 
+    });
+  }, [mandatorySkills, secondarySkills, niceToHaveSkills, qualifications, certifications, onUpdate]);
 
   return (
     <div className="space-y-6">
