@@ -15,7 +15,9 @@ export const apiRequest = async (url: string, options?: RequestInit) => {
     throw new Error(`API Error: ${response.statusText}`);
   }
 
-  return response.json();
+  const json = await response.json();
+  // Extract data from the success response wrapper
+  return json.data || json;
 };
 
 export const queryClient = new QueryClient({
