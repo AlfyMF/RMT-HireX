@@ -17,7 +17,7 @@ model JobType {
   
   jobRequisitions JobRequisition[]
 
-  @@map("job_types")
+  @@map("JobType")
 }
 
 model Certification {
@@ -30,7 +30,7 @@ model Certification {
   isActive            Boolean  @default(true) @map("is_active")
 
   @@index([issuingOrganization])
-  @@map("certifications")
+  @@map("Certification")
 }
 
 model Country {
@@ -45,7 +45,7 @@ model Country {
   officeLocations OfficeLocation[]
 
   @@index([phoneCode])
-  @@map("countries")
+  @@map("Country")
 }
 
 model Department {
@@ -60,11 +60,18 @@ model Department {
   updatedAt     DateTime @updatedAt @map("updated_at")
   isActive      Boolean  @default(true) @map("is_active")
   
-  users           User[]
+  duHeadUser        User? @relation("DepartmentDUHead", fields: [duHead], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  cdoUser           User? @relation("DepartmentCDO", fields: [cdo], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  recruiterLeadUser User? @relation("DepartmentRecruiterLead", fields: [recruiterLead], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  
+  users           User[] @relation("UserDepartment")
   jobRequisitions JobRequisition[]
 
   @@index([code])
-  @@map("departments")
+  @@index([duHead])
+  @@index([cdo])
+  @@index([recruiterLead])
+  @@map("Department")
 }
 
 model JobTitle {
@@ -79,7 +86,7 @@ model JobTitle {
   jobRequisitions JobRequisition[]
 
   @@index([level])
-  @@map("job_titles")
+  @@map("JobTitle")
 }
 
 model Qualification {
@@ -92,7 +99,7 @@ model Qualification {
   isActive    Boolean  @default(true) @map("is_active")
 
   @@index([level])
-  @@map("qualifications")
+  @@map("Qualification")
 }
 
 model Role {
@@ -106,7 +113,7 @@ model Role {
   
   users User[]
 
-  @@map("roles")
+  @@map("Role")
 }
 
 model Skill {
@@ -122,7 +129,7 @@ model Skill {
   @@index([category, isTechnical])
   @@index([importance])
   @@index([isTechnical])
-  @@map("skills")
+  @@map("Skill")
 }
 
 model OfficeLocation {
@@ -138,7 +145,7 @@ model OfficeLocation {
   jobRequisitions JobRequisition[]
 
   @@index([countryId])
-  @@map("office_locations")
+  @@map("OfficeLocation")
 }
 
 model User {
@@ -153,14 +160,18 @@ model User {
   updatedAt     DateTime  @updatedAt @map("updated_at")
   isActive      Boolean   @default(true) @map("is_active")
   
-  roleRef       Role?       @relation(fields: [roleId], references: [id], onDelete: Cascade)
-  department    Department? @relation(fields: [departmentId], references: [id], onDelete: Cascade)
+  roleRef    Role?       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  department Department? @relation("UserDepartment", fields: [departmentId], references: [id], onDelete: Cascade)
+  
+  departmentsAsDUHead        Department[] @relation("DepartmentDUHead")
+  departmentsAsCDO           Department[] @relation("DepartmentCDO")
+  departmentsAsRecruiterLead Department[] @relation("DepartmentRecruiterLead")
   
   jobRequisitions JobRequisition[]
 
   @@index([email, isActive])
   @@index([departmentId])
-  @@map("users")
+  @@map("User")
 }
 
 model VisaStatus {
@@ -173,7 +184,7 @@ model VisaStatus {
   isActive     Boolean  @default(true) @map("is_active")
 
   @@index([isWorkPermit])
-  @@map("visa_statuses")
+  @@map("VisaStatus")
 }
 
 model WorkShift {
@@ -187,7 +198,7 @@ model WorkShift {
   isActive    Boolean  @default(true) @map("is_active")
 
   @@index([startTime, endTime])
-  @@map("work_shifts")
+  @@map("WorkShift")
 }
 
 model WorkTimeZone {
@@ -199,7 +210,7 @@ model WorkTimeZone {
   updatedAt     DateTime @updatedAt @map("updated_at")
   isActive      Boolean  @default(true) @map("is_active")
 
-  @@map("work_timezones")
+  @@map("WorkTimeZone")
 }
 
 model JobRequisition {
@@ -251,5 +262,5 @@ model JobRequisition {
   @@index([workArrangement])
   @@index([locationId])
   @@index([jrId])
-  @@map("job_requisitions")
+  @@map("JobRequisition")
 }
