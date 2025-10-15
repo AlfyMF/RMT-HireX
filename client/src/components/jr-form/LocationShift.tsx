@@ -29,7 +29,7 @@ interface LocationShiftProps {
 export default function LocationShift({ data, onUpdate, workArrangement }: LocationShiftProps) {
   // Offshore state
   const [workLocations, setWorkLocations] = useState<string[]>(data.workLocations || []);
-  const [workShifts, setWorkShifts] = useState<string[]>(data.workShifts || []);
+  const [workShift, setWorkShift] = useState<string>(data.workShift || "");
   
   // Onsite state
   const [onsiteWorkMode, setOnsiteWorkMode] = useState<string>(data.onsiteWorkMode || "");
@@ -44,10 +44,8 @@ export default function LocationShift({ data, onUpdate, workArrangement }: Locat
   const workShiftOptions = workShiftsData?.map(shift => shift.name) || [];
   const timezoneOptions = workTimezones?.map(tz => tz.name) || [];
 
-  // Check if shift time field should be shown (if UK/US/Australia/Other is selected)
-  const showShiftTime = workShifts.some(shift => 
-    ["UK", "US", "Australia", "Other"].includes(shift)
-  );
+  // Check if shift time field should be shown (whenever any shift is selected)
+  const showShiftTime = workShift !== "";
 
   // Check if onsite location and days should be shown
   const showOnsiteLocationFields = onsiteWorkMode === "WFO" || onsiteWorkMode === "Hybrid";
@@ -55,11 +53,11 @@ export default function LocationShift({ data, onUpdate, workArrangement }: Locat
   // Update parent when state changes
   useEffect(() => {
     if (workArrangement === "Offshore") {
-      onUpdate({ workLocations, workShifts });
+      onUpdate({ workLocations, workShift });
     } else {
       onUpdate({ onsiteWorkMode });
     }
-  }, [workLocations, workShifts, onsiteWorkMode, workArrangement, onUpdate]);
+  }, [workLocations, workShift, onsiteWorkMode, workArrangement, onUpdate]);
 
   return (
     <div className="space-y-6">
@@ -97,25 +95,30 @@ export default function LocationShift({ data, onUpdate, workArrangement }: Locat
 
           <div className="space-y-2">
             <div className="flex items-center gap-2">
-              <Label htmlFor="workShifts">
-                Work Shifts <span className="text-destructive">*</span>
+              <Label htmlFor="workShift">
+                Work Shift <span className="text-destructive">*</span>
               </Label>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Select all applicable work shifts. If you choose UK/US/Australia/Other, specify the Indian time below.</p>
+                  <p>Select the work shift for this position.</p>
                 </TooltipContent>
               </Tooltip>
             </div>
-            <MultiSelect
-              options={workShiftOptions}
-              selected={workShifts}
-              onChange={setWorkShifts}
-              placeholder="Select work shifts"
-              data-testid="multiselect-work-shifts"
-            />
+            <Select value={workShift} onValueChange={setWorkShift}>
+              <SelectTrigger data-testid="select-work-shift">
+                <SelectValue placeholder="Select work shift" />
+              </SelectTrigger>
+              <SelectContent>
+                {workShiftOptions.map((shift) => (
+                  <SelectItem key={shift} value={shift}>
+                    {shift}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
           {showShiftTime && (
