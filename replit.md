@@ -87,6 +87,25 @@ Preferred communication style: Simple, everyday language.
 - **UI Integration**: Verified Job Requisition form successfully loads and displays data from new PascalCase database structure without regressions
 - **Production Readiness**: Architect review confirmed migration is production-ready with proper schema structure, foreign key constraints, and comprehensive seeded data
 
+**Phase 5 - Complete JobRequisition Schema Redesign (October 15, 2025)**:
+- **Comprehensive Field Coverage**: Redesigned JobRequisition table with 70+ fields covering all 6 form steps from specification:
+  - Core Identification: id, jrId, jrStatus, submittedBy, isActive, createdAt, updatedAt
+  - Basic Details (Step 1): workArrangement, jobTypeId, coreSkillId, jobTitleId, requestedDate, departmentId, requestedById, hiringManagerId, numberOfPositions, date ranges, billable, budget/salary ranges
+  - Skills & Qualifications (Step 2): primarySkills/secondarySkills/niceToHaveSkills arrays, qualifications/certifications arrays, specificQualification, experience ranges
+  - Project & Client (Step 3): projectName, projectRole, clientName, clientCountryId, clientInterview
+  - Location & Shift (Step 4): workLocations array, workShiftId, shiftTime, onsiteWorkMode, onsiteLocationId, onsiteDaysPerWeek, preferredTimeZoneId
+  - Job Description (Step 5): jobPurpose, primaryDuties, goodToHaveDuties, jobSpecification
+  - Onsite-Specific (Step 6): rate, rateUnit, rateCurrency, paymentCycle, visaStatuses array, contractDuration, durationUnit, reportingManager, interviewProcess, h1Transfer, travelRequired
+- **Complete Foreign Key Relationships**: All specified FKs implemented with proper Prisma relations:
+  - jobTypeId → JobType, coreSkillId → Skill, jobTitleId → JobTitle, departmentId → Department
+  - requestedById/hiringManagerId/recruiterLeadId/recruiterPocId/submittedBy → User (with named relations to prevent conflicts)
+  - clientCountryId → Country, workShiftId → WorkShift, onsiteLocationId → OfficeLocation, preferredTimeZoneId → WorkTimeZone
+- **WorkShift Foreign Key Fix**: Changed workShift from free-text String to workShiftId foreign key for referential integrity and master data consistency
+- **Performance Indexes**: Added strategic indexes on jrStatus, departmentId, requestedById, hiringManagerId, workArrangement, createdAt, updatedAt, jrId for query optimization
+- **Data Types**: Proper types used - Decimal for currency/experience ranges, DateTime for dates, String[] for multi-select fields, Boolean for flags, UUID foreign keys
+- **Database Migration**: Successfully migrated with force reset, re-seeded all master data tables
+- **Architect Verification**: Confirmed production-ready with complete referential integrity supporting full JR workflow including draft saving, step navigation, and submission with status tracking
+
 ### Backend Architecture
 
 **Server Framework**:
