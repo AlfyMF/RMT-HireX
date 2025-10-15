@@ -1,0 +1,48 @@
+Design the transaction tables for the Job Requisition system
+Please use below mentioned details for redesign the JobRequisition table:
+1. Core Identification & Status:
+* id, jrId (auto-generated reference number)
+* jrStatus (Draft, Pending DU Head Approval, Pending CDO Approval, etc.)
+* submittedBy, createdAt,updatedAt
+* isActive
+2. Basic Details (Step 1):
+* workArrangement, jobTypeId, coreSkillId, jobTitleId
+* requestedDate, departmentId, requestedById, hiringManagerId
+* numberOfPositions, expectedDateOfOnboardingStart/End, idealStartDateStart/End
+* billable, clientBillingRate, totalBudgetMin/Max, expectedSalaryMin/Max
+3. Skills & Qualifications (Step 2):
+* Arrays: primarySkills, secondarySkills, niceToHaveSkills, qualifications, certifications
+* specificQualification
+* totalExperienceMin/Max, relevantExperienceMin/Max
+4. Project & Client (Step 3):
+* projectName, projectRole, clientName, clientCountryId, clientInterview
+5. Location & Shift (Step 4):
+* Arrays: workLocations
+* workShifts, shiftTime, onsiteWorkMode, onsiteLocationId, onsiteDaysPerWeek, preferredTimeZoneId
+6. Job Description (Step 5):
+* jobPurpose, primaryDuties, goodToHaveDuties, jobSpecification
+7. Onsite-Specific (Step 6):
+* rate, rateUnit, rateCurrency, paymentCycle, visaStatuses
+* contractDuration, durationUnit
+* reportingManager, interviewProcess
+* h1Transfer, travelRequired
+8. Additional Required Fields:
+* recruiterLeadId (FK to User) recruiterPocId (FK to User)   Foreign Key Relationships
+* jobTypeId → JobType
+* coreSkillId → Skill
+* jobTitleId → JobTitle
+* departmentId → Department
+* requestedById → User
+* hiringManagerId → User
+* workShifts-> WorkShift
+* clientCountryId → Country
+* onsiteLocationId → OfficeLocation
+* preferredTimeZoneId → WorkTimeZone
+* recruiterLeadId → User
+* recruiterPocId → User
+*   Indexes for Performance
+* jrStatus (frequently queried)
+* departmentId (filtering by department)
+* requestedById, hiringManagerId (user queries)
+* workArrangement (Offshore/Onsite filtering)
+* createdAt, updatedAt (date-based queries)
