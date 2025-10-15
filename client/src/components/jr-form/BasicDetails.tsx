@@ -25,34 +25,43 @@ interface BasicDetailsProps {
   setJobType?: (value: string) => void;
 }
 
-export default function BasicDetails({ 
-  data, 
-  onUpdate, 
-  workArrangement, 
+export default function BasicDetails({
+  data,
+  onUpdate,
+  workArrangement,
   setWorkArrangement,
   jobType: parentJobType,
-  setJobType: setParentJobType
+  setJobType: setParentJobType,
 }: BasicDetailsProps) {
   // Helper to capitalize first letter
-  const capitalize = (str: string) => str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
-  
-  const [billable, setBillable] = useState<string>(data.billable?.toLowerCase() || "");
-  const [jobType, setJobType] = useState<string>(capitalize(data.jobType || parentJobType || ""));
-  const [selectedDepartment, setSelectedDepartment] = useState<string>(data.department || data.deliveryUnit || "");
+  const capitalize = (str: string) =>
+    str ? str.charAt(0).toUpperCase() + str.slice(1).toLowerCase() : "";
+
+  const [billable, setBillable] = useState<string>(
+    data.billable?.toLowerCase() || "",
+  );
+  const [jobType, setJobType] = useState<string>(
+    capitalize(data.jobType || parentJobType || ""),
+  );
+  const [selectedDepartment, setSelectedDepartment] = useState<string>(
+    data.department || data.deliveryUnit || "",
+  );
 
   // Fetch master data
-  const { data: jobTypes } = useQuery<any[]>({ queryKey: ['/job-types'] });
-  const { data: skills } = useQuery<any[]>({ queryKey: ['/skills'] });
-  const { data: jobTitles } = useQuery<any[]>({ queryKey: ['/job-titles'] });
-  const { data: departments } = useQuery<any[]>({ queryKey: ['/departments'] });
-  const { data: users } = useQuery<any[]>({ queryKey: ['/users'] });
+  const { data: jobTypes } = useQuery<any[]>({ queryKey: ["/job-types"] });
+  const { data: skills } = useQuery<any[]>({ queryKey: ["/skills"] });
+  const { data: jobTitles } = useQuery<any[]>({ queryKey: ["/job-titles"] });
+  const { data: departments } = useQuery<any[]>({ queryKey: ["/departments"] });
+  const { data: users } = useQuery<any[]>({ queryKey: ["/users"] });
 
   // Filter users for Hiring Manager and Requested By based on selected department and role
   const filteredUsers = useMemo(() => {
     if (!users || !selectedDepartment) return [];
-    return users.filter(user => 
-      user.department?.name === selectedDepartment && 
-      (user.roleRef?.name === "Hiring Manager" || user.roleRef?.name === "DU Head")
+    return users.filter(
+      (user) =>
+        user.department?.name === selectedDepartment &&
+        (user.roleRef?.name === "Hiring Manager" ||
+          user.roleRef?.name === "DU Head"),
     );
   }, [users, selectedDepartment]);
 
@@ -60,7 +69,8 @@ export default function BasicDetails({
   useEffect(() => {
     if (data.billable) setBillable(data.billable.toLowerCase());
     if (data.jobType) setJobType(capitalize(data.jobType));
-    if (data.department || data.deliveryUnit) setSelectedDepartment(data.department || data.deliveryUnit);
+    if (data.department || data.deliveryUnit)
+      setSelectedDepartment(data.department || data.deliveryUnit);
   }, [data.billable, data.jobType, data.department, data.deliveryUnit]);
 
   // Update parent jobType when local jobType changes
@@ -91,14 +101,20 @@ export default function BasicDetails({
                 <Info className="h-4 w-4 text-muted-foreground cursor-help" />
               </TooltipTrigger>
               <TooltipContent>
-                <p>Select the type of job employment (Permanent, Contract, or Consultant).</p>
+                <p>
+                  Select the type of job employment (Permanent, Contract, or
+                  Consultant).
+                </p>
               </TooltipContent>
             </Tooltip>
           </div>
-          <Select value={jobType} onValueChange={(value) => {
-            setJobType(value);
-            onUpdate({ jobType: value.toLowerCase() });
-          }}>
+          <Select
+            value={jobType}
+            onValueChange={(value) => {
+              setJobType(value);
+              onUpdate({ jobType: value.toLowerCase() });
+            }}
+          >
             <SelectTrigger data-testid="select-job-type">
               <SelectValue placeholder="Select job type" />
             </SelectTrigger>
@@ -121,11 +137,14 @@ export default function BasicDetails({
                 <Info className="h-4 w-4 text-muted-foreground cursor-help" />
               </TooltipTrigger>
               <TooltipContent>
-                <p>Select the primary skill required for this position (optional).</p>
+                <p>
+                  Select the primary skill required for this position
+                  (optional).
+                </p>
               </TooltipContent>
             </Tooltip>
           </div>
-          <Select 
+          <Select
             defaultValue={data.coreSkill}
             onValueChange={(value) => onUpdate({ coreSkill: value })}
           >
@@ -153,11 +172,13 @@ export default function BasicDetails({
                 <Info className="h-4 w-4 text-muted-foreground cursor-help" />
               </TooltipTrigger>
               <TooltipContent>
-                <p>Select the job title from the predefined JobTitle Master list.</p>
+                <p>
+                  Select the job title from the predefined JobTitle Master list.
+                </p>
               </TooltipContent>
             </Tooltip>
           </div>
-          <Select 
+          <Select
             defaultValue={data.title}
             onValueChange={(value) => onUpdate({ title: value })}
           >
@@ -189,9 +210,9 @@ export default function BasicDetails({
               </TooltipContent>
             </Tooltip>
           </div>
-          <Input 
-            type="date" 
-            id="requestedDate" 
+          <Input
+            type="date"
+            id="requestedDate"
             defaultValue={data.requestedDate}
             data-testid="input-requested-date"
           />
@@ -208,14 +229,20 @@ export default function BasicDetails({
                 <Info className="h-4 w-4 text-muted-foreground cursor-help" />
               </TooltipTrigger>
               <TooltipContent>
-                <p>Select the department this position belongs to. Auto-fills based on logged-in user if applicable.</p>
+                <p>
+                  Select the department this position belongs to. Auto-fills
+                  based on logged-in user if applicable.
+                </p>
               </TooltipContent>
             </Tooltip>
           </div>
-          <Select value={selectedDepartment} onValueChange={(value) => {
-            setSelectedDepartment(value);
-            onUpdate({ department: value });
-          }}>
+          <Select
+            value={selectedDepartment}
+            onValueChange={(value) => {
+              setSelectedDepartment(value);
+              onUpdate({ department: value });
+            }}
+          >
             <SelectTrigger data-testid="select-department">
               <SelectValue placeholder="Select department" />
             </SelectTrigger>
@@ -240,11 +267,13 @@ export default function BasicDetails({
                 <Info className="h-4 w-4 text-muted-foreground cursor-help" />
               </TooltipTrigger>
               <TooltipContent>
-                <p>Automatically populated with the name of the logged-in user.</p>
+                <p>
+                  Automatically populated with the name of the logged-in user.
+                </p>
               </TooltipContent>
             </Tooltip>
           </div>
-          <Select 
+          <Select
             defaultValue={data.requestedBy}
             onValueChange={(value) => onUpdate({ requestedBy: value })}
           >
@@ -272,11 +301,15 @@ export default function BasicDetails({
                 <Info className="h-4 w-4 text-muted-foreground cursor-help" />
               </TooltipTrigger>
               <TooltipContent>
-                <p>Select the hiring manager for this request. Only users with 'Hiring Manager' or 'DU Head' roles in the selected Department are shown.</p>
+                <p>
+                  Select the hiring manager for this request. Only users with
+                  'Hiring Manager' or 'DU Head' roles in the selected Department
+                  are shown.
+                </p>
               </TooltipContent>
             </Tooltip>
           </div>
-          <Select 
+          <Select
             defaultValue={data.hiringManager}
             onValueChange={(value) => onUpdate({ hiringManager: value })}
           >
@@ -308,10 +341,10 @@ export default function BasicDetails({
               </TooltipContent>
             </Tooltip>
           </div>
-          <Input 
-            type="number" 
-            id="positions" 
-            min="1" 
+          <Input
+            type="number"
+            id="positions"
+            min="1"
             defaultValue={data.positions || 1}
             data-testid="input-positions"
           />
@@ -323,20 +356,24 @@ export default function BasicDetails({
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Label htmlFor="onboardingFrom">
-                  Expected Date of Onboarding (Start) <span className="text-destructive">*</span>
+                  Expected Date of Onboarding (Start){" "}
+                  <span className="text-destructive">*</span>
                 </Label>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Select the expected date range for onboarding new hires (Offshore only).</p>
+                    <p>
+                      Select the expected date range for onboarding new hires
+                      (Offshore only).
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <Input 
-                type="date" 
-                id="onboardingFrom" 
+              <Input
+                type="date"
+                id="onboardingFrom"
                 defaultValue={data.onboardingFrom}
                 data-testid="input-onboarding-start"
               />
@@ -345,20 +382,24 @@ export default function BasicDetails({
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Label htmlFor="onboardingTo">
-                  Expected Date of Onboarding (End) <span className="text-destructive">*</span>
+                  Expected Date of Onboarding (End){" "}
+                  <span className="text-destructive">*</span>
                 </Label>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Select the expected date range for onboarding new hires (Offshore only).</p>
+                    <p>
+                      Select the expected date range for onboarding new hires
+                      (Offshore only).
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <Input 
-                type="date" 
-                id="onboardingTo" 
+              <Input
+                type="date"
+                id="onboardingTo"
                 defaultValue={data.onboardingTo}
                 data-testid="input-onboarding-end"
               />
@@ -372,20 +413,23 @@ export default function BasicDetails({
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Label htmlFor="idealStartFrom">
-                  Ideal Start Date (Start) <span className="text-destructive">*</span>
+                  Ideal Start Date (Start){" "}
+                  <span className="text-destructive">*</span>
                 </Label>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Select the ideal start date range for Onsite positions.</p>
+                    <p>
+                      Select the ideal start date range for Onsite positions.
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <Input 
-                type="date" 
-                id="idealStartFrom" 
+              <Input
+                type="date"
+                id="idealStartFrom"
                 defaultValue={data.idealStartFrom || data.startDateFrom}
                 data-testid="input-ideal-start-from"
               />
@@ -394,20 +438,23 @@ export default function BasicDetails({
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Label htmlFor="idealStartTo">
-                  Ideal Start Date (End) <span className="text-destructive">*</span>
+                  Ideal Start Date (End){" "}
+                  <span className="text-destructive">*</span>
                 </Label>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Select the ideal start date range for Onsite positions.</p>
+                    <p>
+                      Select the ideal start date range for Onsite positions.
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <Input 
-                type="date" 
-                id="idealStartTo" 
+              <Input
+                type="date"
+                id="idealStartTo"
                 defaultValue={data.idealStartTo || data.startDateTo}
                 data-testid="input-ideal-start-to"
               />
@@ -453,13 +500,16 @@ export default function BasicDetails({
                   <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                 </TooltipTrigger>
                 <TooltipContent>
-                  <p>Enter the billing rate (per hour) for the client. Required if the position is billable.</p>
+                  <p>
+                    Enter the billing rate (per hour) for the client. Required
+                    if the position is billable.
+                  </p>
                 </TooltipContent>
               </Tooltip>
             </div>
-            <Input 
-              type="number" 
-              id="billingRate" 
+            <Input
+              type="number"
+              id="billingRate"
               placeholder="Enter rate"
               defaultValue={data.clientBillingRate}
               data-testid="input-billing-rate"
@@ -468,7 +518,7 @@ export default function BasicDetails({
         )}
 
         {/* Total Budget - Contract/Consultant only */}
-        {(jobType === "contract" || jobType === "consultant") && (
+        {(jobType === "Contract" || jobType === "Consultant") && (
           <>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -480,13 +530,16 @@ export default function BasicDetails({
                     <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Enter the total budget range (in lakhs). Applicable for Contract or Consultant positions.</p>
+                    <p>
+                      Enter the total budget range (in lakhs). Applicable for
+                      Contract or Consultant positions.
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <Input 
-                type="number" 
-                id="budgetMin" 
+              <Input
+                type="number"
+                id="budgetMin"
                 placeholder="Minimum budget"
                 defaultValue={data.totalBudget?.min}
                 data-testid="input-budget-min"
@@ -503,13 +556,16 @@ export default function BasicDetails({
                     <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Enter the total budget range (in lakhs). Applicable for Contract or Consultant positions.</p>
+                    <p>
+                      Enter the total budget range (in lakhs). Applicable for
+                      Contract or Consultant positions.
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <Input 
-                type="number" 
-                id="budgetMax" 
+              <Input
+                type="number"
+                id="budgetMax"
                 placeholder="Maximum budget"
                 defaultValue={data.totalBudget?.max}
                 data-testid="input-budget-max"
@@ -524,21 +580,25 @@ export default function BasicDetails({
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Label htmlFor="salaryMin">
-                  Expected Salary Range (Min) <span className="text-destructive">*</span>
+                  Expected Salary Range (Min){" "}
+                  <span className="text-destructive">*</span>
                 </Label>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Enter the expected salary range for this position in lakhs.</p>
+                    <p>
+                      Enter the expected salary range for this position in
+                      lakhs.
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <Input 
-                type="number" 
-                id="salaryMin" 
-                placeholder="Minimum salary" 
+              <Input
+                type="number"
+                id="salaryMin"
+                placeholder="Minimum salary"
                 defaultValue={data.expectedSalary?.min}
                 data-testid="input-salary-min"
               />
@@ -546,21 +606,25 @@ export default function BasicDetails({
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <Label htmlFor="salaryMax">
-                  Expected Salary Range (Max) <span className="text-destructive">*</span>
+                  Expected Salary Range (Max){" "}
+                  <span className="text-destructive">*</span>
                 </Label>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Enter the expected salary range for this position in lakhs.</p>
+                    <p>
+                      Enter the expected salary range for this position in
+                      lakhs.
+                    </p>
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <Input 
-                type="number" 
-                id="salaryMax" 
-                placeholder="Maximum salary" 
+              <Input
+                type="number"
+                id="salaryMax"
+                placeholder="Maximum salary"
                 defaultValue={data.expectedSalary?.max}
                 data-testid="input-salary-max"
               />

@@ -26,11 +26,17 @@ interface ProjectClientInfoProps {
   setJobType?: (value: string) => void;
 }
 
-export default function ProjectClientInfo({ data, onUpdate, jobType }: ProjectClientInfoProps) {
-  const [clientInterview, setClientInterview] = useState<boolean>(data.clientInterview || false);
+export default function ProjectClientInfo({
+  data,
+  onUpdate,
+  jobType,
+}: ProjectClientInfoProps) {
+  const [clientInterview, setClientInterview] = useState<boolean>(
+    data.clientInterview || false,
+  );
 
   // Fetch master data
-  const { data: countries } = useQuery<any[]>({ queryKey: ['/countries'] });
+  const { data: countries } = useQuery<any[]>({ queryKey: ["/countries"] });
 
   // Show Project Role/Job Title only for Contract/Consultant
   const showProjectRole = jobType === "contract" || jobType === "consultant";
@@ -64,9 +70,9 @@ export default function ProjectClientInfo({ data, onUpdate, jobType }: ProjectCl
               </TooltipContent>
             </Tooltip>
           </div>
-          <Input 
-            id="projectName" 
-            placeholder="Enter project name" 
+          <Input
+            id="projectName"
+            placeholder="Enter project name"
             defaultValue={data.projectName}
             onChange={(e) => onUpdate({ projectName: e.target.value })}
             data-testid="input-project-name"
@@ -86,9 +92,9 @@ export default function ProjectClientInfo({ data, onUpdate, jobType }: ProjectCl
                 </TooltipContent>
               </Tooltip>
             </div>
-            <Input 
-              id="projectRole" 
-              placeholder="Enter project role/job title" 
+            <Input
+              id="projectRole"
+              placeholder="Enter project role/job title"
               defaultValue={data.projectRole}
               onChange={(e) => onUpdate({ projectRole: e.target.value })}
               data-testid="input-project-role"
@@ -106,13 +112,15 @@ export default function ProjectClientInfo({ data, onUpdate, jobType }: ProjectCl
                 <Info className="h-4 w-4 text-muted-foreground cursor-help" />
               </TooltipTrigger>
               <TooltipContent>
-                <p>Enter the client's name for whom the position is being raised.</p>
+                <p>
+                  Enter the client's name for whom the position is being raised.
+                </p>
               </TooltipContent>
             </Tooltip>
           </div>
-          <Input 
-            id="client" 
-            placeholder="Enter client name" 
+          <Input
+            id="client"
+            placeholder="Enter client name"
             defaultValue={data.client || data.clientName}
             onChange={(e) => onUpdate({ client: e.target.value })}
             data-testid="input-client"
@@ -133,7 +141,7 @@ export default function ProjectClientInfo({ data, onUpdate, jobType }: ProjectCl
               </TooltipContent>
             </Tooltip>
           </div>
-          <Select 
+          <Select
             defaultValue={data.clientCountry}
             onValueChange={(value) => onUpdate({ clientCountry: value })}
           >
@@ -160,7 +168,9 @@ export default function ProjectClientInfo({ data, onUpdate, jobType }: ProjectCl
                 <Info className="h-4 w-4 text-muted-foreground cursor-help" />
               </TooltipTrigger>
               <TooltipContent>
-                <p>Will the client be conducting interviews for this position?</p>
+                <p>
+                  Will the client be conducting interviews for this position?
+                </p>
               </TooltipContent>
             </Tooltip>
           </div>
