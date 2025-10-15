@@ -43,6 +43,7 @@ model Country {
   isActive  Boolean  @default(true) @map("is_active")
   
   officeLocations OfficeLocation[]
+  jobRequisitions JobRequisition[]
 
   @@index([phoneCode])
   @@map("Country")
@@ -126,6 +127,8 @@ model Skill {
   updatedAt  DateTime @updatedAt @map("updated_at")
   isActive   Boolean  @default(true) @map("is_active")
 
+  jobRequisitions JobRequisition[]
+
   @@index([category, isTechnical])
   @@index([importance])
   @@index([isTechnical])
@@ -141,8 +144,8 @@ model OfficeLocation {
   updatedAt DateTime @updatedAt @map("updated_at")
   isActive  Boolean  @default(true) @map("is_active")
   
-  country         Country          @relation(fields: [countryId], references: [id], onDelete: Cascade)
-  jobRequisitions JobRequisition[]
+  country                    Country            @relation(fields: [countryId], references: [id], onDelete: Cascade)
+  jobRequisitionsOnsiteLocation JobRequisition[]
 
   @@index([countryId])
   @@map("OfficeLocation")
@@ -167,7 +170,11 @@ model User {
   departmentsAsCDO           Department[] @relation("DepartmentCDO")
   departmentsAsRecruiterLead Department[] @relation("DepartmentRecruiterLead")
   
-  jobRequisitions JobRequisition[]
+  jobRequisitionsRequestedBy   JobRequisition[] @relation("JRRequestedBy")
+  jobRequisitionsHiringManager JobRequisition[] @relation("JRHiringManager")
+  jobRequisitionsRecruiterLead JobRequisition[] @relation("JRRecruiterLead")
+  jobRequisitionsRecruiterPoc  JobRequisition[] @relation("JRRecruiterPoc")
+  jobRequisitionsSubmitter     JobRequisition[] @relation("JRSubmitter")
 
   @@index([email, isActive])
   @@index([departmentId])
@@ -210,57 +217,115 @@ model WorkTimeZone {
   updatedAt     DateTime @updatedAt @map("updated_at")
   isActive      Boolean  @default(true) @map("is_active")
 
+  jobRequisitions JobRequisition[]
+
   @@map("WorkTimeZone")
 }
 
 model JobRequisition {
-  id                    String   @id @default(uuid())
-  jrId                  String   @unique @db.VarChar(50) @map("jr_id")
-  jobTitleId            String   @db.VarChar(36) @map("job_title_id")
-  departmentId          String   @db.VarChar(36) @map("department_id")
-  jobTypeId             String   @db.VarChar(36) @map("job_type_id")
-  workArrangement       String   @db.VarChar(50) @map("work_arrangement")
-  locationId            String   @db.VarChar(36) @map("location_id")
-  positions             Int      @default(1)
-  experience            String?  @db.VarChar(100)
-  salaryRange           String?  @db.VarChar(100) @map("salary_range")
+  // Core Identification & Status
+  id          String   @id @default(uuid())
+  jrId        String   @unique @db.VarChar(50) @map("jr_id")
+  jrStatus    String   @default("Draft") @db.VarChar(50) @map("jr_status")
+  submittedBy String?  @db.VarChar(36) @map("submitted_by")
+  isActive    Boolean  @default(true) @map("is_active")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  // Basic Details (Step 1)
+  workArrangement                String   @db.VarChar(50) @map("work_arrangement")
+  jobTypeId                      String   @db.VarChar(36) @map("job_type_id")
+  coreSkillId                    String?  @db.VarChar(36) @map("core_skill_id")
+  jobTitleId                     String   @db.VarChar(36) @map("job_title_id")
+  requestedDate                  DateTime? @map("requested_date")
+  departmentId                   String   @db.VarChar(36) @map("department_id")
+  requestedById                  String   @db.VarChar(36) @map("requested_by_id")
+  hiringManagerId                String   @db.VarChar(36) @map("hiring_manager_id")
+  numberOfPositions              Int      @default(1) @map("number_of_positions")
+  expectedDateOfOnboardingStart  DateTime? @map("expected_date_of_onboarding_start")
+  expectedDateOfOnboardingEnd    DateTime? @map("expected_date_of_onboarding_end")
+  idealStartDateStart            DateTime? @map("ideal_start_date_start")
+  idealStartDateEnd              DateTime? @map("ideal_start_date_end")
+  billable                       Boolean  @default(false)
+  clientBillingRate              String?  @db.VarChar(100) @map("client_billing_rate")
+  totalBudgetMin                 Decimal? @db.Decimal(15, 2) @map("total_budget_min")
+  totalBudgetMax                 Decimal? @db.Decimal(15, 2) @map("total_budget_max")
+  expectedSalaryMin              Decimal? @db.Decimal(15, 2) @map("expected_salary_min")
+  expectedSalaryMax              Decimal? @db.Decimal(15, 2) @map("expected_salary_max")
+
+  // Skills & Qualifications (Step 2)
   primarySkills         String[] @map("primary_skills")
   secondarySkills       String[] @default([]) @map("secondary_skills")
   niceToHaveSkills      String[] @default([]) @map("nice_to_have_skills")
   qualifications        String[] @default([])
   certifications        String[] @default([])
-  projectName           String?  @db.VarChar(255) @map("project_name")
-  projectDescription    String?  @db.Text @map("project_description")
-  clientName            String?  @db.VarChar(255) @map("client_name")
-  projectDuration       String?  @db.VarChar(100) @map("project_duration")
-  jobDescription        String?  @db.Text @map("job_description")
-  responsibilities      String[] @default([])
-  requirements          String[] @default([])
-  preferredQualifications String[] @default([]) @map("preferred_qualifications")
-  benefits              String[] @default([])
-  workMode              String?  @db.VarChar(50) @map("work_mode")
-  workShift             String?  @db.VarChar(100) @map("work_shift")
-  workTimezone          String?  @db.VarChar(100) @map("work_timezone")
-  clientLocation        String?  @db.VarChar(255) @map("client_location")
-  visaRequirement       String?  @db.VarChar(100) @map("visa_requirement")
-  travelRequired        Boolean  @default(false) @map("travel_required")
-  travelPercentage      Int?     @map("travel_percentage")
-  requestedBy           String   @db.VarChar(36) @map("requested_by")
-  hiringManager         String?  @db.VarChar(255) @map("hiring_manager")
-  status                String   @default("Draft") @db.VarChar(50)
-  createdAt             DateTime @default(now()) @map("created_at")
-  updatedAt             DateTime @updatedAt @map("updated_at")
-  
-  jobTitle    JobTitle       @relation(fields: [jobTitleId], references: [id])
-  department  Department     @relation(fields: [departmentId], references: [id])
-  jobType     JobType        @relation(fields: [jobTypeId], references: [id])
-  location    OfficeLocation @relation(fields: [locationId], references: [id])
-  requester   User           @relation(fields: [requestedBy], references: [id])
+  specificQualification String?  @db.VarChar(255) @map("specific_qualification")
+  totalExperienceMin    Decimal? @db.Decimal(5, 2) @map("total_experience_min")
+  totalExperienceMax    Decimal? @db.Decimal(5, 2) @map("total_experience_max")
+  relevantExperienceMin Decimal? @db.Decimal(5, 2) @map("relevant_experience_min")
+  relevantExperienceMax Decimal? @db.Decimal(5, 2) @map("relevant_experience_max")
 
-  @@index([status])
+  // Project & Client (Step 3)
+  projectName      String?  @db.VarChar(255) @map("project_name")
+  projectRole      String?  @db.VarChar(255) @map("project_role")
+  clientName       String?  @db.VarChar(255) @map("client_name")
+  clientCountryId  String?  @db.VarChar(36) @map("client_country_id")
+  clientInterview  Boolean  @default(false) @map("client_interview")
+
+  // Location & Shift (Step 4)
+  workLocations       String[] @default([]) @map("work_locations")
+  workShift           String?  @db.VarChar(100) @map("work_shift")
+  shiftTime           String?  @db.VarChar(100) @map("shift_time")
+  onsiteWorkMode      String?  @db.VarChar(50) @map("onsite_work_mode")
+  onsiteLocationId    String?  @db.VarChar(36) @map("onsite_location_id")
+  onsiteDaysPerWeek   Int?     @map("onsite_days_per_week")
+  preferredTimeZoneId String?  @db.VarChar(36) @map("preferred_time_zone_id")
+
+  // Job Description (Step 5)
+  jobPurpose       String? @db.Text @map("job_purpose")
+  primaryDuties    String? @db.Text @map("primary_duties")
+  goodToHaveDuties String? @db.Text @map("good_to_have_duties")
+  jobSpecification String? @db.Text @map("job_specification")
+
+  // Onsite-Specific (Step 6)
+  rate             String?  @db.VarChar(100)
+  rateUnit         String?  @db.VarChar(50) @map("rate_unit")
+  rateCurrency     String?  @db.VarChar(10) @map("rate_currency")
+  paymentCycle     String?  @db.VarChar(50) @map("payment_cycle")
+  visaStatuses     String[] @default([]) @map("visa_statuses")
+  contractDuration String?  @db.VarChar(50) @map("contract_duration")
+  durationUnit     String?  @db.VarChar(20) @map("duration_unit")
+  reportingManager String?  @db.VarChar(255) @map("reporting_manager")
+  interviewProcess String?  @db.Text @map("interview_process")
+  h1Transfer       Boolean  @default(false) @map("h1_transfer")
+  travelRequired   Boolean  @default(false) @map("travel_required")
+
+  // Additional Required Fields
+  recruiterLeadId String? @db.VarChar(36) @map("recruiter_lead_id")
+  recruiterPocId  String? @db.VarChar(36) @map("recruiter_poc_id")
+
+  // Foreign Key Relations
+  jobType           JobType         @relation(fields: [jobTypeId], references: [id])
+  coreSkill         Skill?          @relation(fields: [coreSkillId], references: [id])
+  jobTitle          JobTitle        @relation(fields: [jobTitleId], references: [id])
+  department        Department      @relation(fields: [departmentId], references: [id])
+  requestedBy       User            @relation("JRRequestedBy", fields: [requestedById], references: [id])
+  hiringManager     User            @relation("JRHiringManager", fields: [hiringManagerId], references: [id])
+  clientCountry     Country?        @relation(fields: [clientCountryId], references: [id])
+  onsiteLocation    OfficeLocation? @relation(fields: [onsiteLocationId], references: [id])
+  preferredTimeZone WorkTimeZone?   @relation(fields: [preferredTimeZoneId], references: [id])
+  recruiterLead     User?           @relation("JRRecruiterLead", fields: [recruiterLeadId], references: [id])
+  recruiterPoc      User?           @relation("JRRecruiterPoc", fields: [recruiterPocId], references: [id])
+  submitter         User?           @relation("JRSubmitter", fields: [submittedBy], references: [id])
+
+  // Indexes for Performance
+  @@index([jrStatus])
   @@index([departmentId])
+  @@index([requestedById])
+  @@index([hiringManagerId])
   @@index([workArrangement])
-  @@index([locationId])
+  @@index([createdAt])
+  @@index([updatedAt])
   @@index([jrId])
   @@map("JobRequisition")
 }
