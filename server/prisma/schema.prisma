@@ -204,6 +204,8 @@ model WorkShift {
   updatedAt   DateTime @updatedAt @map("updated_at")
   isActive    Boolean  @default(true) @map("is_active")
 
+  jobRequisitions JobRequisition[]
+
   @@index([startTime, endTime])
   @@map("WorkShift")
 }
@@ -274,7 +276,7 @@ model JobRequisition {
 
   // Location & Shift (Step 4)
   workLocations       String[] @default([]) @map("work_locations")
-  workShift           String?  @db.VarChar(100) @map("work_shift")
+  workShiftId         String?  @db.VarChar(36) @map("work_shift_id")
   shiftTime           String?  @db.VarChar(100) @map("shift_time")
   onsiteWorkMode      String?  @db.VarChar(50) @map("onsite_work_mode")
   onsiteLocationId    String?  @db.VarChar(36) @map("onsite_location_id")
@@ -312,6 +314,7 @@ model JobRequisition {
   requestedBy       User            @relation("JRRequestedBy", fields: [requestedById], references: [id])
   hiringManager     User            @relation("JRHiringManager", fields: [hiringManagerId], references: [id])
   clientCountry     Country?        @relation(fields: [clientCountryId], references: [id])
+  workShift         WorkShift?      @relation(fields: [workShiftId], references: [id])
   onsiteLocation    OfficeLocation? @relation(fields: [onsiteLocationId], references: [id])
   preferredTimeZone WorkTimeZone?   @relation(fields: [preferredTimeZoneId], references: [id])
   recruiterLead     User?           @relation("JRRecruiterLead", fields: [recruiterLeadId], references: [id])
