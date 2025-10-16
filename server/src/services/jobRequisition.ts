@@ -4,14 +4,58 @@ import { CreateJobRequisitionInput, UpdateJobRequisitionInput, JobRequisitionQue
 const prisma = new PrismaClient();
 
 export class JobRequisitionService {
-  async generateJrId(): Promise<string> {
-    const count = await prisma.jobRequisition.count();
-    const jrNumber = String(count + 1).padStart(4, '0');
-    return `JR-${jrNumber}`;
+  async generateJrId(departmentId: string): Promise<string> {
+    // Get the current year
+    const currentYear = new Date().getFullYear();
+    
+    // Fetch department to get the code
+    const department = await prisma.department.findUnique({
+      where: { id: departmentId },
+      select: { code: true },
+    });
+
+    if (!department || !department.code) {
+      throw new Error('Department not found or has no code');
+    }
+
+    // Find the highest serial number for this department and year
+    const existingJRs = await prisma.jobRequisition.findMany({
+      where: {
+        departmentId,
+        jrId: {
+          contains: `EXP-${currentYear}-${department.code}-`,
+        },
+      },
+      select: { jrId: true },
+      orderBy: { jrId: 'desc' },
+      take: 1,
+    });
+
+    let serialNumber = 1;
+    
+    if (existingJRs.length > 0 && existingJRs[0].jrId) {
+      // Extract the serial number from the last JR ID (format: EXP-YYYY-CODE-###)
+      const parts = existingJRs[0].jrId.split('-');
+      if (parts.length === 4) {
+        const lastSerial = parseInt(parts[3]);
+        if (!isNaN(lastSerial)) {
+          serialNumber = lastSerial + 1;
+        }
+      }
+    }
+
+    // Format: EXP-2025-DAI-006
+    const formattedSerial = String(serialNumber).padStart(3, '0');
+    return `EXP-${currentYear}-${department.code}-${formattedSerial}`;
   }
 
   async create(data: CreateJobRequisitionInput) {
-    const jrId = await this.generateJrId();
+    // Only generate JR ID if status is 'Submitted', not for drafts
+    // For drafts, use a temporary ID that will be replaced on submission
+    let jrId = 'DRAFT-PENDING';
+    if (data.jrStatus === 'Submitted' && data.departmentId) {
+      jrId = await this.generateJrId(data.departmentId);
+    }
     
     return await prisma.jobRequisition.create({
       data: {
@@ -121,9 +165,34 @@ export class JobRequisitionService {
   }
 
   async update(id: string, data: UpdateJobRequisitionInput) {
+    // Check if we're transitioning from Draft to Submitted
+    const existingJR = await prisma.jobRequisition.findUnique({
+      where: { id },
+      select: { jrStatus: true, jrId: true, departmentId: true },
+    });
+
+    // Prepare the update data
+    const updateData: any = { ...data };
+
+    // If transitioning to Submitted and JR ID is still DRAFT-PENDING, generate a real one
+    if (
+      data.jrStatus === 'Submitted' && 
+      existingJR?.jrStatus === 'Draft' &&
+      existingJR?.jrId === 'DRAFT-PENDING'
+    ) {
+      // Use departmentId from payload or fall back to existing record
+      const deptId = data.departmentId || existingJR?.departmentId;
+      if (deptId) {
+        const jrId = await this.generateJrId(deptId);
+        updateData.jrId = jrId;
+      } else {
+        throw new Error('Department ID is required to generate JR number');
+      }
+    }
+
     return await prisma.jobRequisition.update({
       where: { id },
-      data,
+      data: updateData,
       include: {
         jobTitle: true,
         department: true,

@@ -55,6 +55,10 @@ export default function CreateJobRequisition() {
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [showChangeDialog, setShowChangeDialog] = useState(false);
   const [pendingWorkArrangement, setPendingWorkArrangement] = useState<"Offshore" | "Onsite" | null>(null);
+  const [draftJrId, setDraftJrId] = useState<string | null>(isEditMode ? id : null);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [generatedJrNumber, setGeneratedJrNumber] = useState<string>("");
   const { toast } = useToast();
 
   // Fetch master data for transformer
@@ -89,13 +93,15 @@ export default function CreateJobRequisition() {
   // Create/Update mutation
   const createOrUpdateMutation = useMutation({
     mutationFn: async ({ payload, isDraft }: { payload: any; isDraft: boolean }) => {
-      if (isEditMode && id) {
-        return await apiRequest(`/job-requisitions/${id}`, {
+      // If we have a draftJrId, always use PATCH to update the existing draft
+      if (draftJrId) {
+        return await apiRequest(`/job-requisitions/${draftJrId}`, {
           method: "PATCH",
           body: JSON.stringify(payload),
           headers: { "Content-Type": "application/json" },
         });
       } else {
+        // Otherwise create a new JR
         return await apiRequest("/job-requisitions", {
           method: "POST",
           body: JSON.stringify(payload),
@@ -108,24 +114,24 @@ export default function CreateJobRequisition() {
       
       const { isDraft } = variables;
       
-      toast({
-        title: isDraft 
-          ? "Draft Saved" 
-          : (isEditMode ? "Requisition Updated" : "Requisition Submitted"),
-        description: isDraft
-          ? "Your progress has been saved as a draft."
-          : isEditMode
-            ? "Your job requisition has been updated successfully."
-            : "Your job requisition has been submitted for approval.",
-      });
-
-      // Navigate to dashboard after submission (not draft saves)
-      if (!isDraft) {
-        setTimeout(() => {
-          navigate("/dashboard");
-        }, 1500);
-      } else if (currentStep < maxStep) {
-        setCurrentStep(currentStep + 1);
+      // Store the JR ID if this is the first save (draft creation)
+      if (!draftJrId && data?.id) {
+        setDraftJrId(data.id);
+      }
+      
+      // If submission succeeded and we got a JR number, show success modal
+      if (!isDraft && data?.jrId) {
+        setGeneratedJrNumber(data.jrId);
+        setShowSuccessModal(true);
+      } else if (isDraft) {
+        toast({
+          title: "Draft Saved",
+          description: "Your progress has been saved as a draft.",
+        });
+        // Move to next step after saving draft
+        if (currentStep < maxStep) {
+          setCurrentStep(currentStep + 1);
+        }
       }
     },
     onError: (error: any) => {
@@ -199,7 +205,40 @@ export default function CreateJobRequisition() {
     createOrUpdateMutation.mutate({ payload, isDraft: true });
   };
 
+  const validateRequiredFields = () => {
+    const missingFields: string[] = [];
+    
+    // formData stores field names, not IDs, so check for the name fields
+    // These will be transformed to IDs by transformFormDataToAPIPayload
+    if (!workArrangement) missingFields.push("Work Arrangement");
+    if (!formData.jobType) missingFields.push("Job Type");
+    if (!formData.title) missingFields.push("Job Title");
+    if (!formData.department) missingFields.push("Department");
+    if (!formData.requestedBy) missingFields.push("Requested By");
+    if (!formData.hiringManager) missingFields.push("Hiring Manager");
+    
+    return missingFields;
+  };
+
   const handleSubmit = () => {
+    if (!workArrangement) return;
+
+    // Validate required fields
+    const missingFields = validateRequiredFields();
+    if (missingFields.length > 0) {
+      toast({
+        title: "Missing Required Fields",
+        description: `Please fill in: ${missingFields.join(", ")}`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Show confirmation modal
+    setShowConfirmModal(true);
+  };
+
+  const handleConfirmSubmit = () => {
     if (!workArrangement) return;
 
     const payload = transformFormDataToAPIPayload(formData, workArrangement, {
@@ -214,11 +253,9 @@ export default function CreateJobRequisition() {
       workTimeZones,
     });
 
-    // If editing, keep existing status; if new, set to Submitted
-    if (!isEditMode) {
-      payload.jrStatus = "Submitted";
-    }
+    payload.jrStatus = "Submitted";
 
+    setShowConfirmModal(false);
     createOrUpdateMutation.mutate({ payload, isDraft: false });
   };
 
@@ -429,6 +466,67 @@ export default function CreateJobRequisition() {
               Yes, Change It
             </AlertDialogAction>
           </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Submission Confirmation Modal */}
+      <AlertDialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
+        <AlertDialogContent className="max-w-md" data-testid="modal-confirm-submission">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-2xl font-bold">
+              Are you sure?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-base text-muted-foreground pt-2">
+              Please confirm your submission. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex gap-3 sm:gap-3">
+            <AlertDialogCancel 
+              onClick={() => setShowConfirmModal(false)}
+              className="flex-1"
+              data-testid="button-cancel-submission"
+            >
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleConfirmSubmit}
+              className="flex-1 bg-[#f59e0b] hover:bg-[#d97706] text-white"
+              data-testid="button-confirm-submit"
+            >
+              Submit
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Success Modal */}
+      <AlertDialog open={showSuccessModal} onOpenChange={setShowSuccessModal}>
+        <AlertDialogContent className="max-w-md" data-testid="modal-success">
+          <div className="flex flex-col items-center gap-4 py-4">
+            <div className="h-2 w-full bg-primary rounded-full" />
+            <AlertDialogHeader className="text-center space-y-4">
+              <AlertDialogTitle className="text-2xl font-bold text-green-600">
+                Submission Complete!
+              </AlertDialogTitle>
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                <p className="text-lg font-semibold text-green-800" data-testid="text-jr-number">
+                  JR Number: {generatedJrNumber}
+                </p>
+              </div>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="w-full">
+              <AlertDialogAction
+                onClick={() => {
+                  setShowSuccessModal(false);
+                  navigate("/dashboard");
+                }}
+                className="w-full bg-teal-600 hover:bg-teal-700 text-white py-6 text-lg"
+                data-testid="button-done"
+              >
+                Done
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </div>
         </AlertDialogContent>
       </AlertDialog>
     </div>
