@@ -6,7 +6,7 @@ const prisma = new PrismaClient();
 export class JobRequisitionService {
   async generateJrId(): Promise<string> {
     const count = await prisma.jobRequisition.count();
-    const jrNumber = String(count + 1).padStart(3, '0');
+    const jrNumber = String(count + 1).padStart(4, '0');
     return `JR-${jrNumber}`;
   }
 
@@ -22,8 +22,16 @@ export class JobRequisitionService {
         jobTitle: true,
         department: true,
         jobType: true,
-        location: true,
-        requester: true,
+        coreSkill: true,
+        requestedBy: true,
+        hiringManager: true,
+        clientCountry: true,
+        workShift: true,
+        onsiteLocation: true,
+        preferredTimeZone: true,
+        recruiterLead: true,
+        recruiterPoc: true,
+        submitter: true,
       },
     });
   }
@@ -36,7 +44,7 @@ export class JobRequisitionService {
     const where: any = {};
 
     if (query.status) {
-      where.status = query.status;
+      where.jrStatus = query.status;
     }
 
     if (query.department) {
@@ -50,15 +58,6 @@ export class JobRequisitionService {
 
     if (query.workArrangement) {
       where.workArrangement = query.workArrangement;
-    }
-
-    if (query.location) {
-      where.location = {
-        name: {
-          contains: query.location,
-          mode: 'insensitive',
-        },
-      };
     }
 
     if (query.search) {
@@ -78,8 +77,9 @@ export class JobRequisitionService {
           jobTitle: true,
           department: true,
           jobType: true,
-          location: true,
-          requester: true,
+          coreSkill: true,
+          requestedBy: true,
+          hiringManager: true,
         },
         orderBy: {
           createdAt: 'desc',
@@ -106,8 +106,16 @@ export class JobRequisitionService {
         jobTitle: true,
         department: true,
         jobType: true,
-        location: true,
-        requester: true,
+        coreSkill: true,
+        requestedBy: true,
+        hiringManager: true,
+        clientCountry: true,
+        workShift: true,
+        onsiteLocation: true,
+        preferredTimeZone: true,
+        recruiterLead: true,
+        recruiterPoc: true,
+        submitter: true,
       },
     });
   }
@@ -120,8 +128,16 @@ export class JobRequisitionService {
         jobTitle: true,
         department: true,
         jobType: true,
-        location: true,
-        requester: true,
+        coreSkill: true,
+        requestedBy: true,
+        hiringManager: true,
+        clientCountry: true,
+        workShift: true,
+        onsiteLocation: true,
+        preferredTimeZone: true,
+        recruiterLead: true,
+        recruiterPoc: true,
+        submitter: true,
       },
     });
   }
