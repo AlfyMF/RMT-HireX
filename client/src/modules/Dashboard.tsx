@@ -1,9 +1,20 @@
 import { useState } from "react";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { MultiSelect } from "@/components/ui/multi-select";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { 
   Search, 
   Plus, 
@@ -15,81 +26,16 @@ import {
   Users,
   Clock,
   CheckCircle2,
+  X,
+  Loader2,
   MapPin,
   Briefcase,
   DollarSign,
-  Code,
-  X
+  Code
 } from "lucide-react";
 import { Link } from "react-router-dom";
-
-// Mock data - expanded for demonstration
-const mockRequisitions = [
-  {
-    id: "JR-001",
-    title: "Senior Full Stack Developer",
-    department: "Engineering",
-    requestedBy: "John Doe",
-    requestedDate: "2025-10-01",
-    hiringManager: "Jane Smith",
-    positions: 2,
-    status: "Submitted",
-    workArrangement: "Offshore",
-    location: "Bangalore, India",
-    experience: "5-8 years",
-    salaryRange: "$80,000 - $120,000",
-    primarySkills: ["React", "Node.js", "TypeScript"],
-    workMode: "Remote",
-  },
-  {
-    id: "JR-002",
-    title: "Product Manager",
-    department: "Product",
-    requestedBy: "Alice Johnson",
-    requestedDate: "2025-09-28",
-    hiringManager: "Bob Wilson",
-    positions: 1,
-    status: "DU Head Approved",
-    workArrangement: "Onsite",
-    location: "New York, USA",
-    experience: "7-10 years",
-    salaryRange: "$120,000 - $150,000",
-    primarySkills: ["Product Strategy", "Agile", "Analytics"],
-    workMode: "Hybrid",
-  },
-  {
-    id: "JR-003",
-    title: "UX/UI Designer",
-    department: "Design",
-    requestedBy: "Carol Martinez",
-    requestedDate: "2025-09-25",
-    hiringManager: "David Lee",
-    positions: 1,
-    status: "Approved",
-    workArrangement: "Offshore",
-    location: "Pune, India",
-    experience: "3-5 years",
-    salaryRange: "$60,000 - $85,000",
-    primarySkills: ["Figma", "UI/UX", "Prototyping"],
-    workMode: "Remote",
-  },
-  {
-    id: "JR-004",
-    title: "DevOps Engineer",
-    department: "Engineering",
-    requestedBy: "John Doe",
-    requestedDate: "2025-09-20",
-    hiringManager: "Jane Smith",
-    positions: 1,
-    status: "Draft",
-    workArrangement: "Offshore",
-    location: "Hyderabad, India",
-    experience: "4-6 years",
-    salaryRange: "$70,000 - $95,000",
-    primarySkills: ["AWS", "Docker", "Kubernetes"],
-    workMode: "Remote",
-  },
-];
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/services/api";
 
 const statusColors: Record<string, "default" | "warning" | "success" | "secondary"> = {
   "Draft": "secondary",
@@ -101,32 +47,77 @@ const statusColors: Record<string, "default" | "warning" | "success" | "secondar
 };
 
 const statusOptions = ["Draft", "Submitted", "DU Head Approved", "CDO Approved", "COO Approved", "Approved"];
-const departmentOptions = ["Engineering", "Product", "Design", "Marketing", "Sales", "HR"];
-const workArrangementOptions = ["Offshore", "Onsite"];
-const locationOptions = ["Bangalore, India", "Pune, India", "Hyderabad, India", "New York, USA", "London, UK", "Singapore"];
 
 export default function Dashboard() {
+  const { toast } = useToast();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [departmentFilter, setDepartmentFilter] = useState<string[]>([]);
   const [workArrangementFilter, setWorkArrangementFilter] = useState<string[]>([]);
-  const [locationFilter, setLocationFilter] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [jrToDelete, setJrToDelete] = useState<any>(null);
   const itemsPerPage = 10;
 
-  const filteredRequisitions = mockRequisitions.filter((req) => {
-    const matchesSearch = 
-      req.id.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      req.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      req.department.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      req.location.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesStatus = statusFilter.length === 0 || statusFilter.includes(req.status);
-    const matchesDepartment = departmentFilter.length === 0 || departmentFilter.includes(req.department);
-    const matchesWorkArrangement = workArrangementFilter.length === 0 || workArrangementFilter.includes(req.workArrangement);
-    const matchesLocation = locationFilter.length === 0 || locationFilter.includes(req.location);
+  // Fetch job requisitions
+  const { data: jrsData, isLoading } = useQuery<any>({
+    queryKey: ["/job-requisitions", { page: currentPage, limit: itemsPerPage, search: searchQuery }],
+  });
 
-    return matchesSearch && matchesStatus && matchesDepartment && matchesWorkArrangement && matchesLocation;
+  // Fetch departments for filter options
+  const { data: departments } = useQuery<any[]>({ queryKey: ["/departments"] });
+
+  const jobRequisitions = jrsData?.data || [];
+  const totalJRs = jrsData?.meta?.total || 0;
+
+  // Delete mutation
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return await apiRequest(`/job-requisitions/${id}`, {
+        method: "DELETE",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/job-requisitions"] });
+      toast({
+        title: "Job Requisition Deleted",
+        description: "The job requisition has been successfully deleted.",
+      });
+      setDeleteDialogOpen(false);
+      setJrToDelete(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to delete job requisition.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleDeleteClick = (jr: any) => {
+    setJrToDelete(jr);
+    setDeleteDialogOpen(true);
+  };
+
+  const confirmDelete = () => {
+    if (jrToDelete) {
+      deleteMutation.mutate(jrToDelete.id);
+    }
+  };
+
+  // Filter requisitions client-side
+  const filteredRequisitions = jobRequisitions.filter((req: any) => {
+    const matchesSearch = 
+      req.jrId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      req.jobTitle?.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      req.department?.name?.toLowerCase().includes(searchQuery.toLowerCase());
+    
+    const matchesStatus = statusFilter.length === 0 || statusFilter.includes(req.jrStatus);
+    const matchesDepartment = departmentFilter.length === 0 || departmentFilter.includes(req.department?.name);
+    const matchesWorkArrangement = workArrangementFilter.length === 0 || workArrangementFilter.includes(req.workArrangement);
+
+    return matchesSearch && matchesStatus && matchesDepartment && matchesWorkArrangement;
   });
 
   const totalPages = Math.ceil(filteredRequisitions.length / itemsPerPage);
@@ -140,88 +131,101 @@ export default function Dashboard() {
     setStatusFilter([]);
     setDepartmentFilter([]);
     setWorkArrangementFilter([]);
-    setLocationFilter([]);
     setCurrentPage(1);
   };
 
   const hasActiveFilters = searchQuery || statusFilter.length > 0 || departmentFilter.length > 0 || 
-    workArrangementFilter.length > 0 || locationFilter.length > 0;
+    workArrangementFilter.length > 0;
+
+  const draftCount = jobRequisitions.filter((r: any) => r.jrStatus === "Draft").length;
+  const submittedCount = jobRequisitions.filter((r: any) => r.jrStatus === "Submitted").length;
+  const approvedCount = jobRequisitions.filter((r: any) => r.jrStatus === "Approved").length;
+  const totalPositions = jobRequisitions.reduce((sum: number, req: any) => sum + (req.numberOfPositions || 0), 0);
 
   const stats = [
     {
       label: "Total Requisitions",
-      value: mockRequisitions.length,
+      value: totalJRs,
       icon: Users,
       trend: "+12%",
       color: "bg-primary",
     },
     {
       label: "Open Positions",
-      value: mockRequisitions.reduce((sum, req) => sum + req.positions, 0),
+      value: totalPositions,
       icon: TrendingUp,
       trend: "+8%",
       color: "bg-success",
     },
     {
-      label: "Pending Approval",
-      value: mockRequisitions.filter(r => r.status.includes("Approved") && r.status !== "Approved").length,
+      label: "Draft",
+      value: draftCount,
       icon: Clock,
-      trend: "-5%",
-      color: "bg-warning",
+      trend: "",
+      color: "bg-secondary",
     },
     {
       label: "Approved",
-      value: mockRequisitions.filter(r => r.status === "Approved").length,
+      value: approvedCount,
       icon: CheckCircle2,
       trend: "+15%",
       color: "bg-success",
     },
   ];
 
+  const departmentOptions = departments?.map(d => d.name) || [];
+  const workArrangementOptions = ["Offshore", "Onsite"];
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">Loading job requisitions...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="space-y-8">
+    <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+      <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Dashboard</h1>
+          <h1 className="text-3xl font-bold tracking-tight">Job Requisitions</h1>
           <p className="text-muted-foreground">
-            Manage and track job requisitions
+            Manage and track all job requisitions
           </p>
         </div>
         <Link to="/create-jr">
-          <Button size="lg" className="gap-2 shadow-lg hover:shadow-xl transition-shadow">
-            <Plus className="h-5 w-5" />
+          <Button className="gap-2" data-testid="button-create-jr">
+            <Plus className="h-4 w-4" />
             Create New Requisition
           </Button>
         </Link>
       </div>
 
-      {/* Stats Grid */}
+      {/* Stats */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-        {stats.map((stat) => {
-          const Icon = stat.icon;
-          return (
-            <Card key={stat.label} className="p-6 hover:shadow-md transition-shadow">
-              <div className="flex items-center justify-between">
-                <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground">
-                    {stat.label}
+        {stats.map((stat) => (
+          <Card key={stat.label} className="p-6 bg-gradient-to-br from-card to-accent/5 hover:shadow-lg transition-shadow">
+            <div className="flex items-center justify-between">
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
+                <p className="text-3xl font-bold">{stat.value}</p>
+                {stat.trend && (
+                  <p className="text-xs text-success flex items-center gap-1">
+                    <TrendingUp className="h-3 w-3" />
+                    {stat.trend}
                   </p>
-                  <p className="text-3xl font-bold">{stat.value}</p>
-                  <p className="text-xs text-muted-foreground">
-                    <span className={stat.trend.startsWith('+') ? 'text-success' : 'text-destructive'}>
-                      {stat.trend}
-                    </span>
-                    {' from last month'}
-                  </p>
-                </div>
-                <div className={`${stat.color} rounded-full p-3`}>
-                  <Icon className="h-6 w-6 text-white" />
-                </div>
+                )}
               </div>
-            </Card>
-          );
-        })}
+              <div className={`${stat.color} p-3 rounded-full bg-opacity-10`}>
+                <stat.icon className={`h-6 w-6 ${stat.color.replace('bg-', 'text-')}`} />
+              </div>
+            </div>
+          </Card>
+        ))}
       </div>
 
       {/* Filters */}
@@ -238,6 +242,7 @@ export default function Dashboard() {
                 size="sm" 
                 onClick={clearFilters}
                 className="gap-2 text-muted-foreground hover:text-foreground"
+                data-testid="button-clear-filters"
               >
                 <X className="h-4 w-4" />
                 Clear All
@@ -249,15 +254,16 @@ export default function Dashboard() {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
-                placeholder="Search by ID, title, department, or location..."
+                placeholder="Search by ID, title, or department..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10"
+                data-testid="input-search"
               />
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div>
               <label className="text-sm font-medium mb-1.5 block">Status</label>
               <MultiSelect
@@ -285,15 +291,6 @@ export default function Dashboard() {
                 placeholder="All Arrangements"
               />
             </div>
-            <div>
-              <label className="text-sm font-medium mb-1.5 block">Location</label>
-              <MultiSelect
-                options={locationOptions}
-                selected={locationFilter}
-                onChange={setLocationFilter}
-                placeholder="All Locations"
-              />
-            </div>
           </div>
         </div>
       </Card>
@@ -310,22 +307,22 @@ export default function Dashboard() {
         </div>
 
         <div className="grid gap-4">
-          {paginatedRequisitions.map((req) => (
+          {paginatedRequisitions.map((req: any) => (
             <Card key={req.id} className="p-6 hover:shadow-xl transition-all hover:border-primary/30 bg-gradient-to-br from-card to-accent/5">
               <div className="space-y-4">
                 {/* Header */}
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex-1">
                     <div className="flex items-center gap-3 mb-2">
-                      <h3 className="text-xl font-semibold text-foreground">{req.title}</h3>
-                      <Badge variant={statusColors[req.status]} className="text-xs px-2.5 py-0.5">
-                        {req.status}
+                      <h3 className="text-xl font-semibold text-foreground">{req.jobTitle?.title}</h3>
+                      <Badge variant={statusColors[req.jrStatus]} className="text-xs px-2.5 py-0.5">
+                        {req.jrStatus}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <span className="font-medium text-primary">{req.id}</span>
+                      <span className="font-medium text-primary">{req.jrId}</span>
                       <span>•</span>
-                      <span>{req.department}</span>
+                      <span>{req.department?.name}</span>
                       <span>•</span>
                       <Badge variant="outline" className="font-normal">
                         {req.workArrangement}
@@ -334,18 +331,38 @@ export default function Dashboard() {
                   </div>
                   <div className="flex items-center gap-2">
                     <Link to={`/view-jr/${req.id}`}>
-                      <Button variant="outline" size="icon" className="hover:bg-primary hover:text-primary-foreground">
+                      <Button 
+                        variant="outline" 
+                        size="icon" 
+                        className="hover:bg-primary hover:text-primary-foreground"
+                        data-testid={`button-view-${req.jrId}`}
+                      >
                         <Eye className="h-4 w-4" />
                       </Button>
                     </Link>
-                    <Link to={`/edit-jr/${req.id}`}>
-                      <Button variant="outline" size="icon" className="hover:bg-primary hover:text-primary-foreground">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                    </Link>
-                    <Button variant="outline" size="icon" className="hover:bg-destructive hover:text-destructive-foreground">
-                      <Trash2 className="h-4 w-4" />
-                    </Button>
+                    {req.jrStatus === "Draft" && (
+                      <>
+                        <Link to={`/create-requisition/${req.id}`}>
+                          <Button 
+                            variant="outline" 
+                            size="icon" 
+                            className="hover:bg-primary hover:text-primary-foreground"
+                            data-testid={`button-edit-${req.jrId}`}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                        </Link>
+                        <Button 
+                          variant="outline" 
+                          size="icon" 
+                          className="hover:bg-destructive hover:text-destructive-foreground"
+                          onClick={() => handleDeleteClick(req)}
+                          data-testid={`button-delete-${req.jrId}`}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -353,125 +370,131 @@ export default function Dashboard() {
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 pt-4 border-t">
                   <div className="space-y-1">
                     <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
-                      <MapPin className="h-3.5 w-3.5" />
-                      <span>Location</span>
-                    </div>
-                    <p className="font-medium text-sm">{req.location}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
                       <Briefcase className="h-3.5 w-3.5" />
-                      <span>Experience</span>
+                      <span>Job Type</span>
                     </div>
-                    <p className="font-medium text-sm">{req.experience}</p>
+                    <p className="font-medium text-sm">{req.jobType?.name || "-"}</p>
                   </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
-                      <DollarSign className="h-3.5 w-3.5" />
-                      <span>Salary Range</span>
+                  {req.expectedSalaryMin && req.expectedSalaryMax && (
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
+                        <DollarSign className="h-3.5 w-3.5" />
+                        <span>Salary Range</span>
+                      </div>
+                      <p className="font-medium text-sm">${req.expectedSalaryMin} - ${req.expectedSalaryMax}</p>
                     </div>
-                    <p className="font-medium text-sm">{req.salaryRange}</p>
-                  </div>
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
-                      <Users className="h-3.5 w-3.5" />
-                      <span>Work Mode</span>
-                    </div>
-                    <p className="font-medium text-sm">{req.workMode}</p>
-                  </div>
+                  )}
                   <div className="space-y-1">
                     <p className="text-muted-foreground text-xs">Positions</p>
-                    <p className="font-medium text-sm">{req.positions}</p>
+                    <p className="font-medium text-sm">{req.numberOfPositions}</p>
                   </div>
                   <div className="space-y-1">
-                    <p className="text-muted-foreground text-xs">Date</p>
-                    <p className="font-medium text-sm">{req.requestedDate}</p>
+                    <p className="text-muted-foreground text-xs">Billable</p>
+                    <p className="font-medium text-sm">{req.billable ? "Yes" : "No"}</p>
+                  </div>
+                  <div className="space-y-1 col-span-2">
+                    <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
+                      <Users className="h-3.5 w-3.5" />
+                      <span>Core Skill</span>
+                    </div>
+                    <p className="font-medium text-sm">{req.coreSkill?.name || "-"}</p>
                   </div>
                 </div>
 
                 {/* Skills & People */}
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-4 border-t">
-                  <div className="space-y-1.5">
-                    <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
-                      <Code className="h-3.5 w-3.5" />
-                      <span>Primary Skills</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      {req.primarySkills.map((skill) => (
-                        <Badge key={skill} variant="secondary" className="text-xs">
-                          {skill}
-                        </Badge>
-                      ))}
-                    </div>
-                  </div>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div className="space-y-1">
-                      <p className="text-muted-foreground text-xs">Hiring Manager</p>
-                      <p className="font-medium text-sm">{req.hiringManager}</p>
-                    </div>
-                    <div className="space-y-1">
-                      <p className="text-muted-foreground text-xs">Requested By</p>
-                      <p className="font-medium text-sm">{req.requestedBy}</p>
+                {req.primarySkills?.length > 0 && (
+                  <div className="pt-4 border-t">
+                    <div className="space-y-1.5">
+                      <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
+                        <Code className="h-3.5 w-3.5" />
+                        <span>Primary Skills</span>
+                      </div>
+                      <div className="flex flex-wrap gap-1.5">
+                        {req.primarySkills.slice(0, 5).map((skill: string, idx: number) => (
+                          <Badge key={idx} variant="secondary" className="text-xs">
+                            {skill}
+                          </Badge>
+                        ))}
+                        {req.primarySkills.length > 5 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{req.primarySkills.length - 5} more
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
               </div>
             </Card>
           ))}
         </div>
 
+        {filteredRequisitions.length === 0 && (
+          <Card className="p-12 text-center">
+            <p className="text-muted-foreground">No job requisitions found matching your criteria.</p>
+            <Button variant="link" onClick={clearFilters} className="mt-2">
+              Clear filters
+            </Button>
+          </Card>
+        )}
+
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-between pt-4">
-            <p className="text-sm text-muted-foreground">
-              Showing {((currentPage - 1) * itemsPerPage) + 1} to {Math.min(currentPage * itemsPerPage, filteredRequisitions.length)} of {filteredRequisitions.length} requisitions
-            </p>
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                disabled={currentPage === 1}
-              >
-                Previous
-              </Button>
-              <div className="flex items-center gap-1">
-                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                  let pageNum;
-                  if (totalPages <= 5) {
-                    pageNum = i + 1;
-                  } else if (currentPage <= 3) {
-                    pageNum = i + 1;
-                  } else if (currentPage >= totalPages - 2) {
-                    pageNum = totalPages - 4 + i;
-                  } else {
-                    pageNum = currentPage - 2 + i;
-                  }
-                  return (
-                    <Button
-                      key={pageNum}
-                      variant={currentPage === pageNum ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => setCurrentPage(pageNum)}
-                      className="w-9"
-                    >
-                      {pageNum}
-                    </Button>
-                  );
-                })}
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                disabled={currentPage === totalPages}
-              >
-                Next
-              </Button>
-            </div>
+          <div className="flex items-center justify-center gap-2 mt-6">
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+              disabled={currentPage === 1}
+            >
+              Previous
+            </Button>
+            <span className="text-sm text-muted-foreground">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+              disabled={currentPage === totalPages}
+            >
+              Next
+            </Button>
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Job Requisition?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete {jrToDelete?.jrId}? This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setDeleteDialogOpen(false);
+              setJrToDelete(null);
+            }}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDelete}
+              className="bg-destructive hover:bg-destructive/90"
+              disabled={deleteMutation.isPending}
+            >
+              {deleteMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete"
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

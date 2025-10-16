@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
+import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -11,7 +12,8 @@ import {
   Check,
   Building2,
   Globe2,
-  Pencil
+  Pencil,
+  Loader2
 } from "lucide-react";
 import {
   AlertDialog,
@@ -31,7 +33,8 @@ import JobDescription from "@/components/jr-form/JobDescription";
 import OnsiteSpecific from "@/components/jr-form/OnsiteSpecific";
 import WorkArrangementSelection from "@/components/WorkArrangementSelection";
 import { useToast } from "@/hooks/use-toast";
-import { mockRequisitions } from "@/data/mockRequisitions";
+import { apiRequest, queryClient } from "@/services/api";
+import { transformFormDataToAPIPayload, transformAPIResponseToFormData } from "@/utils/jobRequisitionTransformer";
 
 const steps = [
   { id: 1, name: "Basic Details", component: BasicDetails },
@@ -54,26 +57,85 @@ export default function CreateJobRequisition() {
   const [pendingWorkArrangement, setPendingWorkArrangement] = useState<"Offshore" | "Onsite" | null>(null);
   const { toast } = useToast();
 
-  // Load existing data when in edit mode
+  // Fetch master data for transformer
+  const { data: jobTypes } = useQuery<any[]>({ queryKey: ["/job-types"] });
+  const { data: skills } = useQuery<any[]>({ queryKey: ["/skills"] });
+  const { data: jobTitles } = useQuery<any[]>({ queryKey: ["/job-titles"] });
+  const { data: departments } = useQuery<any[]>({ queryKey: ["/departments"] });
+  const { data: users } = useQuery<any[]>({ queryKey: ["/users"] });
+  const { data: countries } = useQuery<any[]>({ queryKey: ["/countries"] });
+  const { data: workShifts } = useQuery<any[]>({ queryKey: ["/work-shifts"] });
+  const { data: officeLocations } = useQuery<any[]>({ queryKey: ["/office-locations"] });
+  const { data: workTimeZones } = useQuery<any[]>({ queryKey: ["/work-timezones"] });
+
+  // Fetch existing JR data if in edit mode
+  const { data: existingJR, isLoading: isLoadingJR } = useQuery<any>({
+    queryKey: ["/job-requisitions", id],
+    enabled: isEditMode && !!id,
+  });
+
+  // Load existing data when fetched
   useEffect(() => {
-    if (isEditMode && id) {
-      const existingData = mockRequisitions[id];
-      if (existingData) {
-        setFormData(existingData);
-        setWorkArrangement(existingData.workArrangement || "Offshore");
-        toast({
-          title: "Data Loaded",
-          description: `Editing ${existingData.title} (${id})`,
-        });
-      } else {
-        toast({
-          title: "Error",
-          description: `Job Requisition ${id} not found`,
-          variant: "destructive",
-        });
+    if (existingJR && isEditMode) {
+      const transformed = transformAPIResponseToFormData(existingJR);
+      setFormData(transformed);
+      setWorkArrangement(transformed.workArrangement || "Offshore");
+      if (transformed.jobType) {
+        setJobType(transformed.jobType.toLowerCase());
       }
     }
-  }, [id, isEditMode, toast]);
+  }, [existingJR, isEditMode]);
+
+  // Create/Update mutation
+  const createOrUpdateMutation = useMutation({
+    mutationFn: async ({ payload, isDraft }: { payload: any; isDraft: boolean }) => {
+      if (isEditMode && id) {
+        return await apiRequest(`/job-requisitions/${id}`, {
+          method: "PATCH",
+          body: JSON.stringify(payload),
+          headers: { "Content-Type": "application/json" },
+        });
+      } else {
+        return await apiRequest("/api/job-requisitions", {
+          method: "POST",
+          body: JSON.stringify(payload),
+          headers: { "Content-Type": "application/json" },
+        });
+      }
+    },
+    onSuccess: (data, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["/job-requisitions"] });
+      
+      const { isDraft } = variables;
+      
+      toast({
+        title: isDraft 
+          ? "Draft Saved" 
+          : (isEditMode ? "Requisition Updated" : "Requisition Submitted"),
+        description: isDraft
+          ? "Your progress has been saved as a draft."
+          : isEditMode
+            ? "Your job requisition has been updated successfully."
+            : "Your job requisition has been submitted for approval.",
+      });
+
+      // Navigate to dashboard after submission (not draft saves)
+      if (!isDraft) {
+        setTimeout(() => {
+          navigate("/dashboard");
+        }, 1500);
+      } else if (currentStep < maxStep) {
+        setCurrentStep(currentStep + 1);
+      }
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save job requisition. Please try again.",
+        variant: "destructive",
+      });
+    },
+  });
 
   const handleWorkArrangementSelect = (arrangement: "Offshore" | "Onsite") => {
     setWorkArrangement(arrangement);
@@ -118,27 +180,46 @@ export default function CreateJobRequisition() {
   };
 
   const handleSaveAndContinue = () => {
-    toast({
-      title: "Draft Saved",
-      description: "Your progress has been saved as a draft.",
+    if (!workArrangement) return;
+
+    const payload = transformFormDataToAPIPayload(formData, workArrangement, {
+      jobTypes,
+      skills,
+      jobTitles,
+      departments,
+      users,
+      countries,
+      workShifts,
+      officeLocations,
+      workTimeZones,
     });
-    if (currentStep < maxStep) {
-      setCurrentStep(currentStep + 1);
-    }
+
+    payload.jrStatus = "Draft";
+
+    createOrUpdateMutation.mutate({ payload, isDraft: true });
   };
 
   const handleSubmit = () => {
-    toast({
-      title: isEditMode ? "Requisition Updated" : "Requisition Submitted",
-      description: isEditMode 
-        ? "Your job requisition has been updated successfully."
-        : "Your job requisition has been submitted for approval.",
+    if (!workArrangement) return;
+
+    const payload = transformFormDataToAPIPayload(formData, workArrangement, {
+      jobTypes,
+      skills,
+      jobTitles,
+      departments,
+      users,
+      countries,
+      workShifts,
+      officeLocations,
+      workTimeZones,
     });
-    
-    // Navigate to dashboard after a short delay to show the toast
-    setTimeout(() => {
-      navigate("/dashboard");
-    }, 1500);
+
+    // If editing, keep existing status; if new, set to Submitted
+    if (!isEditMode) {
+      payload.jrStatus = "Submitted";
+    }
+
+    createOrUpdateMutation.mutate({ payload, isDraft: false });
   };
 
   const updateFormData = (stepData: Record<string, any>) => {
@@ -146,6 +227,18 @@ export default function CreateJobRequisition() {
   };
 
   const CurrentStepComponent = workArrangement ? visibleSteps[currentStep - 1]?.component : null;
+
+  // Show loading state when fetching existing JR
+  if (isEditMode && isLoadingJR) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-4">
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <p className="text-muted-foreground">Loading job requisition...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Show work arrangement selection if not in edit mode and no arrangement selected
   if (!isEditMode && !workArrangement) {
@@ -157,12 +250,14 @@ export default function CreateJobRequisition() {
     return null;
   }
 
+  const isSaving = createOrUpdateMutation.isPending;
+
   return (
     <div className="max-w-5xl mx-auto space-y-6">
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          {isEditMode ? `Edit Job Requisition - ${id}` : "Create Job Requisition"}
+          {isEditMode ? `Edit Job Requisition - ${existingJR?.jrId || id}` : "Create Job Requisition"}
         </h1>
         <p className="text-muted-foreground">
           {isEditMode 
@@ -261,8 +356,9 @@ export default function CreateJobRequisition() {
         <Button
           variant="outline"
           onClick={handlePrevious}
-          disabled={currentStep === 1}
+          disabled={currentStep === 1 || isSaving}
           className="gap-2"
+          data-testid="button-previous"
         >
           <ChevronLeft className="h-4 w-4" />
           Previous
@@ -272,19 +368,39 @@ export default function CreateJobRequisition() {
           <Button
             variant="outline"
             onClick={handleSaveAndContinue}
+            disabled={isSaving}
             className="gap-2"
+            data-testid="button-save-continue"
           >
-            <Save className="h-4 w-4" />
+            {isSaving ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4" />
+            )}
             Save & Continue
           </Button>
 
           {currentStep === maxStep ? (
-            <Button onClick={handleSubmit} className="gap-2">
-              <Send className="h-4 w-4" />
+            <Button 
+              onClick={handleSubmit} 
+              disabled={isSaving}
+              className="gap-2"
+              data-testid="button-submit"
+            >
+              {isSaving ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
               {isEditMode ? "Update Requisition" : "Submit Requisition"}
             </Button>
           ) : (
-            <Button onClick={handleNext} className="gap-2">
+            <Button 
+              onClick={handleNext} 
+              disabled={isSaving}
+              className="gap-2"
+              data-testid="button-next"
+            >
               Next
               <ChevronRight className="h-4 w-4" />
             </Button>
