@@ -212,7 +212,7 @@ export default function CreateJobRequisition() {
     // These will be transformed to IDs by transformFormDataToAPIPayload
     if (!workArrangement) missingFields.push("Work Arrangement");
     if (!formData.jobType) missingFields.push("Job Type");
-    if (!formData.title) missingFields.push("Job Title");
+    if (!formData.jobTitle) missingFields.push("Job Title");
     if (!formData.department) missingFields.push("Department");
     if (!formData.requestedBy) missingFields.push("Requested By");
     if (!formData.hiringManager) missingFields.push("Hiring Manager");

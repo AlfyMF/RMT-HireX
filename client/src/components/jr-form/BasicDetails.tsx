@@ -179,8 +179,8 @@ export default function BasicDetails({
             </Tooltip>
           </div>
           <Select
-            defaultValue={data.title}
-            onValueChange={(value) => onUpdate({ title: value })}
+            defaultValue={data.jobTitle}
+            onValueChange={(value) => onUpdate({ jobTitle: value })}
           >
             <SelectTrigger data-testid="select-job-title">
               <SelectValue placeholder="Select job title" />
