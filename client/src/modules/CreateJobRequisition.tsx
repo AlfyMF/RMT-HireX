@@ -96,7 +96,7 @@ export default function CreateJobRequisition() {
           headers: { "Content-Type": "application/json" },
         });
       } else {
-        return await apiRequest("/api/job-requisitions", {
+        return await apiRequest("/job-requisitions", {
           method: "POST",
           body: JSON.stringify(payload),
           headers: { "Content-Type": "application/json" },
