@@ -54,6 +54,7 @@ export default function Dashboard() {
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [departmentFilter, setDepartmentFilter] = useState<string[]>([]);
   const [workArrangementFilter, setWorkArrangementFilter] = useState<string[]>([]);
+  const [locationFilter, setLocationFilter] = useState<string[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [jrToDelete, setJrToDelete] = useState<any>(null);
@@ -116,8 +117,13 @@ export default function Dashboard() {
     const matchesStatus = statusFilter.length === 0 || statusFilter.includes(req.jrStatus);
     const matchesDepartment = departmentFilter.length === 0 || departmentFilter.includes(req.department?.name);
     const matchesWorkArrangement = workArrangementFilter.length === 0 || workArrangementFilter.includes(req.workArrangement);
+    
+    const location = req.workArrangement === "Offshore" 
+      ? req.workLocations?.join(", ") 
+      : (req.onsiteLocation?.name || req.onsiteWorkMode);
+    const matchesLocation = locationFilter.length === 0 || locationFilter.some(filter => location?.includes(filter));
 
-    return matchesSearch && matchesStatus && matchesDepartment && matchesWorkArrangement;
+    return matchesSearch && matchesStatus && matchesDepartment && matchesWorkArrangement && matchesLocation;
   });
 
   const totalPages = Math.ceil(filteredRequisitions.length / itemsPerPage);
@@ -131,11 +137,12 @@ export default function Dashboard() {
     setStatusFilter([]);
     setDepartmentFilter([]);
     setWorkArrangementFilter([]);
+    setLocationFilter([]);
     setCurrentPage(1);
   };
 
   const hasActiveFilters = searchQuery || statusFilter.length > 0 || departmentFilter.length > 0 || 
-    workArrangementFilter.length > 0;
+    workArrangementFilter.length > 0 || locationFilter.length > 0;
 
   // Calculate status counts
   const totalCount = jobRequisitions.length;
@@ -179,8 +186,19 @@ export default function Dashboard() {
     },
   ];
 
-  const departmentOptions = departments?.map(d => d.name) || [];
-  const workArrangementOptions = ["Offshore", "Onsite"];
+  // Dynamic filter options based on actual JR data
+  const statusOptions = Array.from(new Set(jobRequisitions.map((r: any) => r.jrStatus).filter(Boolean))) as string[];
+  const departmentOptions = Array.from(new Set(jobRequisitions.map((r: any) => r.department?.name).filter(Boolean))) as string[];
+  const workArrangementOptions = Array.from(new Set(jobRequisitions.map((r: any) => r.workArrangement).filter(Boolean))) as string[];
+  const locationOptions = Array.from(new Set(
+    jobRequisitions.flatMap((r: any) => {
+      if (r.workArrangement === "Offshore") {
+        return r.workLocations || [];
+      } else {
+        return r.onsiteLocation?.name || r.onsiteWorkMode || null;
+      }
+    }).filter(Boolean)
+  )) as string[];
 
   if (isLoading) {
     return (
@@ -263,7 +281,7 @@ export default function Dashboard() {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
             <div>
               <label className="text-sm font-medium mb-1.5 block">Status</label>
               <MultiSelect
@@ -289,6 +307,15 @@ export default function Dashboard() {
                 selected={workArrangementFilter}
                 onChange={setWorkArrangementFilter}
                 placeholder="All Arrangements"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">Location</label>
+              <MultiSelect
+                options={locationOptions}
+                selected={locationFilter}
+                onChange={setLocationFilter}
+                placeholder="All Locations"
               />
             </div>
           </div>
@@ -367,41 +394,74 @@ export default function Dashboard() {
                 </div>
 
                 {/* Details Grid */}
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4 pt-4 border-t">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-4 pt-4 border-t">
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
+                      <MapPin className="h-3.5 w-3.5" />
+                      <span>Location</span>
+                    </div>
+                    <p className="font-medium text-sm">
+                      {req.workArrangement === "Offshore" 
+                        ? (req.workLocations?.join(", ") || "-")
+                        : (req.onsiteLocation?.name || req.onsiteWorkMode || "-")
+                      }
+                    </p>
+                  </div>
+                  
                   <div className="space-y-1">
                     <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
                       <Briefcase className="h-3.5 w-3.5" />
-                      <span>Job Type</span>
+                      <span>Experience</span>
                     </div>
-                    <p className="font-medium text-sm">{req.jobType?.name || "-"}</p>
+                    <p className="font-medium text-sm">
+                      {req.totalExperienceMin && req.totalExperienceMax 
+                        ? `${req.totalExperienceMin}-${req.totalExperienceMax} years`
+                        : "-"
+                      }
+                    </p>
                   </div>
-                  {req.expectedSalaryMin && req.expectedSalaryMax && (
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
-                        <DollarSign className="h-3.5 w-3.5" />
-                        <span>Salary Range</span>
-                      </div>
-                      <p className="font-medium text-sm">${req.expectedSalaryMin} - ${req.expectedSalaryMax}</p>
+
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
+                      <DollarSign className="h-3.5 w-3.5" />
+                      <span>Salary Range</span>
                     </div>
-                  )}
+                    <p className="font-medium text-sm">
+                      {req.expectedSalaryMin && req.expectedSalaryMax
+                        ? `$${req.expectedSalaryMin.toLocaleString()} - $${req.expectedSalaryMax.toLocaleString()}`
+                        : "-"
+                      }
+                    </p>
+                  </div>
+
+                  <div className="space-y-1">
+                    <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
+                      <MapPin className="h-3.5 w-3.5" />
+                      <span>Work Mode</span>
+                    </div>
+                    <p className="font-medium text-sm">
+                      {req.workArrangement === "Onsite" ? req.onsiteWorkMode : req.workArrangement}
+                    </p>
+                  </div>
+
                   <div className="space-y-1">
                     <p className="text-muted-foreground text-xs">Positions</p>
                     <p className="font-medium text-sm">{req.numberOfPositions}</p>
                   </div>
+
                   <div className="space-y-1">
-                    <p className="text-muted-foreground text-xs">Billable</p>
-                    <p className="font-medium text-sm">{req.billable ? "Yes" : "No"}</p>
-                  </div>
-                  <div className="space-y-1 col-span-2">
-                    <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
-                      <Users className="h-3.5 w-3.5" />
-                      <span>Core Skill</span>
-                    </div>
-                    <p className="font-medium text-sm">{req.coreSkill?.name || "-"}</p>
+                    <p className="text-muted-foreground text-xs">Date</p>
+                    <p className="font-medium text-sm">
+                      {req.createdAt ? new Date(req.createdAt).toLocaleDateString('en-US', { 
+                        year: 'numeric', 
+                        month: '2-digit', 
+                        day: '2-digit' 
+                      }) : "-"}
+                    </p>
                   </div>
                 </div>
 
-                {/* Skills & People */}
+                {/* Skills */}
                 {req.primarySkills?.length > 0 && (
                   <div className="pt-4 border-t">
                     <div className="space-y-1.5">
@@ -424,6 +484,18 @@ export default function Dashboard() {
                     </div>
                   </div>
                 )}
+
+                {/* People */}
+                <div className="pt-4 border-t grid grid-cols-2 gap-4">
+                  <div className="space-y-1">
+                    <p className="text-muted-foreground text-xs">Hiring Manager</p>
+                    <p className="font-medium text-sm">{req.hiringManager?.name || "-"}</p>
+                  </div>
+                  <div className="space-y-1">
+                    <p className="text-muted-foreground text-xs">Requested By</p>
+                    <p className="font-medium text-sm">{req.requestedBy?.name || "-"}</p>
+                  </div>
+                </div>
               </div>
             </Card>
           ))}
