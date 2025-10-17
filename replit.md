@@ -8,6 +8,28 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### October 17, 2025 - Dashboard Enhancements & Onsite Location Fix
+**Dashboard Improvements:**
+- Added comprehensive summary statistics cards: Total JRs, Pending, Approved, Rejected, and Draft counts
+- Enhanced JR cards with detailed information display:
+  - Location (handles both offshore work locations array and onsite location string)
+  - Experience range (min-max years)
+  - Salary range (formatted with currency)
+  - Work mode (offshore/onsite specific)
+  - Number of positions
+  - Creation date
+  - Hiring manager and requested by information
+  - Primary skills with badge display (shows up to 5 skills with overflow indicator)
+- Implemented dynamic filter system:
+  - All filter dropdowns (Status, Department, Work Arrangement, Location) now populate only with values from actual JR data
+  - Added new location filter supporting both offshore and onsite locations
+  - Filter state management with clear filters functionality
+
+**Onsite Location Field Fix:**
+- Database: Renamed column from `onsite_location_id` to `onsite_location` (text field)
+- UI: Reverted onsite location from dropdown to text input per user preference
+- Dashboard: Fixed onsite location handling to treat as string value (not object.name pattern) across card display, filter options extraction, and filtering logic
+
 ### October 17, 2025 - Field Mapping Fix
 Fixed 21 field name mismatches across all JR form components to ensure proper data flow from UI to transformer to backend:
 - **BasicDetails** (8 fields): Date ranges (onboarding, ideal start) and budget/salary min/max values now map correctly to transformer-expected field names

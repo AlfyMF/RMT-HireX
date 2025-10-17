@@ -144,8 +144,7 @@ model OfficeLocation {
   updatedAt DateTime @updatedAt @map("updated_at")
   isActive  Boolean  @default(true) @map("is_active")
   
-  country                    Country            @relation(fields: [countryId], references: [id], onDelete: Cascade)
-  jobRequisitionsOnsiteLocation JobRequisition[]
+  country Country @relation(fields: [countryId], references: [id], onDelete: Cascade)
 
   @@index([countryId])
   @@map("OfficeLocation")
@@ -279,7 +278,7 @@ model JobRequisition {
   workShiftId         String?  @db.VarChar(36) @map("work_shift_id")
   shiftTime           String?  @db.VarChar(100) @map("shift_time")
   onsiteWorkMode      String?  @db.VarChar(50) @map("onsite_work_mode")
-  onsiteLocationId    String?  @db.VarChar(36) @map("onsite_location")
+  onsiteLocation      String?  @db.VarChar(255) @map("onsite_location")
   onsiteDaysPerWeek   Int?     @map("onsite_days_per_week")
   preferredTimeZoneId String?  @db.VarChar(36) @map("preferred_time_zone_id")
 
@@ -315,7 +314,6 @@ model JobRequisition {
   hiringManager     User            @relation("JRHiringManager", fields: [hiringManagerId], references: [id])
   clientCountry     Country?        @relation(fields: [clientCountryId], references: [id])
   workShift         WorkShift?      @relation(fields: [workShiftId], references: [id])
-  onsiteLocation    OfficeLocation? @relation(fields: [onsiteLocationId], references: [id])
   preferredTimeZone WorkTimeZone?   @relation(fields: [preferredTimeZoneId], references: [id])
   recruiterLead     User?           @relation("JRRecruiterLead", fields: [recruiterLeadId], references: [id])
   recruiterPoc      User?           @relation("JRRecruiterPoc", fields: [recruiterPocId], references: [id])

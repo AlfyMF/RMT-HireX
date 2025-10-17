@@ -25,7 +25,23 @@ export const queryClient = new QueryClient({
     queries: {
       queryFn: async ({ queryKey }) => {
         const url = queryKey[0] as string;
-        return apiRequest(url);
+        const params = queryKey[1] as Record<string, any> | undefined;
+        
+        let fullUrl = url;
+        if (params) {
+          const searchParams = new URLSearchParams();
+          Object.entries(params).forEach(([key, value]) => {
+            if (value !== undefined && value !== null) {
+              searchParams.append(key, String(value));
+            }
+          });
+          const queryString = searchParams.toString();
+          if (queryString) {
+            fullUrl = `${url}?${queryString}`;
+          }
+        }
+        
+        return apiRequest(fullUrl);
       },
       refetchOnWindowFocus: false,
       retry: 1,
