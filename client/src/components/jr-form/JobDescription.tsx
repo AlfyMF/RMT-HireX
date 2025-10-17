@@ -45,7 +45,7 @@ export default function JobDescription({ data, onUpdate }: JobDescriptionProps) 
             id="jobPurpose"
             rows={4}
             placeholder="Describe the primary purpose of this role..."
-            defaultValue={data.jobPurpose}
+            value={data.jobPurpose || ""}
             onChange={(e) => onUpdate({ jobPurpose: e.target.value })}
             data-testid="textarea-job-purpose"
           />
@@ -69,7 +69,7 @@ export default function JobDescription({ data, onUpdate }: JobDescriptionProps) 
             id="mandatoryDuties"
             rows={6}
             placeholder="List the main responsibilities and duties..."
-            defaultValue={data.mandatoryDuties || data.primaryDuties}
+            value={data.mandatoryDuties || data.primaryDuties || ""}
             onChange={(e) => onUpdate({ mandatoryDuties: e.target.value })}
             data-testid="textarea-mandatory-duties"
           />
@@ -93,7 +93,7 @@ export default function JobDescription({ data, onUpdate }: JobDescriptionProps) 
             id="goodToHaveDuties"
             rows={4}
             placeholder="Additional skills or qualifications that are beneficial..."
-            defaultValue={data.goodToHaveDuties || data.goodToHave}
+            value={data.goodToHaveDuties || data.goodToHave || ""}
             onChange={(e) => onUpdate({ goodToHaveDuties: e.target.value })}
             data-testid="textarea-good-to-have-duties"
           />
@@ -117,7 +117,7 @@ export default function JobDescription({ data, onUpdate }: JobDescriptionProps) 
             id="jobSpecificationSkills"
             rows={6}
             placeholder="Detailed specifications and requirements for the role..."
-            defaultValue={data.jobSpecificationSkills || data.jobSpecifications}
+            value={data.jobSpecificationSkills || data.jobSpecifications || ""}
             onChange={(e) => onUpdate({ jobSpecificationSkills: e.target.value })}
             data-testid="textarea-job-specification-skills"
           />

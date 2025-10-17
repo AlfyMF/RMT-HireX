@@ -137,7 +137,7 @@ export default function LocationShift({ data, onUpdate, workArrangement }: Locat
               <Input
                 id="shiftTime"
                 placeholder='e.g., "1pm – 10pm IST"'
-                defaultValue={data.shiftTime}
+                value={data.shiftTime || ""}
                 onChange={(e) => onUpdate({ shiftTime: e.target.value })}
                 data-testid="input-shift-time"
               />
@@ -191,7 +191,7 @@ export default function LocationShift({ data, onUpdate, workArrangement }: Locat
                 <Input
                   id="onsiteLocation"
                   placeholder="Enter onsite location"
-                  defaultValue={data.onsiteLocation}
+                  value={data.onsiteLocation || ""}
                   onChange={(e) => onUpdate({ onsiteLocation: e.target.value })}
                   data-testid="input-onsite-location"
                 />
@@ -217,7 +217,7 @@ export default function LocationShift({ data, onUpdate, workArrangement }: Locat
                   min="1"
                   max="7"
                   placeholder="Number of days (1-7)"
-                  defaultValue={data.onsiteDaysInOffice}
+                  value={data.onsiteDaysInOffice || ""}
                   onChange={(e) => onUpdate({ onsiteDaysInOffice: e.target.value })}
                   data-testid="input-onsite-days-in-office"
                 />
@@ -240,7 +240,7 @@ export default function LocationShift({ data, onUpdate, workArrangement }: Locat
               </Tooltip>
             </div>
             <Select
-              defaultValue={data.preferredTimezone}
+              value={data.preferredTimezone || ""}
               onValueChange={(value) => onUpdate({ preferredTimezone: value })}
             >
               <SelectTrigger data-testid="select-preferred-timezone">

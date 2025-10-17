@@ -73,7 +73,7 @@ export default function ProjectClientInfo({
           <Input
             id="projectName"
             placeholder="Enter project name"
-            defaultValue={data.projectName}
+            value={data.projectName || ""}
             onChange={(e) => onUpdate({ projectName: e.target.value })}
             data-testid="input-project-name"
           />
@@ -95,7 +95,7 @@ export default function ProjectClientInfo({
             <Input
               id="projectRole"
               placeholder="Enter project role/job title"
-              defaultValue={data.projectRole}
+              value={data.projectRole || ""}
               onChange={(e) => onUpdate({ projectRole: e.target.value })}
               data-testid="input-project-role"
             />
@@ -121,7 +121,7 @@ export default function ProjectClientInfo({
           <Input
             id="client"
             placeholder="Enter client name"
-            defaultValue={data.client || data.clientName}
+            value={data.client || data.clientName || ""}
             onChange={(e) => onUpdate({ client: e.target.value })}
             data-testid="input-client"
           />
@@ -142,7 +142,7 @@ export default function ProjectClientInfo({
             </Tooltip>
           </div>
           <Select
-            defaultValue={data.clientCountry}
+            value={data.clientCountry || ""}
             onValueChange={(value) => onUpdate({ clientCountry: value })}
           >
             <SelectTrigger data-testid="select-client-country">

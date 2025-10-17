@@ -145,7 +145,7 @@ export default function BasicDetails({
             </Tooltip>
           </div>
           <Select
-            defaultValue={data.coreSkill}
+            value={data.coreSkill || ""}
             onValueChange={(value) => onUpdate({ coreSkill: value })}
           >
             <SelectTrigger data-testid="select-core-skill">
@@ -179,7 +179,7 @@ export default function BasicDetails({
             </Tooltip>
           </div>
           <Select
-            defaultValue={data.jobTitle}
+            value={data.jobTitle || ""}
             onValueChange={(value) => onUpdate({ jobTitle: value })}
           >
             <SelectTrigger data-testid="select-job-title">
@@ -213,7 +213,8 @@ export default function BasicDetails({
           <Input
             type="date"
             id="requestedDate"
-            defaultValue={data.requestedDate}
+            value={data.requestedDate || ""}
+            onChange={(e) => onUpdate({ requestedDate: e.target.value })}
             data-testid="input-requested-date"
           />
         </div>
@@ -274,7 +275,7 @@ export default function BasicDetails({
             </Tooltip>
           </div>
           <Select
-            defaultValue={data.requestedBy}
+            value={data.requestedBy || ""}
             onValueChange={(value) => onUpdate({ requestedBy: value })}
           >
             <SelectTrigger data-testid="select-requested-by">
@@ -310,7 +311,7 @@ export default function BasicDetails({
             </Tooltip>
           </div>
           <Select
-            defaultValue={data.hiringManager}
+            value={data.hiringManager || ""}
             onValueChange={(value) => onUpdate({ hiringManager: value })}
           >
             <SelectTrigger data-testid="select-hiring-manager">
@@ -345,7 +346,8 @@ export default function BasicDetails({
             type="number"
             id="positions"
             min="1"
-            defaultValue={data.positions || 1}
+            value={data.positions || ""}
+            onChange={(e) => onUpdate({ positions: e.target.value })}
             data-testid="input-positions"
           />
         </div>
@@ -374,7 +376,8 @@ export default function BasicDetails({
               <Input
                 type="date"
                 id="onboardingFrom"
-                defaultValue={data.onboardingFrom}
+                value={data.onboardingFrom || ""}
+                onChange={(e) => onUpdate({ onboardingFrom: e.target.value })}
                 data-testid="input-onboarding-start"
               />
             </div>
@@ -400,7 +403,8 @@ export default function BasicDetails({
               <Input
                 type="date"
                 id="onboardingTo"
-                defaultValue={data.onboardingTo}
+                value={data.onboardingTo || ""}
+                onChange={(e) => onUpdate({ onboardingTo: e.target.value })}
                 data-testid="input-onboarding-end"
               />
             </div>
@@ -430,7 +434,8 @@ export default function BasicDetails({
               <Input
                 type="date"
                 id="idealStartFrom"
-                defaultValue={data.idealStartFrom || data.startDateFrom}
+                value={data.idealStartFrom || data.startDateFrom || ""}
+                onChange={(e) => onUpdate({ idealStartFrom: e.target.value })}
                 data-testid="input-ideal-start-from"
               />
             </div>
@@ -455,7 +460,8 @@ export default function BasicDetails({
               <Input
                 type="date"
                 id="idealStartTo"
-                defaultValue={data.idealStartTo || data.startDateTo}
+                value={data.idealStartTo || data.startDateTo || ""}
+                onChange={(e) => onUpdate({ idealStartTo: e.target.value })}
                 data-testid="input-ideal-start-to"
               />
             </div>
@@ -511,7 +517,8 @@ export default function BasicDetails({
               type="number"
               id="billingRate"
               placeholder="Enter rate"
-              defaultValue={data.clientBillingRate}
+              value={data.clientBillingRate || ""}
+              onChange={(e) => onUpdate({ clientBillingRate: e.target.value })}
               data-testid="input-billing-rate"
             />
           </div>
@@ -541,7 +548,8 @@ export default function BasicDetails({
                 type="number"
                 id="budgetMin"
                 placeholder="Minimum budget"
-                defaultValue={data.totalBudget?.min}
+                value={data.totalBudget?.min || ""}
+                onChange={(e) => onUpdate({ totalBudget: { ...data.totalBudget, min: e.target.value } })}
                 data-testid="input-budget-min"
               />
             </div>
@@ -567,7 +575,8 @@ export default function BasicDetails({
                 type="number"
                 id="budgetMax"
                 placeholder="Maximum budget"
-                defaultValue={data.totalBudget?.max}
+                value={data.totalBudget?.max || ""}
+                onChange={(e) => onUpdate({ totalBudget: { ...data.totalBudget, max: e.target.value } })}
                 data-testid="input-budget-max"
               />
             </div>
@@ -599,7 +608,8 @@ export default function BasicDetails({
                 type="number"
                 id="salaryMin"
                 placeholder="Minimum salary"
-                defaultValue={data.expectedSalary?.min}
+                value={data.expectedSalary?.min || ""}
+                onChange={(e) => onUpdate({ expectedSalary: { ...data.expectedSalary, min: e.target.value } })}
                 data-testid="input-salary-min"
               />
             </div>
@@ -625,7 +635,8 @@ export default function BasicDetails({
                 type="number"
                 id="salaryMax"
                 placeholder="Maximum salary"
-                defaultValue={data.expectedSalary?.max}
+                value={data.expectedSalary?.max || ""}
+                onChange={(e) => onUpdate({ expectedSalary: { ...data.expectedSalary, max: e.target.value } })}
                 data-testid="input-salary-max"
               />
             </div>

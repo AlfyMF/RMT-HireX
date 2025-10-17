@@ -82,7 +82,7 @@ export default function OnsiteSpecific({ data, onUpdate }: OnsiteSpecificProps) 
             type="number"
             id="rate"
             placeholder="Enter rate amount"
-            defaultValue={data.rate}
+            value={data.rate || ""}
             onChange={(e) => onUpdate({ rate: e.target.value })}
             data-testid="input-rate"
           />
@@ -156,7 +156,7 @@ export default function OnsiteSpecific({ data, onUpdate }: OnsiteSpecificProps) 
             </Tooltip>
           </div>
           <Select
-            defaultValue={data.paymentCycle}
+            value={data.paymentCycle || ""}
             onValueChange={(value) => onUpdate({ paymentCycle: value })}
           >
             <SelectTrigger data-testid="select-payment-cycle">
@@ -213,7 +213,7 @@ export default function OnsiteSpecific({ data, onUpdate }: OnsiteSpecificProps) 
             type="number"
             id="contractDuration"
             placeholder="Enter duration"
-            defaultValue={data.contractDuration}
+            value={data.contractDuration || ""}
             onChange={(e) => onUpdate({ contractDuration: e.target.value })}
             data-testid="input-contract-duration"
           />
@@ -260,7 +260,7 @@ export default function OnsiteSpecific({ data, onUpdate }: OnsiteSpecificProps) 
           <Input
             id="reportingManager"
             placeholder="Enter reporting manager name"
-            defaultValue={data.reportingManager}
+            value={data.reportingManager || ""}
             onChange={(e) => onUpdate({ reportingManager: e.target.value })}
             data-testid="input-reporting-manager"
           />
@@ -283,7 +283,7 @@ export default function OnsiteSpecific({ data, onUpdate }: OnsiteSpecificProps) 
             id="interviewProcess"
             rows={4}
             placeholder="Describe the interview process (# Rounds, Panel Names, etc.)"
-            defaultValue={data.interviewProcess}
+            value={data.interviewProcess || ""}
             onChange={(e) => onUpdate({ interviewProcess: e.target.value })}
             data-testid="textarea-interview-process"
           />
