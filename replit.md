@@ -6,6 +6,18 @@ HireX is a full-stack job requisition management system designed to streamline t
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+### October 17, 2025 - Field Mapping Fix
+Fixed 21 field name mismatches across all JR form components to ensure proper data flow from UI to transformer to backend:
+- **BasicDetails** (8 fields): Date ranges (onboarding, ideal start) and budget/salary min/max values now map correctly to transformer-expected field names
+- **SkillsQualifications** (4 fields): Total/relevant experience min/max values now map correctly
+- **LocationShift** (3 fields): Onsite days per week and preferred timezone now map correctly
+- **JobDescription** (2 fields): Primary duties and job specification now map correctly
+- **OnsiteSpecific** (4 fields): Visa statuses, duration unit, H1 transfer now map correctly via useEffect
+
+Implementation uses dual-field-name strategy: onChange handlers save data with both original UI field names (for state persistence) and transformer-expected field names (for backend processing). This ensures all form data is properly captured and sent to the backend regardless of which field name the transformer expects.
+
 ## System Architecture
 
 ### Monorepo Structure
