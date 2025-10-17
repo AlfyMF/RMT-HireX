@@ -8,6 +8,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### October 17, 2025 - Onsite Location Backend Service Fix
+**Fixed Prisma Service Error:**
+- Removed `onsiteLocation: true` from all Prisma `include` statements in `server/src/services/jobRequisition.ts`
+- The onsite location field is now a scalar text field (not a relation), so it's automatically returned by Prisma without needing to be explicitly included
+- Verified save draft and submit operations work correctly (backend logs show successful POST 201 responses)
+- API responses now properly include the `onsiteLocation` field as a string value
+
 ### October 17, 2025 - Dashboard Enhancements & Onsite Location Fix
 **Dashboard Improvements:**
 - Added comprehensive summary statistics cards: Total JRs, Pending, Approved, Rejected, and Draft counts
