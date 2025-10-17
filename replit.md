@@ -8,6 +8,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### October 17, 2025 - Dashboard Data Loading Fix
+**Fixed API Response Handling:**
+- Updated `apiRequest` function to preserve pagination meta information from backend responses
+- When backend returns `{success, data, meta}`, the function now returns `{data, meta}` to maintain both the data array and pagination info
+- Dashboard now correctly accesses `jrsData.data` (job requisitions array) and `jrsData.meta.total` (total count)
+- Verified query successfully fetches and displays all 11 job requisitions from the API
+
 ### October 17, 2025 - Onsite Location Backend Service Fix
 **Fixed Prisma Service Error:**
 - Removed `onsiteLocation: true` from all Prisma `include` statements in `server/src/services/jobRequisition.ts`
