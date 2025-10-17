@@ -376,8 +376,11 @@ export default function BasicDetails({
               <Input
                 type="date"
                 id="onboardingFrom"
-                value={data.onboardingFrom || ""}
-                onChange={(e) => onUpdate({ onboardingFrom: e.target.value })}
+                value={data.onboardingFrom || data.expectedDateOfOnboardingStart || ""}
+                onChange={(e) => onUpdate({ 
+                  onboardingFrom: e.target.value,
+                  expectedDateOfOnboardingStart: e.target.value 
+                })}
                 data-testid="input-onboarding-start"
               />
             </div>
@@ -403,8 +406,11 @@ export default function BasicDetails({
               <Input
                 type="date"
                 id="onboardingTo"
-                value={data.onboardingTo || ""}
-                onChange={(e) => onUpdate({ onboardingTo: e.target.value })}
+                value={data.onboardingTo || data.expectedDateOfOnboardingEnd || ""}
+                onChange={(e) => onUpdate({ 
+                  onboardingTo: e.target.value,
+                  expectedDateOfOnboardingEnd: e.target.value 
+                })}
                 data-testid="input-onboarding-end"
               />
             </div>
@@ -434,8 +440,11 @@ export default function BasicDetails({
               <Input
                 type="date"
                 id="idealStartFrom"
-                value={data.idealStartFrom || data.startDateFrom || ""}
-                onChange={(e) => onUpdate({ idealStartFrom: e.target.value })}
+                value={data.idealStartFrom || data.startDateFrom || data.idealStartDateStart || ""}
+                onChange={(e) => onUpdate({ 
+                  idealStartFrom: e.target.value,
+                  idealStartDateStart: e.target.value 
+                })}
                 data-testid="input-ideal-start-from"
               />
             </div>
@@ -460,8 +469,11 @@ export default function BasicDetails({
               <Input
                 type="date"
                 id="idealStartTo"
-                value={data.idealStartTo || data.startDateTo || ""}
-                onChange={(e) => onUpdate({ idealStartTo: e.target.value })}
+                value={data.idealStartTo || data.startDateTo || data.idealStartDateEnd || ""}
+                onChange={(e) => onUpdate({ 
+                  idealStartTo: e.target.value,
+                  idealStartDateEnd: e.target.value 
+                })}
                 data-testid="input-ideal-start-to"
               />
             </div>
@@ -554,8 +566,11 @@ export default function BasicDetails({
                 type="number"
                 id="budgetMin"
                 placeholder="Minimum budget"
-                value={data.totalBudget?.min || ""}
-                onChange={(e) => onUpdate({ totalBudget: { ...data.totalBudget, min: e.target.value } })}
+                value={data.totalBudget?.min || data.totalBudgetMin || ""}
+                onChange={(e) => onUpdate({ 
+                  totalBudget: { ...data.totalBudget, min: e.target.value },
+                  totalBudgetMin: e.target.value 
+                })}
                 data-testid="input-budget-min"
               />
             </div>
@@ -581,8 +596,11 @@ export default function BasicDetails({
                 type="number"
                 id="budgetMax"
                 placeholder="Maximum budget"
-                value={data.totalBudget?.max || ""}
-                onChange={(e) => onUpdate({ totalBudget: { ...data.totalBudget, max: e.target.value } })}
+                value={data.totalBudget?.max || data.totalBudgetMax || ""}
+                onChange={(e) => onUpdate({ 
+                  totalBudget: { ...data.totalBudget, max: e.target.value },
+                  totalBudgetMax: e.target.value 
+                })}
                 data-testid="input-budget-max"
               />
             </div>
@@ -614,8 +632,11 @@ export default function BasicDetails({
                 type="number"
                 id="salaryMin"
                 placeholder="Minimum salary"
-                value={data.expectedSalary?.min || ""}
-                onChange={(e) => onUpdate({ expectedSalary: { ...data.expectedSalary, min: e.target.value } })}
+                value={data.expectedSalary?.min || data.expectedSalaryMin || ""}
+                onChange={(e) => onUpdate({ 
+                  expectedSalary: { ...data.expectedSalary, min: e.target.value },
+                  expectedSalaryMin: e.target.value 
+                })}
                 data-testid="input-salary-min"
               />
             </div>
@@ -641,8 +662,11 @@ export default function BasicDetails({
                 type="number"
                 id="salaryMax"
                 placeholder="Maximum salary"
-                value={data.expectedSalary?.max || ""}
-                onChange={(e) => onUpdate({ expectedSalary: { ...data.expectedSalary, max: e.target.value } })}
+                value={data.expectedSalary?.max || data.expectedSalaryMax || ""}
+                onChange={(e) => onUpdate({ 
+                  expectedSalary: { ...data.expectedSalary, max: e.target.value },
+                  expectedSalaryMax: e.target.value 
+                })}
                 data-testid="input-salary-max"
               />
             </div>
