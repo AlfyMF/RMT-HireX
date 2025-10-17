@@ -222,8 +222,11 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
               id="totalExpMin" 
               min="0" 
               placeholder="Min years" 
-              value={data.totalExperience?.min || ""}
-              onChange={(e) => onUpdate({ totalExperience: { ...data.totalExperience, min: e.target.value } })}
+              value={data.totalExperience?.min || data.totalExperienceMin || ""}
+              onChange={(e) => onUpdate({ 
+                totalExperience: { ...data.totalExperience, min: e.target.value },
+                totalExperienceMin: e.target.value 
+              })}
               data-testid="input-total-exp-min"
             />
           </div>
@@ -239,8 +242,11 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
               id="totalExpMax" 
               min="0" 
               placeholder="Max years" 
-              value={data.totalExperience?.max || ""}
-              onChange={(e) => onUpdate({ totalExperience: { ...data.totalExperience, max: e.target.value } })}
+              value={data.totalExperience?.max || data.totalExperienceMax || ""}
+              onChange={(e) => onUpdate({ 
+                totalExperience: { ...data.totalExperience, max: e.target.value },
+                totalExperienceMax: e.target.value 
+              })}
               data-testid="input-total-exp-max"
             />
           </div>
@@ -264,8 +270,11 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
               id="relevantExpMin" 
               min="0" 
               placeholder="Min years" 
-              value={data.relevantExperience?.min || ""}
-              onChange={(e) => onUpdate({ relevantExperience: { ...data.relevantExperience, min: e.target.value } })}
+              value={data.relevantExperience?.min || data.relevantExperienceMin || ""}
+              onChange={(e) => onUpdate({ 
+                relevantExperience: { ...data.relevantExperience, min: e.target.value },
+                relevantExperienceMin: e.target.value 
+              })}
               data-testid="input-relevant-exp-min"
             />
           </div>
@@ -281,8 +290,11 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
               id="relevantExpMax" 
               min="0" 
               placeholder="Max years" 
-              value={data.relevantExperience?.max || ""}
-              onChange={(e) => onUpdate({ relevantExperience: { ...data.relevantExperience, max: e.target.value } })}
+              value={data.relevantExperience?.max || data.relevantExperienceMax || ""}
+              onChange={(e) => onUpdate({ 
+                relevantExperience: { ...data.relevantExperience, max: e.target.value },
+                relevantExperienceMax: e.target.value 
+              })}
               data-testid="input-relevant-exp-max"
             />
           </div>
