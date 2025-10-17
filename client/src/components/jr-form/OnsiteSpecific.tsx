@@ -47,8 +47,11 @@ export default function OnsiteSpecific({ data, onUpdate }: OnsiteSpecificProps) 
       rateUnit,
       rateCurrency,
       contractDurationUnit,
+      durationUnit: contractDurationUnit,
       preferredVisaStatus,
+      visaStatuses: preferredVisaStatus,
       acceptH1Transfer,
+      h1Transfer: acceptH1Transfer,
       travelRequired
     });
   }, [rateUnit, rateCurrency, contractDurationUnit, preferredVisaStatus, acceptH1Transfer, travelRequired, onUpdate]);
