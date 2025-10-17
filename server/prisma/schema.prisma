@@ -279,7 +279,7 @@ model JobRequisition {
   workShiftId         String?  @db.VarChar(36) @map("work_shift_id")
   shiftTime           String?  @db.VarChar(100) @map("shift_time")
   onsiteWorkMode      String?  @db.VarChar(50) @map("onsite_work_mode")
-  onsiteLocationId    String?  @db.VarChar(36) @map("onsite_location_id")
+  onsiteLocationId    String?  @db.VarChar(36) @map("onsite_location")
   onsiteDaysPerWeek   Int?     @map("onsite_days_per_week")
   preferredTimeZoneId String?  @db.VarChar(36) @map("preferred_time_zone_id")
 
