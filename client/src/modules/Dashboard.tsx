@@ -137,39 +137,45 @@ export default function Dashboard() {
   const hasActiveFilters = searchQuery || statusFilter.length > 0 || departmentFilter.length > 0 || 
     workArrangementFilter.length > 0;
 
+  // Calculate status counts
+  const totalCount = jobRequisitions.length;
+  const pendingCount = jobRequisitions.filter((r: any) => 
+    r.jrStatus === "Submitted" || r.jrStatus === "DU Head Approved" || r.jrStatus === "CDO Approved"
+  ).length;
+  const approvedCount = jobRequisitions.filter((r: any) => r.jrStatus === "Approved" || r.jrStatus === "COO Approved").length;
+  const rejectedCount = jobRequisitions.filter((r: any) => r.jrStatus === "Rejected").length;
   const draftCount = jobRequisitions.filter((r: any) => r.jrStatus === "Draft").length;
-  const submittedCount = jobRequisitions.filter((r: any) => r.jrStatus === "Submitted").length;
-  const approvedCount = jobRequisitions.filter((r: any) => r.jrStatus === "Approved").length;
-  const totalPositions = jobRequisitions.reduce((sum: number, req: any) => sum + (req.numberOfPositions || 0), 0);
 
   const stats = [
     {
-      label: "Total Requisitions",
-      value: totalJRs,
+      label: "Total",
+      value: totalCount,
       icon: Users,
-      trend: "+12%",
-      color: "bg-primary",
+      color: "bg-primary/10 text-primary",
     },
     {
-      label: "Open Positions",
-      value: totalPositions,
-      icon: TrendingUp,
-      trend: "+8%",
-      color: "bg-success",
-    },
-    {
-      label: "Draft",
-      value: draftCount,
+      label: "Pending",
+      value: pendingCount,
       icon: Clock,
-      trend: "",
-      color: "bg-secondary",
+      color: "bg-warning/10 text-warning",
     },
     {
       label: "Approved",
       value: approvedCount,
       icon: CheckCircle2,
-      trend: "+15%",
-      color: "bg-success",
+      color: "bg-success/10 text-success",
+    },
+    {
+      label: "Rejected",
+      value: rejectedCount,
+      icon: X,
+      color: "bg-destructive/10 text-destructive",
+    },
+    {
+      label: "Draft",
+      value: draftCount,
+      icon: Clock,
+      color: "bg-secondary/10 text-muted-foreground",
     },
   ];
 
@@ -206,22 +212,16 @@ export default function Dashboard() {
       </div>
 
       {/* Stats */}
-      <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
         {stats.map((stat) => (
-          <Card key={stat.label} className="p-6 bg-gradient-to-br from-card to-accent/5 hover:shadow-lg transition-shadow">
+          <Card key={stat.label} className="p-4">
             <div className="flex items-center justify-between">
               <div className="space-y-1">
-                <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
-                <p className="text-3xl font-bold">{stat.value}</p>
-                {stat.trend && (
-                  <p className="text-xs text-success flex items-center gap-1">
-                    <TrendingUp className="h-3 w-3" />
-                    {stat.trend}
-                  </p>
-                )}
+                <p className="text-sm font-medium">{stat.label}</p>
+                <p className="text-2xl font-bold">{stat.value}</p>
               </div>
-              <div className={`${stat.color} p-3 rounded-full bg-opacity-10`}>
-                <stat.icon className={`h-6 w-6 ${stat.color.replace('bg-', 'text-')}`} />
+              <div className={`p-2 rounded-lg ${stat.color}`}>
+                <stat.icon className="h-4 w-4" />
               </div>
             </div>
           </Card>
