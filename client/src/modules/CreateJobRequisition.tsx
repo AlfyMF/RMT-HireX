@@ -93,10 +93,10 @@ export default function CreateJobRequisition() {
   // Create/Update mutation
   const createOrUpdateMutation = useMutation({
     mutationFn: async ({ payload, isDraft }: { payload: any; isDraft: boolean }) => {
-      // If we have a draftJrId, always use PATCH to update the existing draft
+      // If we have a draftJrId, always use PUT to update the existing draft
       if (draftJrId) {
         return await apiRequest(`/job-requisitions/${draftJrId}`, {
-          method: "PATCH",
+          method: "PUT",
           body: JSON.stringify(payload),
           headers: { "Content-Type": "application/json" },
         });
