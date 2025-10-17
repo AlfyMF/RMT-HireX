@@ -70,7 +70,10 @@ export default function JobDescription({ data, onUpdate }: JobDescriptionProps) 
             rows={6}
             placeholder="List the main responsibilities and duties..."
             value={data.mandatoryDuties || data.primaryDuties || ""}
-            onChange={(e) => onUpdate({ mandatoryDuties: e.target.value })}
+            onChange={(e) => onUpdate({ 
+              mandatoryDuties: e.target.value,
+              primaryDuties: e.target.value 
+            })}
             data-testid="textarea-mandatory-duties"
           />
         </div>
@@ -117,8 +120,11 @@ export default function JobDescription({ data, onUpdate }: JobDescriptionProps) 
             id="jobSpecificationSkills"
             rows={6}
             placeholder="Detailed specifications and requirements for the role..."
-            value={data.jobSpecificationSkills || data.jobSpecifications || ""}
-            onChange={(e) => onUpdate({ jobSpecificationSkills: e.target.value })}
+            value={data.jobSpecificationSkills || data.jobSpecification || ""}
+            onChange={(e) => onUpdate({ 
+              jobSpecificationSkills: e.target.value,
+              jobSpecification: e.target.value 
+            })}
             data-testid="textarea-job-specification-skills"
           />
         </div>
