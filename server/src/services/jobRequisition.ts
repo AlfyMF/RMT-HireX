@@ -163,7 +163,7 @@ export class JobRequisitionService {
   }
 
   async update(id: string, data: UpdateJobRequisitionInput) {
-    // Check if we're transitioning from Draft to Submitted
+    // Use id field (primary key) to identify and update the record
     const existingJR = await prisma.jobRequisition.findUnique({
       where: { id },
       select: { jrStatus: true, jrId: true, departmentId: true },
@@ -172,11 +172,11 @@ export class JobRequisitionService {
     // Prepare the update data
     const updateData: any = { ...data };
 
-    // If transitioning to Submitted and JR ID is still DRAFT-PENDING, generate a real one
+    // If transitioning to Submitted and JR ID is not yet set (null), generate formatted JR number
     if (
       data.jrStatus === 'Submitted' && 
       existingJR?.jrStatus === 'Draft' &&
-      existingJR?.jrId === 'DRAFT-PENDING'
+      !existingJR?.jrId
     ) {
       // Use departmentId from payload or fall back to existing record
       const deptId = data.departmentId || existingJR?.departmentId;
