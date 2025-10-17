@@ -50,18 +50,16 @@ export class JobRequisitionService {
   }
 
   async create(data: CreateJobRequisitionInput) {
-    // Only generate JR ID if status is 'Submitted', not for drafts
-    // For drafts, use a temporary ID that will be replaced on submission
-    let jrId = 'DRAFT-PENDING';
+    // Only generate JR ID if status is 'Submitted'
+    // For drafts, leave jr_id as null (record identified by id primary key)
+    const createData: any = { ...data };
+    
     if (data.jrStatus === 'Submitted' && data.departmentId) {
-      jrId = await this.generateJrId(data.departmentId);
+      createData.jrId = await this.generateJrId(data.departmentId);
     }
     
     return await prisma.jobRequisition.create({
-      data: {
-        ...data,
-        jrId,
-      },
+      data: createData,
       include: {
         jobTitle: true,
         department: true,
