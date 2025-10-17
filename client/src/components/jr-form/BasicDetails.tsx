@@ -346,8 +346,8 @@ export default function BasicDetails({
             type="number"
             id="positions"
             min="1"
-            value={data.positions || ""}
-            onChange={(e) => onUpdate({ positions: e.target.value })}
+            value={data.positions || data.numberOfPositions || ""}
+            onChange={(e) => onUpdate({ positions: e.target.value, numberOfPositions: e.target.value })}
             data-testid="input-positions"
           />
         </div>
@@ -483,7 +483,13 @@ export default function BasicDetails({
               </TooltipContent>
             </Tooltip>
           </div>
-          <Select value={billable} onValueChange={setBillable}>
+          <Select 
+            value={billable} 
+            onValueChange={(value) => {
+              setBillable(value);
+              onUpdate({ billable: value });
+            }}
+          >
             <SelectTrigger data-testid="select-billable">
               <SelectValue placeholder="Select" />
             </SelectTrigger>
