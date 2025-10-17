@@ -217,8 +217,11 @@ export default function LocationShift({ data, onUpdate, workArrangement }: Locat
                   min="1"
                   max="7"
                   placeholder="Number of days (1-7)"
-                  value={data.onsiteDaysInOffice || ""}
-                  onChange={(e) => onUpdate({ onsiteDaysInOffice: e.target.value })}
+                  value={data.onsiteDaysInOffice || data.onsiteDaysPerWeek || ""}
+                  onChange={(e) => onUpdate({ 
+                    onsiteDaysInOffice: e.target.value,
+                    onsiteDaysPerWeek: e.target.value 
+                  })}
                   data-testid="input-onsite-days-in-office"
                 />
               </div>
@@ -240,8 +243,11 @@ export default function LocationShift({ data, onUpdate, workArrangement }: Locat
               </Tooltip>
             </div>
             <Select
-              value={data.preferredTimezone || ""}
-              onValueChange={(value) => onUpdate({ preferredTimezone: value })}
+              value={data.preferredTimezone || data.preferredTimeZone || ""}
+              onValueChange={(value) => onUpdate({ 
+                preferredTimezone: value,
+                preferredTimeZone: value 
+              })}
             >
               <SelectTrigger data-testid="select-preferred-timezone">
                 <SelectValue placeholder="Select timezone" />
