@@ -16,7 +16,11 @@ export const apiRequest = async (url: string, options?: RequestInit) => {
   }
 
   const json = await response.json();
-  // Extract data from the success response wrapper
+  // If response has meta (pagination info), return both data and meta
+  // Otherwise, extract data from the success response wrapper
+  if (json.meta) {
+    return { data: json.data, meta: json.meta };
+  }
   return json.data || json;
 };
 
