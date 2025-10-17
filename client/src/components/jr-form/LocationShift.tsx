@@ -184,17 +184,25 @@ export default function LocationShift({ data, onUpdate, workArrangement }: Locat
                       <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Enter the onsite office location if the work mode is WFO or Hybrid.</p>
+                      <p>Select the onsite office location if the work mode is WFO or Hybrid.</p>
                     </TooltipContent>
                   </Tooltip>
                 </div>
-                <Input
-                  id="onsiteLocation"
-                  placeholder="Enter onsite location"
+                <Select
                   value={data.onsiteLocation || ""}
-                  onChange={(e) => onUpdate({ onsiteLocation: e.target.value })}
-                  data-testid="input-onsite-location"
-                />
+                  onValueChange={(value) => onUpdate({ onsiteLocation: value })}
+                >
+                  <SelectTrigger data-testid="select-onsite-location">
+                    <SelectValue placeholder="Select onsite location" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {workLocationOptions.map((location) => (
+                      <SelectItem key={location} value={location}>
+                        {location}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
 
               <div className="space-y-2">
