@@ -227,7 +227,7 @@ model WorkTimeZone {
 model JobRequisition {
   // Core Identification & Status
   id          String   @id @default(uuid())
-  jrId        String   @unique @db.VarChar(50) @map("jr_id")
+  jrId        String?  @unique @db.VarChar(50) @map("jr_id")
   jrStatus    String   @default("Draft") @db.VarChar(50) @map("jr_status")
   submittedBy String?  @db.VarChar(36) @map("submitted_by")
   isActive    Boolean  @default(true) @map("is_active")
