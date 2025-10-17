@@ -120,7 +120,7 @@ export default function Dashboard() {
     
     const location = req.workArrangement === "Offshore" 
       ? req.workLocations?.join(", ") 
-      : (req.onsiteLocation?.name || req.onsiteWorkMode);
+      : (req.onsiteLocation || req.onsiteWorkMode);
     const matchesLocation = locationFilter.length === 0 || locationFilter.some(filter => location?.includes(filter));
 
     return matchesSearch && matchesStatus && matchesDepartment && matchesWorkArrangement && matchesLocation;
@@ -195,7 +195,7 @@ export default function Dashboard() {
       if (r.workArrangement === "Offshore") {
         return r.workLocations || [];
       } else {
-        return r.onsiteLocation?.name || r.onsiteWorkMode || null;
+        return r.onsiteLocation || r.onsiteWorkMode || null;
       }
     }).filter(Boolean)
   )) as string[];
@@ -403,7 +403,7 @@ export default function Dashboard() {
                     <p className="font-medium text-sm">
                       {req.workArrangement === "Offshore" 
                         ? (req.workLocations?.join(", ") || "-")
-                        : (req.onsiteLocation?.name || req.onsiteWorkMode || "-")
+                        : (req.onsiteLocation || req.onsiteWorkMode || "-")
                       }
                     </p>
                   </div>
