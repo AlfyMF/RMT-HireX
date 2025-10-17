@@ -51,11 +51,13 @@ export class JobRequisitionService {
 
   async create(data: CreateJobRequisitionInput) {
     // Only generate JR ID if status is 'Submitted'
-    // For drafts, leave jr_id as null (record identified by id primary key)
+    // For drafts, explicitly set jrId to null (record identified by id primary key)
     const createData: any = { ...data };
     
     if (data.jrStatus === 'Submitted' && data.departmentId) {
       createData.jrId = await this.generateJrId(data.departmentId);
+    } else {
+      createData.jrId = null;
     }
     
     return await prisma.jobRequisition.create({
