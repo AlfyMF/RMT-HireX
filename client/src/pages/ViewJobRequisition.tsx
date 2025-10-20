@@ -129,50 +129,81 @@ export default function ViewJobRequisition() {
               value={new Date(jr.requestedDate).toLocaleDateString()} 
             />
           )}
+          {(jr.expectedDateOfOnboardingStart || jr.expectedDateOfOnboardingEnd) && (
+            <InfoItem 
+              icon={<Calendar className="h-4 w-4" />}
+              label="Expected Onboarding Date" 
+              value={
+                jr.expectedDateOfOnboardingStart && jr.expectedDateOfOnboardingEnd
+                  ? `${new Date(jr.expectedDateOfOnboardingStart).toLocaleDateString()} - ${new Date(jr.expectedDateOfOnboardingEnd).toLocaleDateString()}`
+                  : jr.expectedDateOfOnboardingStart
+                  ? new Date(jr.expectedDateOfOnboardingStart).toLocaleDateString()
+                  : new Date(jr.expectedDateOfOnboardingEnd).toLocaleDateString()
+              } 
+            />
+          )}
+          {(jr.idealStartDateStart || jr.idealStartDateEnd) && (
+            <InfoItem 
+              icon={<Calendar className="h-4 w-4" />}
+              label="Ideal Start Date" 
+              value={
+                jr.idealStartDateStart && jr.idealStartDateEnd
+                  ? `${new Date(jr.idealStartDateStart).toLocaleDateString()} - ${new Date(jr.idealStartDateEnd).toLocaleDateString()}`
+                  : jr.idealStartDateStart
+                  ? new Date(jr.idealStartDateStart).toLocaleDateString()
+                  : new Date(jr.idealStartDateEnd).toLocaleDateString()
+              } 
+            />
+          )}
         </div>
       </Card>
 
       {/* Skills & Qualifications */}
-      <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4">Skills & Qualifications</h2>
-        <div className="space-y-4">
-          {jr.primarySkills?.length > 0 && (
-            <SkillSection title="Primary Skills" skills={jr.primarySkills} variant="default" />
-          )}
-          {jr.secondarySkills?.length > 0 && (
-            <SkillSection title="Secondary Skills" skills={jr.secondarySkills} variant="secondary" />
-          )}
-          {jr.niceToHaveSkills?.length > 0 && (
-            <SkillSection title="Nice to Have Skills" skills={jr.niceToHaveSkills} variant="outline" />
-          )}
-          {jr.qualifications?.length > 0 && (
-            <SkillSection title="Qualifications" skills={jr.qualifications} variant="default" />
-          )}
-          {jr.certifications?.length > 0 && (
-            <SkillSection title="Certifications" skills={jr.certifications} variant="default" />
-          )}
-          {jr.specificQualification && (
-            <InfoItem label="Specific Qualification" value={jr.specificQualification} />
-          )}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {jr.totalExperienceMin !== null && jr.totalExperienceMax !== null && (
-              <InfoItem 
-                label="Total Experience" 
-                value={`${jr.totalExperienceMin} - ${jr.totalExperienceMax} years`} 
-              />
+      {(jr.primarySkills?.length > 0 || jr.secondarySkills?.length > 0 || jr.niceToHaveSkills?.length > 0 || 
+        jr.qualifications?.length > 0 || jr.certifications?.length > 0 || jr.specificQualification ||
+        jr.totalExperienceMin !== null || jr.totalExperienceMax !== null || 
+        jr.relevantExperienceMin !== null || jr.relevantExperienceMax !== null) && (
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4">Skills & Qualifications</h2>
+          <div className="space-y-4">
+            {jr.primarySkills?.length > 0 && (
+              <SkillSection title="Primary Skills" skills={jr.primarySkills} variant="default" />
             )}
-            {jr.relevantExperienceMin !== null && jr.relevantExperienceMax !== null && (
-              <InfoItem 
-                label="Relevant Experience" 
-                value={`${jr.relevantExperienceMin} - ${jr.relevantExperienceMax} years`} 
-              />
+            {jr.secondarySkills?.length > 0 && (
+              <SkillSection title="Secondary Skills" skills={jr.secondarySkills} variant="secondary" />
             )}
+            {jr.niceToHaveSkills?.length > 0 && (
+              <SkillSection title="Nice to Have Skills" skills={jr.niceToHaveSkills} variant="outline" />
+            )}
+            {jr.qualifications?.length > 0 && (
+              <SkillSection title="Qualifications" skills={jr.qualifications} variant="default" />
+            )}
+            {jr.certifications?.length > 0 && (
+              <SkillSection title="Certifications" skills={jr.certifications} variant="default" />
+            )}
+            {jr.specificQualification && (
+              <InfoItem label="Specific Qualification" value={jr.specificQualification} />
+            )}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {jr.totalExperienceMin !== null && jr.totalExperienceMax !== null && (
+                <InfoItem 
+                  label="Total Experience" 
+                  value={`${jr.totalExperienceMin} - ${jr.totalExperienceMax} years`} 
+                />
+              )}
+              {jr.relevantExperienceMin !== null && jr.relevantExperienceMax !== null && (
+                <InfoItem 
+                  label="Relevant Experience" 
+                  value={`${jr.relevantExperienceMin} - ${jr.relevantExperienceMax} years`} 
+                />
+              )}
+            </div>
           </div>
-        </div>
-      </Card>
+        </Card>
+      )}
 
       {/* Project & Client Information */}
-      {(jr.projectName || jr.clientName) && (
+      {(jr.projectName || jr.projectRole || jr.clientName || jr.clientCountry || jr.clientInterview !== undefined) && (
         <Card className="p-6">
           <h2 className="text-xl font-semibold mb-4">Project & Client Information</h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -188,36 +219,39 @@ export default function ViewJobRequisition() {
       )}
 
       {/* Location & Shift */}
-      <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
-          <MapPin className="h-5 w-5" />
-          Location & Shift
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {jr.workLocations?.length > 0 && (
-            <div>
-              <p className="text-sm font-medium text-muted-foreground mb-2">Work Locations</p>
-              <div className="flex flex-wrap gap-2">
-                {jr.workLocations.map((loc: string, idx: number) => (
-                  <Badge key={idx} variant="outline">{loc}</Badge>
-                ))}
+      {(jr.workLocations?.length > 0 || jr.workShift || jr.shiftTime || jr.onsiteWorkMode || 
+        jr.onsiteLocation || jr.onsiteDaysPerWeek || jr.preferredTimeZone) && (
+        <Card className="p-6">
+          <h2 className="text-xl font-semibold mb-4 flex items-center gap-2">
+            <MapPin className="h-5 w-5" />
+            Location & Shift
+          </h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {jr.workLocations?.length > 0 && (
+              <div>
+                <p className="text-sm font-medium text-muted-foreground mb-2">Work Locations</p>
+                <div className="flex flex-wrap gap-2">
+                  {jr.workLocations.map((loc: string, idx: number) => (
+                    <Badge key={idx} variant="outline">{loc}</Badge>
+                  ))}
+                </div>
               </div>
-            </div>
-          )}
-          {jr.workShift && (
-            <InfoItem 
-              icon={<Clock className="h-4 w-4" />}
-              label="Work Shift" 
-              value={jr.workShift.name} 
-            />
-          )}
-          {jr.shiftTime && <InfoItem label="Shift Time" value={jr.shiftTime} />}
-          {jr.onsiteWorkMode && <InfoItem label="Onsite Work Mode" value={jr.onsiteWorkMode} />}
-          {jr.onsiteLocation && <InfoItem label="Onsite Location" value={jr.onsiteLocation.name} />}
-          {jr.onsiteDaysPerWeek && <InfoItem label="Onsite Days Per Week" value={jr.onsiteDaysPerWeek} />}
-          {jr.preferredTimeZone && <InfoItem label="Preferred Time Zone" value={jr.preferredTimeZone.name} />}
-        </div>
-      </Card>
+            )}
+            {jr.workShift && (
+              <InfoItem 
+                icon={<Clock className="h-4 w-4" />}
+                label="Work Shift" 
+                value={jr.workShift.name} 
+              />
+            )}
+            {jr.shiftTime && <InfoItem label="Shift Time" value={jr.shiftTime} />}
+            {jr.onsiteWorkMode && <InfoItem label="Onsite Work Mode" value={jr.onsiteWorkMode} />}
+            {jr.onsiteLocation && <InfoItem label="Onsite Location" value={jr.onsiteLocation} />}
+            {jr.onsiteDaysPerWeek && <InfoItem label="Onsite Days Per Week" value={jr.onsiteDaysPerWeek} />}
+            {jr.preferredTimeZone && <InfoItem label="Preferred Time Zone" value={jr.preferredTimeZone.name} />}
+          </div>
+        </Card>
+      )}
 
       {/* Job Description */}
       {(jr.jobPurpose || jr.primaryDuties || jr.goodToHaveDuties || jr.jobSpecification) && (
@@ -306,7 +340,7 @@ export default function ViewJobRequisition() {
 }
 
 function InfoItem({ icon, label, value }: { icon?: React.ReactNode; label: string; value?: any }) {
-  if (!value) return null;
+  if (value === null || value === undefined) return null;
   
   return (
     <div>

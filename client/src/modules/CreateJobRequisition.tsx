@@ -90,6 +90,14 @@ export default function CreateJobRequisition() {
     }
   }, [existingJR, isEditMode]);
 
+  // Set default requested date to today for new JRs
+  useEffect(() => {
+    if (!isEditMode && !formData.requestedDate) {
+      const today = new Date().toISOString().split('T')[0];
+      setFormData(prev => ({ ...prev, requestedDate: today }));
+    }
+  }, [isEditMode]);
+
   // Create/Update mutation
   const createOrUpdateMutation = useMutation({
     mutationFn: async ({ payload, isDraft }: { payload: any; isDraft: boolean }) => {
@@ -155,12 +163,20 @@ export default function CreateJobRequisition() {
 
   const confirmWorkArrangementChange = () => {
     if (pendingWorkArrangement) {
+      // Preserve common fields when switching arrangements
+      const fieldsToRemove = pendingWorkArrangement === "Offshore" 
+        ? ['onsiteWorkMode', 'onsiteLocation', 'onsiteDaysPerWeek', 'rate', 'rateUnit', 'rateCurrency', 'paymentCycle', 'visaStatuses', 'contractDuration', 'reportingManager', 'interviewProcess', 'h1Transfer', 'acceptH1Transfer', 'travelRequired', 'durationUnit', 'preferredVisaStatus']
+        : ['workLocations'];
+      
+      const preservedData = { ...formData };
+      fieldsToRemove.forEach(field => delete preservedData[field]);
+      
       setWorkArrangement(pendingWorkArrangement);
-      setFormData({});
+      setFormData(preservedData);
       setCurrentStep(1);
       toast({
         title: "Work Arrangement Changed",
-        description: `Changed to ${pendingWorkArrangement}. Your progress has been reset.`,
+        description: `Changed to ${pendingWorkArrangement}. Common data has been preserved.`,
       });
     }
     setShowChangeDialog(false);
@@ -294,7 +310,7 @@ export default function CreateJobRequisition() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          {isEditMode ? `Edit Job Requisition - ${existingJR?.jrId || id}` : "Create Job Requisition"}
+          {isEditMode ? (existingJR?.jrId ? `Edit Job Requisition - ${existingJR.jrId}` : "Edit Job Requisition") : "Create Job Requisition"}
         </h1>
         <p className="text-muted-foreground">
           {isEditMode 
@@ -451,7 +467,7 @@ export default function CreateJobRequisition() {
           <AlertDialogHeader>
             <AlertDialogTitle>Change Work Arrangement?</AlertDialogTitle>
             <AlertDialogDescription>
-              Changing the work arrangement will reset your progress and clear all entered data. 
+              Common data will be preserved when changing the work arrangement. Only arrangement-specific fields will be cleared.
               Are you sure you want to change from {workArrangement} to {pendingWorkArrangement}?
             </AlertDialogDescription>
           </AlertDialogHeader>

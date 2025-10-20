@@ -120,7 +120,7 @@ export function transformFormDataToAPIPayload(
     workShiftId: findIdByName(workShifts, formData.workShift),
     shiftTime: formData.shiftTime,
     onsiteWorkMode: formData.onsiteWorkMode,
-    onsiteLocationId: findIdByName(officeLocations, formData.onsiteLocation),
+    onsiteLocation: formData.onsiteLocation,
     onsiteDaysPerWeek: formData.onsiteDaysPerWeek ? parseInt(formData.onsiteDaysPerWeek) : undefined,
     preferredTimeZoneId: findIdByName(workTimeZones, formData.preferredTimeZone),
 
@@ -210,7 +210,7 @@ export function transformAPIResponseToFormData(apiData: any): Record<string, any
     workShift: apiData.workShift?.name,
     shiftTime: apiData.shiftTime,
     onsiteWorkMode: apiData.onsiteWorkMode,
-    onsiteLocation: apiData.onsiteLocation?.name,
+    onsiteLocation: apiData.onsiteLocation,
     onsiteDaysPerWeek: apiData.onsiteDaysPerWeek,
     preferredTimeZone: apiData.preferredTimeZone?.name,
 
