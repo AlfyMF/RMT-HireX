@@ -29,12 +29,18 @@ export const queryClient = new QueryClient({
     queries: {
       queryFn: async ({ queryKey }) => {
         const url = queryKey[0] as string;
-        const params = queryKey[1] as Record<string, any> | undefined;
+        const secondParam = queryKey[1];
         
         let fullUrl = url;
-        if (params) {
+        
+        // If second param is a string, it's a resource ID - append to path
+        if (typeof secondParam === 'string') {
+          fullUrl = `${url}/${secondParam}`;
+        } 
+        // If it's an object, treat as query parameters
+        else if (secondParam && typeof secondParam === 'object') {
           const searchParams = new URLSearchParams();
-          Object.entries(params).forEach(([key, value]) => {
+          Object.entries(secondParam).forEach(([key, value]) => {
             if (value !== undefined && value !== null) {
               searchParams.append(key, String(value));
             }
@@ -45,7 +51,7 @@ export const queryClient = new QueryClient({
           }
         }
         
-        return apiRequest(fullUrl);
+        return await apiRequest(fullUrl);
       },
       refetchOnWindowFocus: false,
       retry: 1,
