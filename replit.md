@@ -8,6 +8,13 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### October 20, 2025 - Dashboard Onsite JR Display Enhancement
+**Updated Card Display and Filtering for Onsite Arrangements:**
+- JR card display: For onsite work arrangements, replaced "Work Mode" label with "Job Type" and displays `jobType` value instead of work mode
+- Location filter dropdown: Now only includes `onsiteLocation` values from onsite JRs, excluding work mode values (hybrid, WFO, remote) from the location filter
+- Filter matching logic: Updated to use only `onsiteLocation` for onsite arrangements in the filtering comparison
+- Verified architect approval: Changes correctly differentiate onsite JR display and filtering from offshore JRs
+
 ### October 17, 2025 - Dashboard Data Loading Fix
 **Fixed API Response Handling:**
 - Updated `apiRequest` function to preserve pagination meta information from backend responses
