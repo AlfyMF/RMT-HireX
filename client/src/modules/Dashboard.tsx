@@ -118,10 +118,14 @@ export default function Dashboard() {
     const matchesDepartment = departmentFilter.length === 0 || departmentFilter.includes(req.department?.name);
     const matchesWorkArrangement = workArrangementFilter.length === 0 || workArrangementFilter.includes(req.workArrangement);
     
-    const location = req.workArrangement === "Offshore" 
-      ? req.workLocations?.join(", ") 
-      : req.onsiteLocation;
-    const matchesLocation = locationFilter.length === 0 || locationFilter.some(filter => location?.includes(filter));
+    const matchesLocation = locationFilter.length === 0 || (
+      req.workArrangement === "Offshore"
+        ? locationFilter.some(filter => req.workLocations?.some((loc: string) => loc.includes(filter)))
+        : locationFilter.some(filter => 
+            (req.onsiteLocation && req.onsiteLocation.includes(filter)) ||
+            (req.onsiteWorkMode && req.onsiteWorkMode.includes(filter))
+          )
+    );
 
     return matchesSearch && matchesStatus && matchesDepartment && matchesWorkArrangement && matchesLocation;
   });
@@ -194,10 +198,9 @@ export default function Dashboard() {
     jobRequisitions.flatMap((r: any) => {
       if (r.workArrangement === "Offshore") {
         return r.workLocations || [];
-      } else if (r.workArrangement === "Onsite") {
-        return r.onsiteLocation || null;
+      } else {
+        return [r.onsiteLocation, r.onsiteWorkMode].filter(Boolean);
       }
-      return null;
     }).filter(Boolean)
   )) as string[];
 
