@@ -50,7 +50,7 @@ export const createJobRequisitionSchema = z.object({
   workShiftId: z.string().uuid().nullable().optional(),
   shiftTime: z.string().nullable().optional(),
   onsiteWorkMode: z.string().nullable().optional(),
-  onsiteLocationId: z.string().uuid().nullable().optional(),
+  onsiteLocation: z.string().nullable().optional(),
   onsiteDaysPerWeek: z.number().int().min(1).max(7).nullable().optional(),
   preferredTimeZoneId: z.string().uuid().nullable().optional(),
 

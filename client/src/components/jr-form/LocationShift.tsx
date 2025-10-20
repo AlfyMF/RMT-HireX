@@ -33,6 +33,8 @@ export default function LocationShift({ data, onUpdate, workArrangement }: Locat
   
   // Onsite state
   const [onsiteWorkMode, setOnsiteWorkMode] = useState<string>(data.onsiteWorkMode || "");
+  const [onsiteLocation, setOnsiteLocation] = useState<string>(data.onsiteLocation || "");
+  const [onsiteDaysPerWeek, setOnsiteDaysPerWeek] = useState<string>(data.onsiteDaysPerWeek || data.onsiteDaysInOffice || "");
   
   // Fetch master data
   const { data: officeLocations } = useQuery<any[]>({ queryKey: ['/office-locations'] });
@@ -55,9 +57,14 @@ export default function LocationShift({ data, onUpdate, workArrangement }: Locat
     if (workArrangement === "Offshore") {
       onUpdate({ workLocations, workShift });
     } else {
-      onUpdate({ onsiteWorkMode });
+      onUpdate({ 
+        onsiteWorkMode, 
+        onsiteLocation, 
+        onsiteDaysPerWeek,
+        onsiteDaysInOffice: onsiteDaysPerWeek 
+      });
     }
-  }, [workLocations, workShift, onsiteWorkMode, workArrangement, onUpdate]);
+  }, [workLocations, workShift, onsiteWorkMode, onsiteLocation, onsiteDaysPerWeek, workArrangement, onUpdate]);
 
   return (
     <div className="space-y-6">
@@ -191,8 +198,8 @@ export default function LocationShift({ data, onUpdate, workArrangement }: Locat
                 <Input
                   id="onsiteLocation"
                   placeholder="Enter onsite location"
-                  value={data.onsiteLocation || ""}
-                  onChange={(e) => onUpdate({ onsiteLocation: e.target.value })}
+                  value={onsiteLocation}
+                  onChange={(e) => setOnsiteLocation(e.target.value)}
                   data-testid="input-onsite-location"
                 />
               </div>
@@ -217,11 +224,8 @@ export default function LocationShift({ data, onUpdate, workArrangement }: Locat
                   min="1"
                   max="7"
                   placeholder="Number of days (1-7)"
-                  value={data.onsiteDaysInOffice || data.onsiteDaysPerWeek || ""}
-                  onChange={(e) => onUpdate({ 
-                    onsiteDaysInOffice: e.target.value,
-                    onsiteDaysPerWeek: e.target.value 
-                  })}
+                  value={onsiteDaysPerWeek}
+                  onChange={(e) => setOnsiteDaysPerWeek(e.target.value)}
                   data-testid="input-onsite-days-in-office"
                 />
               </div>
