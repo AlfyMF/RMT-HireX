@@ -441,10 +441,10 @@ export default function Dashboard() {
                   <div className="space-y-1">
                     <div className="flex items-center gap-1.5 text-muted-foreground text-xs">
                       <Briefcase className="h-3.5 w-3.5" />
-                      <span>{req.workArrangement === "Onsite" ? "Job Type" : "Work Mode"}</span>
+                      <span>Job Type</span>
                     </div>
                     <p className="font-medium text-sm">
-                      {req.workArrangement === "Onsite" ? (req.jobType?.name || "-") : req.workArrangement}
+                      {req.jobType?.name || "-"}
                     </p>
                   </div>
 
