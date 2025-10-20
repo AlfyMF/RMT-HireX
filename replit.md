@@ -8,6 +8,19 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### October 20, 2025 - CRUD Functionality Verification & Bug Fix
+**Verified Complete CRUD Implementation:**
+- **View**: ViewJobRequisition component exists with comprehensive, organized display of all JR fields using cards, badges, and icons. Accessible via `/view-jr/:id` route.
+- **Edit**: CreateJobRequisition component supports edit mode via URL parameter `/create-requisition/:id`, fetching existing JR data and using PUT requests for updates.
+- **Delete**: Dashboard includes delete button (for drafts only) with confirmation dialog and proper cache invalidation.
+- **Bug Fix**: Fixed critical button nesting error in MultiSelect component - changed inner `<button>` to `<span>` with proper ARIA attributes to prevent invalid HTML structure (button inside button).
+
+**Testing Results:**
+- Backend APIs responding correctly (200 status codes)
+- Browser console clean (no errors after MultiSelect fix)
+- Routes properly configured in routes/index.tsx
+- All CRUD operations functional
+
 ### October 20, 2025 - Dashboard Location Filter Restoration
 **Restored Original Location Filter Behavior:**
 - Location filter dropdown: Now includes BOTH `onsiteLocation` AND `onsiteWorkMode` values for onsite JRs (returns both as array)
