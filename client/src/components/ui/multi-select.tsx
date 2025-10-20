@@ -42,8 +42,10 @@ export function MultiSelect({ options, selected, onChange, placeholder = "Select
             {selected.slice(0, 2).map((item) => (
               <Badge key={item} variant="secondary" className="mr-1">
                 {item}
-                <button
-                  className="ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+                <span
+                  className="ml-1 ring-offset-background rounded-full outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 cursor-pointer"
+                  role="button"
+                  tabIndex={0}
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       handleRemove(item);
@@ -53,10 +55,14 @@ export function MultiSelect({ options, selected, onChange, placeholder = "Select
                     e.preventDefault();
                     e.stopPropagation();
                   }}
-                  onClick={() => handleRemove(item)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    handleRemove(item);
+                  }}
                 >
                   <X className="h-3 w-3 text-muted-foreground hover:text-foreground" />
-                </button>
+                </span>
               </Badge>
             ))}
             {selected.length > 2 && (
