@@ -444,7 +444,7 @@ export default function Dashboard() {
                       <span>{req.workArrangement === "Onsite" ? "Job Type" : "Work Mode"}</span>
                     </div>
                     <p className="font-medium text-sm">
-                      {req.workArrangement === "Onsite" ? req.jobType : req.workArrangement}
+                      {req.workArrangement === "Onsite" ? (req.jobType?.name || "-") : req.workArrangement}
                     </p>
                   </div>
 
