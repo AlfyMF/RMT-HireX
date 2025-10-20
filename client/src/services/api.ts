@@ -12,10 +12,21 @@ export const apiRequest = async (url: string, options?: RequestInit) => {
   });
 
   if (!response.ok) {
-    throw new Error(`API Error: ${response.statusText}`);
+    const errorText = await response.text();
+    let errorMessage = `API Error (${response.status}): ${response.statusText}`;
+    try {
+      const errorJson = JSON.parse(errorText);
+      if (errorJson.message) {
+        errorMessage = errorJson.message;
+      }
+    } catch {
+      // If parsing fails, use the default message
+    }
+    throw new Error(errorMessage);
   }
 
   const json = await response.json();
+  
   // If response has meta (pagination info), return both data and meta
   // Otherwise, extract data from the success response wrapper
   if (json.meta) {
@@ -51,7 +62,7 @@ export const queryClient = new QueryClient({
           }
         }
         
-        return await apiRequest(fullUrl);
+        return apiRequest(fullUrl);
       },
       refetchOnWindowFocus: false,
       retry: 1,

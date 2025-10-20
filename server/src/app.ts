@@ -24,6 +24,12 @@ app.get("/health", (req, res) => {
   res.json({ status: "ok", environment: config.env });
 });
 
+// Disable caching for API responses
+app.use("/api", (req, res, next) => {
+  res.set('Cache-Control', 'no-store, no-cache, must-revalidate, private');
+  next();
+});
+
 // API Routes
 app.use("/api", routes);
 
