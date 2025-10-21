@@ -62,7 +62,7 @@ const offshoreSpecificFields = z.object({
   expectedDateOfOnboardingStart: z.string({ required_error: "Expected Date of Onboarding (Start) is required" }).min(1, "Expected Date of Onboarding (Start) is required").refine(val => !isNaN(Date.parse(val)), "Expected Date of Onboarding (Start) is required"),
   expectedDateOfOnboardingEnd: z.string({ required_error: "Expected Date of Onboarding (End) is required" }).min(1, "Expected Date of Onboarding (End) is required").refine(val => !isNaN(Date.parse(val)), "Expected Date of Onboarding (End) is required"),
   workLocations: z.array(z.string(), { required_error: "Work Location is required", invalid_type_error: "Work Location is required" }).min(1, "Work Location is required"),
-  workShift: z.string({ required_error: "Work Shifts is required" }).min(1, "Work Shifts is required"),
+  workShift: z.string({ required_error: "Work Shift is required" }).min(1, "Work Shift is required"),
   expectedSalaryMin: z.union([
     z.string({ required_error: "Expected Salary Range (Min) is required" }).min(1, "Expected Salary Range (Min) is required").refine(val => !isNaN(Number(val)), "Expected Salary Range (Min) is required"),
     z.number({ required_error: "Expected Salary Range (Min) is required", invalid_type_error: "Expected Salary Range (Min) is required" })
@@ -140,6 +140,14 @@ export function validateJRFormData(
     }
     if (!formData.totalBudgetMax || formData.totalBudgetMax === "") {
       errors.totalBudgetMax = "Total Budget (Max) is required";
+    }
+  }
+  
+  // Conditional validation: Client Billing Rate is required when Billable = "Yes"
+  const billable = String(formData.billable || "").toLowerCase();
+  if (billable === "yes") {
+    if (!formData.clientBillingRate || formData.clientBillingRate === "") {
+      errors.clientBillingRate = "Client Billing Rate is required";
     }
   }
   

@@ -338,12 +338,10 @@ export default function CreateJobRequisition() {
     
     setFormData(newFormData);
     
-    // Clear validation errors for fields that are being updated or cleared
-    if (Object.keys(validationErrors).length > 0) {
+    // Only clear validation errors for fields that are being cleared (not for fields being updated)
+    // This ensures validation errors persist until Submit is clicked or the field is truly corrected
+    if (fieldsToClear.length > 0 && Object.keys(validationErrors).length > 0) {
       const updatedErrors = { ...validationErrors };
-      Object.keys(stepData).forEach(key => {
-        delete updatedErrors[key];
-      });
       fieldsToClear.forEach(field => {
         delete updatedErrors[field];
       });
