@@ -133,8 +133,8 @@ export function validateJRFormData(
   }
   
   // Conditional validation: Total Budget is required only for Contract or Consultant job types
-  const jobType = formData.jobType;
-  if (jobType === "Contract" || jobType === "Consultant") {
+  const jobType = String(formData.jobType || "").toLowerCase();
+  if (jobType === "contract" || jobType === "consultant") {
     if (!formData.totalBudgetMin || formData.totalBudgetMin === "") {
       errors.totalBudgetMin = "Total Budget (Min) is required";
     }
