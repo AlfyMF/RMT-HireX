@@ -9,16 +9,22 @@ Preferred communication style: Simple, everyday language.
 ## Recent Changes
 
 ### October 21, 2025 - Comprehensive Form Validation System Implementation
-**Implemented Complete Validation Framework:**
+**Implemented Complete Validation Framework with User-Specified Error Messages:**
 - **Validation Schema (jrValidationSchema.ts)**: Created comprehensive Zod-based validation with:
-  - All required field validations (44+ fields) based on work arrangement (Offshore/Onsite)
-  - Min-max comparison validations for experience ranges, salary ranges, budget ranges
-  - Date range validations (onboarding dates, ideal start dates)
-  - Conditional validation logic based on work arrangement type
-  - Custom validation function `validateJRFormData()` that returns validation errors object
+  - All 47 required field validations matching user's specification table exactly
+  - Each field has unique, specific error message (e.g., "Job Type is required", "Primary Skills is required")
+  - Min-max comparison validations with specific messages (e.g., "Total Experience (Min) must be less than Total Experience (Max)")
+  - Date range validations with specific messages (e.g., "Expected Date of Onboarding (Start) must be before Expected Date of Onboarding (End)")
+  - Conditional validation logic based on work arrangement type (Offshore vs Onsite)
+  - Custom validation function `validateJRFormData()` that extracts Zod error messages and returns errors object
+  
+- **Client Interview Field Update**:
+  - Changed from boolean Switch component to required string Select dropdown with Yes/No options
+  - Added validation message "Client Interview is required" per user specification
+  - Integrated ValidationError component display beneath field
   
 - **Validation Integration (CreateJobRequisition.tsx)**:
-  - Added validationErrors state management
+  - Added validationErrors state management with proper error propagation
   - Validation triggers ONLY on Submit button click (not on Next or Save & Continue)
   - Displays error count toast notification when validation fails
   - Blocks submission and prevents API calls when errors exist
@@ -27,23 +33,25 @@ Preferred communication style: Simple, everyday language.
   
 - **Error Display Components**:
   - Created reusable `ValidationError` component with red text and alert icon
-  - Integrated validation error displays into all 6 form step components:
-    - BasicDetails: 16 fields with validation
-    - SkillsQualifications: 8 fields with validation
-    - ProjectClientInfo: 3 fields with validation
-    - LocationShift: 6 fields with validation
-    - JobDescription: 4 fields with validation
-    - OnsiteSpecific: 7 fields with validation
-  - Error messages appear immediately below each form field for clear association
+  - Integrated validation error displays into all 6 form step components beneath each required field:
+    - BasicDetails: Job Type, Job Title, Requested Date, Department, Requested By, Hiring Manager, Number of Positions, Billable, Salary/Budget fields
+    - SkillsQualifications: Primary Skills, Secondary Skills, Nice-to-Have Skills, Qualifications, Experience ranges
+    - ProjectClientInfo: Project Name, Client, Client Country, Client Interview
+    - LocationShift: Work Location/Onsite Work Mode, Work Shifts, Onsite Location, Onsite Days, Preferred Timezone
+    - JobDescription: Job Purpose, Primary Duties, Good-to-Have Duties, Job Specification
+    - OnsiteSpecific: Rate, Rate Unit, Currency, Payment Cycle, Visa Statuses, Contract Duration, Duration Unit, Reporting Manager
+  - Error messages display immediately below each form field for clear association
   - Errors auto-clear when user corrects the field
+  - All error messages are field-specific (no generic "Required" or "Invalid input" messages)
 
 **Validation Behavior:**
-- ✅ Submit button validates all fields before showing confirmation modal
+- ✅ Submit button validates all 47 required fields before showing confirmation modal
 - ✅ Next button allows navigation without validation (user can freely move between steps)
 - ✅ Save & Continue saves draft without validation (preserves WIP data)
-- ✅ All validation errors display simultaneously with descriptive messages
+- ✅ All validation errors display simultaneously with unique, specific messages from schema
 - ✅ Individual errors clear instantly when user fixes the field
 - ✅ Submission completely blocked until all validations pass
+- ✅ Each field shows its designated error message from user specification table
 
 ### October 20, 2025 - CRUD Functionality Verification & Bug Fix
 **Verified Complete CRUD Implementation:**
