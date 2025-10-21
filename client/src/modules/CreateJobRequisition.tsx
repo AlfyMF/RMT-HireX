@@ -35,6 +35,7 @@ import WorkArrangementSelection from "@/components/WorkArrangementSelection";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/services/api";
 import { transformFormDataToAPIPayload, transformAPIResponseToFormData } from "@/utils/jobRequisitionTransformer";
+import { validateJRFormData, type JRValidationErrors } from "@/utils/jrValidationSchema";
 
 const steps = [
   { id: 1, name: "Basic Details", component: BasicDetails },
@@ -59,6 +60,7 @@ export default function CreateJobRequisition() {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [generatedJrNumber, setGeneratedJrNumber] = useState<string>("");
+  const [validationErrors, setValidationErrors] = useState<JRValidationErrors>({});
   const { toast } = useToast();
 
   // Fetch master data for transformer
@@ -221,35 +223,32 @@ export default function CreateJobRequisition() {
     createOrUpdateMutation.mutate({ payload, isDraft: true });
   };
 
-  const validateRequiredFields = () => {
-    const missingFields: string[] = [];
-    
-    // formData stores field names, not IDs, so check for the name fields
-    // These will be transformed to IDs by transformFormDataToAPIPayload
-    if (!workArrangement) missingFields.push("Work Arrangement");
-    if (!formData.jobType) missingFields.push("Job Type");
-    if (!formData.jobTitle) missingFields.push("Job Title");
-    if (!formData.department) missingFields.push("Department");
-    if (!formData.requestedBy) missingFields.push("Requested By");
-    if (!formData.hiringManager) missingFields.push("Hiring Manager");
-    
-    return missingFields;
-  };
-
   const handleSubmit = () => {
     if (!workArrangement) return;
 
-    // Validate required fields
-    const missingFields = validateRequiredFields();
-    if (missingFields.length > 0) {
+    // Validate all fields using comprehensive validation schema
+    const { isValid, errors } = validateJRFormData(formData, workArrangement);
+    
+    if (!isValid) {
+      setValidationErrors(errors);
+      
+      // Count errors
+      const errorCount = Object.keys(errors).length;
+      
       toast({
-        title: "Missing Required Fields",
-        description: `Please fill in: ${missingFields.join(", ")}`,
+        title: "Validation Failed",
+        description: `Please fix ${errorCount} error${errorCount > 1 ? 's' : ''} before submitting.`,
         variant: "destructive",
       });
+      
+      // Scroll to top to see errors
+      window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }
 
+    // Clear any previous validation errors
+    setValidationErrors({});
+    
     // Show confirmation modal
     setShowConfirmModal(true);
   };
@@ -277,6 +276,15 @@ export default function CreateJobRequisition() {
 
   const updateFormData = (stepData: Record<string, any>) => {
     setFormData({ ...formData, ...stepData });
+    
+    // Clear validation errors for fields that are being updated
+    if (Object.keys(validationErrors).length > 0) {
+      const updatedErrors = { ...validationErrors };
+      Object.keys(stepData).forEach(key => {
+        delete updatedErrors[key];
+      });
+      setValidationErrors(updatedErrors);
+    }
   };
 
   const CurrentStepComponent = workArrangement ? visibleSteps[currentStep - 1]?.component : null;
@@ -401,6 +409,7 @@ export default function CreateJobRequisition() {
           setWorkArrangement={setWorkArrangement}
           jobType={jobType}
           setJobType={setJobType}
+          validationErrors={validationErrors}
         />
       </Card>
 

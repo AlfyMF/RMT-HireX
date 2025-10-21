@@ -16,6 +16,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
+import ValidationError from "@/components/ValidationError";
 
 interface LocationShiftProps {
   data: Record<string, any>;
@@ -24,9 +25,10 @@ interface LocationShiftProps {
   setWorkArrangement: (value: any) => void;
   jobType?: string;
   setJobType?: (value: string) => void;
+  validationErrors?: Record<string, string>;
 }
 
-export default function LocationShift({ data, onUpdate, workArrangement }: LocationShiftProps) {
+export default function LocationShift({ data, onUpdate, workArrangement, validationErrors = {} }: LocationShiftProps) {
   // Offshore state
   const [workLocations, setWorkLocations] = useState<string[]>(data.workLocations || []);
   const [workShift, setWorkShift] = useState<string>(data.workShift || "");
@@ -98,6 +100,7 @@ export default function LocationShift({ data, onUpdate, workArrangement }: Locat
               placeholder="Select work locations"
               data-testid="multiselect-work-location"
             />
+            <ValidationError message={validationErrors.workLocations} />
           </div>
 
           <div className="space-y-2">
@@ -126,6 +129,7 @@ export default function LocationShift({ data, onUpdate, workArrangement }: Locat
                 ))}
               </SelectContent>
             </Select>
+            <ValidationError message={validationErrors.workShift} />
           </div>
 
           {showShiftTime && (
@@ -177,6 +181,7 @@ export default function LocationShift({ data, onUpdate, workArrangement }: Locat
                 <SelectItem value="WFO">Work From Office (WFO)</SelectItem>
               </SelectContent>
             </Select>
+            <ValidationError message={validationErrors.onsiteWorkMode} />
           </div>
 
           {showOnsiteLocationFields && (
@@ -202,6 +207,7 @@ export default function LocationShift({ data, onUpdate, workArrangement }: Locat
                   onChange={(e) => setOnsiteLocation(e.target.value)}
                   data-testid="input-onsite-location"
                 />
+                <ValidationError message={validationErrors.onsiteLocation} />
               </div>
 
               <div className="space-y-2">
@@ -228,6 +234,7 @@ export default function LocationShift({ data, onUpdate, workArrangement }: Locat
                   onChange={(e) => setOnsiteDaysPerWeek(e.target.value)}
                   data-testid="input-onsite-days-in-office"
                 />
+                <ValidationError message={validationErrors.onsiteDaysPerWeek} />
               </div>
             </>
           )}
@@ -264,6 +271,7 @@ export default function LocationShift({ data, onUpdate, workArrangement }: Locat
                 ))}
               </SelectContent>
             </Select>
+            <ValidationError message={validationErrors.preferredTimeZone} />
           </div>
         </div>
       )}

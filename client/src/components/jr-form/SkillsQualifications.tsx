@@ -9,6 +9,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
+import ValidationError from "@/components/ValidationError";
 
 interface SkillsQualificationsProps {
   data: Record<string, any>;
@@ -17,9 +18,10 @@ interface SkillsQualificationsProps {
   setWorkArrangement: (value: any) => void;
   jobType?: string;
   setJobType?: (value: string) => void;
+  validationErrors?: Record<string, string>;
 }
 
-export default function SkillsQualifications({ data, onUpdate }: SkillsQualificationsProps) {
+export default function SkillsQualifications({ data, onUpdate, validationErrors = {} }: SkillsQualificationsProps) {
   const [mandatorySkills, setMandatorySkills] = useState<string[]>(data.mandatorySkills || data.primarySkills || []);
   const [secondarySkills, setSecondarySkills] = useState<string[]>(data.secondarySkills || []);
   const [niceToHaveSkills, setNiceToHaveSkills] = useState<string[]>(data.niceToHaveSkills || []);
@@ -89,6 +91,7 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
             placeholder="Select primary skills"
             data-testid="multiselect-mandatory-skills"
           />
+          <ValidationError message={validationErrors.primarySkills} />
         </div>
 
         <div className="space-y-2">
@@ -112,6 +115,7 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
             placeholder="Select secondary skills"
             data-testid="multiselect-secondary-skills"
           />
+          <ValidationError message={validationErrors.secondarySkills} />
         </div>
 
         <div className="space-y-2">
@@ -135,6 +139,7 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
             placeholder="Select nice to have skills"
             data-testid="multiselect-nice-to-have-skills"
           />
+          <ValidationError message={validationErrors.niceToHaveSkills} />
         </div>
 
         <div className="space-y-2">
@@ -158,6 +163,7 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
             placeholder="Select qualifications"
             data-testid="multiselect-qualification"
           />
+          <ValidationError message={validationErrors.qualification} />
         </div>
 
         <div className="space-y-2">
@@ -229,6 +235,7 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
               })}
               data-testid="input-total-exp-min"
             />
+            <ValidationError message={validationErrors.totalExperienceMin} />
           </div>
 
           <div className="space-y-2">
@@ -249,6 +256,7 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
               })}
               data-testid="input-total-exp-max"
             />
+            <ValidationError message={validationErrors.totalExperienceMax} />
           </div>
 
           <div className="space-y-2">
@@ -277,6 +285,7 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
               })}
               data-testid="input-relevant-exp-min"
             />
+            <ValidationError message={validationErrors.relevantExperienceMin} />
           </div>
 
           <div className="space-y-2">
@@ -297,6 +306,7 @@ export default function SkillsQualifications({ data, onUpdate }: SkillsQualifica
               })}
               data-testid="input-relevant-exp-max"
             />
+            <ValidationError message={validationErrors.relevantExperienceMax} />
           </div>
         </div>
       </div>

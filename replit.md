@@ -8,6 +8,43 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### October 21, 2025 - Comprehensive Form Validation System Implementation
+**Implemented Complete Validation Framework:**
+- **Validation Schema (jrValidationSchema.ts)**: Created comprehensive Zod-based validation with:
+  - All required field validations (44+ fields) based on work arrangement (Offshore/Onsite)
+  - Min-max comparison validations for experience ranges, salary ranges, budget ranges
+  - Date range validations (onboarding dates, ideal start dates)
+  - Conditional validation logic based on work arrangement type
+  - Custom validation function `validateJRFormData()` that returns validation errors object
+  
+- **Validation Integration (CreateJobRequisition.tsx)**:
+  - Added validationErrors state management
+  - Validation triggers ONLY on Submit button click (not on Next or Save & Continue)
+  - Displays error count toast notification when validation fails
+  - Blocks submission and prevents API calls when errors exist
+  - Auto-clears validation errors when user updates a field
+  - Scrolls to top on validation failure for better UX
+  
+- **Error Display Components**:
+  - Created reusable `ValidationError` component with red text and alert icon
+  - Integrated validation error displays into all 6 form step components:
+    - BasicDetails: 16 fields with validation
+    - SkillsQualifications: 8 fields with validation
+    - ProjectClientInfo: 3 fields with validation
+    - LocationShift: 6 fields with validation
+    - JobDescription: 4 fields with validation
+    - OnsiteSpecific: 7 fields with validation
+  - Error messages appear immediately below each form field for clear association
+  - Errors auto-clear when user corrects the field
+
+**Validation Behavior:**
+- ✅ Submit button validates all fields before showing confirmation modal
+- ✅ Next button allows navigation without validation (user can freely move between steps)
+- ✅ Save & Continue saves draft without validation (preserves WIP data)
+- ✅ All validation errors display simultaneously with descriptive messages
+- ✅ Individual errors clear instantly when user fixes the field
+- ✅ Submission completely blocked until all validations pass
+
 ### October 20, 2025 - CRUD Functionality Verification & Bug Fix
 **Verified Complete CRUD Implementation:**
 - **View**: ViewJobRequisition component exists with comprehensive, organized display of all JR fields using cards, badges, and icons. Accessible via `/view-jr/:id` route.

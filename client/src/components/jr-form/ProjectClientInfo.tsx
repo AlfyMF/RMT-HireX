@@ -16,6 +16,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
+import ValidationError from "@/components/ValidationError";
 
 interface ProjectClientInfoProps {
   data: Record<string, any>;
@@ -24,12 +25,14 @@ interface ProjectClientInfoProps {
   setWorkArrangement: (value: any) => void;
   jobType?: string;
   setJobType?: (value: string) => void;
+  validationErrors?: Record<string, string>;
 }
 
 export default function ProjectClientInfo({
   data,
   onUpdate,
   jobType,
+  validationErrors = {},
 }: ProjectClientInfoProps) {
   const [clientInterview, setClientInterview] = useState<boolean>(
     data.clientInterview || false,
@@ -77,6 +80,7 @@ export default function ProjectClientInfo({
             onChange={(e) => onUpdate({ projectName: e.target.value })}
             data-testid="input-project-name"
           />
+          <ValidationError message={validationErrors.projectName} />
         </div>
 
         {showProjectRole && (
@@ -125,6 +129,7 @@ export default function ProjectClientInfo({
             onChange={(e) => onUpdate({ client: e.target.value })}
             data-testid="input-client"
           />
+          <ValidationError message={validationErrors.clientName} />
         </div>
 
         <div className="space-y-2">
@@ -156,6 +161,7 @@ export default function ProjectClientInfo({
               ))}
             </SelectContent>
           </Select>
+          <ValidationError message={validationErrors.clientCountry} />
         </div>
 
         <div className="space-y-2">

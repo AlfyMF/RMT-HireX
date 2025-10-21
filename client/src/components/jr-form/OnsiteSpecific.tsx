@@ -18,6 +18,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
+import ValidationError from "@/components/ValidationError";
 
 interface OnsiteSpecificProps {
   data: Record<string, any>;
@@ -26,9 +27,10 @@ interface OnsiteSpecificProps {
   setWorkArrangement: (value: any) => void;
   jobType?: string;
   setJobType?: (value: string) => void;
+  validationErrors?: Record<string, string>;
 }
 
-export default function OnsiteSpecific({ data, onUpdate }: OnsiteSpecificProps) {
+export default function OnsiteSpecific({ data, onUpdate, validationErrors = {} }: OnsiteSpecificProps) {
   const [rateUnit, setRateUnit] = useState<string>(data.rateUnit || "per hour");
   const [rateCurrency, setRateCurrency] = useState<string>(data.rateCurrency || "USD");
   const [contractDurationUnit, setContractDurationUnit] = useState<string>(data.contractDurationUnit || "months");
@@ -89,6 +91,7 @@ export default function OnsiteSpecific({ data, onUpdate }: OnsiteSpecificProps) 
             onChange={(e) => onUpdate({ rate: e.target.value })}
             data-testid="input-rate"
           />
+          <ValidationError message={validationErrors.rate} />
         </div>
 
         <div className="space-y-2">
@@ -114,6 +117,7 @@ export default function OnsiteSpecific({ data, onUpdate }: OnsiteSpecificProps) 
               <SelectItem value="per contract">Per Contract</SelectItem>
             </SelectContent>
           </Select>
+          <ValidationError message={validationErrors.rateUnit} />
         </div>
 
         <div className="space-y-2">
@@ -141,6 +145,7 @@ export default function OnsiteSpecific({ data, onUpdate }: OnsiteSpecificProps) 
               <SelectItem value="CAD">CAD</SelectItem>
             </SelectContent>
           </Select>
+          <ValidationError message={validationErrors.rateCurrency} />
         </div>
 
         {/* Payment Cycle */}
@@ -171,6 +176,7 @@ export default function OnsiteSpecific({ data, onUpdate }: OnsiteSpecificProps) 
               <SelectItem value="Monthly">Monthly</SelectItem>
             </SelectContent>
           </Select>
+          <ValidationError message={validationErrors.paymentCycle} />
         </div>
 
         {/* Preferred Visa Status */}
@@ -195,6 +201,7 @@ export default function OnsiteSpecific({ data, onUpdate }: OnsiteSpecificProps) 
             placeholder="Select visa status options"
             data-testid="multiselect-visa-status"
           />
+          <ValidationError message={validationErrors.visaStatuses} />
         </div>
 
         {/* Contract Duration */}
@@ -220,6 +227,7 @@ export default function OnsiteSpecific({ data, onUpdate }: OnsiteSpecificProps) 
             onChange={(e) => onUpdate({ contractDuration: e.target.value })}
             data-testid="input-contract-duration"
           />
+          <ValidationError message={validationErrors.contractDuration} />
         </div>
 
         <div className="space-y-2">
@@ -243,6 +251,7 @@ export default function OnsiteSpecific({ data, onUpdate }: OnsiteSpecificProps) 
               <SelectItem value="years">Years</SelectItem>
             </SelectContent>
           </Select>
+          <ValidationError message={validationErrors.durationUnit} />
         </div>
 
         {/* Reporting Manager */}
@@ -267,6 +276,7 @@ export default function OnsiteSpecific({ data, onUpdate }: OnsiteSpecificProps) 
             onChange={(e) => onUpdate({ reportingManager: e.target.value })}
             data-testid="input-reporting-manager"
           />
+          <ValidationError message={validationErrors.reportingManager} />
         </div>
 
         {/* Interview Process */}

@@ -6,6 +6,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
+import ValidationError from "@/components/ValidationError";
 
 interface JobDescriptionProps {
   data: Record<string, any>;
@@ -14,9 +15,10 @@ interface JobDescriptionProps {
   setWorkArrangement: (value: any) => void;
   jobType?: string;
   setJobType?: (value: string) => void;
+  validationErrors?: Record<string, string>;
 }
 
-export default function JobDescription({ data, onUpdate }: JobDescriptionProps) {
+export default function JobDescription({ data, onUpdate, validationErrors = {} }: JobDescriptionProps) {
   return (
     <div className="space-y-6">
       <div>
@@ -49,6 +51,7 @@ export default function JobDescription({ data, onUpdate }: JobDescriptionProps) 
             onChange={(e) => onUpdate({ jobPurpose: e.target.value })}
             data-testid="textarea-job-purpose"
           />
+          <ValidationError message={validationErrors.jobPurpose} />
         </div>
 
         <div className="space-y-2">
@@ -76,6 +79,7 @@ export default function JobDescription({ data, onUpdate }: JobDescriptionProps) 
             })}
             data-testid="textarea-mandatory-duties"
           />
+          <ValidationError message={validationErrors.primaryDuties} />
         </div>
 
         <div className="space-y-2">
@@ -100,6 +104,7 @@ export default function JobDescription({ data, onUpdate }: JobDescriptionProps) 
             onChange={(e) => onUpdate({ goodToHaveDuties: e.target.value })}
             data-testid="textarea-good-to-have-duties"
           />
+          <ValidationError message={validationErrors.goodToHaveDuties} />
         </div>
 
         <div className="space-y-2">
@@ -127,6 +132,7 @@ export default function JobDescription({ data, onUpdate }: JobDescriptionProps) 
             })}
             data-testid="textarea-job-specification-skills"
           />
+          <ValidationError message={validationErrors.jobSpecification} />
         </div>
       </div>
     </div>

@@ -15,6 +15,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Info } from "lucide-react";
+import ValidationError from "@/components/ValidationError";
 
 interface BasicDetailsProps {
   data: Record<string, any>;
@@ -23,6 +24,7 @@ interface BasicDetailsProps {
   setWorkArrangement: (value: "Offshore" | "Onsite") => void;
   jobType?: string;
   setJobType?: (value: string) => void;
+  validationErrors?: Record<string, string>;
 }
 
 export default function BasicDetails({
@@ -32,6 +34,7 @@ export default function BasicDetails({
   setWorkArrangement,
   jobType: parentJobType,
   setJobType: setParentJobType,
+  validationErrors = {},
 }: BasicDetailsProps) {
   // Helper to capitalize first letter
   const capitalize = (str: string) =>
@@ -126,6 +129,7 @@ export default function BasicDetails({
               ))}
             </SelectContent>
           </Select>
+          <ValidationError message={validationErrors.jobType} />
         </div>
 
         {/* Core Skill */}
@@ -193,6 +197,7 @@ export default function BasicDetails({
               ))}
             </SelectContent>
           </Select>
+          <ValidationError message={validationErrors.jobTitle} />
         </div>
 
         {/* Requested Date */}
@@ -217,6 +222,7 @@ export default function BasicDetails({
             onChange={(e) => onUpdate({ requestedDate: e.target.value })}
             data-testid="input-requested-date"
           />
+          <ValidationError message={validationErrors.requestedDate} />
         </div>
 
         {/* Department */}
@@ -255,6 +261,7 @@ export default function BasicDetails({
               ))}
             </SelectContent>
           </Select>
+          <ValidationError message={validationErrors.department} />
         </div>
 
         {/* Requested By */}
@@ -289,6 +296,7 @@ export default function BasicDetails({
               ))}
             </SelectContent>
           </Select>
+          <ValidationError message={validationErrors.requestedBy} />
         </div>
 
         {/* Hiring Manager */}
@@ -325,6 +333,7 @@ export default function BasicDetails({
               ))}
             </SelectContent>
           </Select>
+          <ValidationError message={validationErrors.hiringManager} />
         </div>
 
         {/* Number of Positions */}
@@ -350,6 +359,7 @@ export default function BasicDetails({
             onChange={(e) => onUpdate({ positions: e.target.value, numberOfPositions: e.target.value })}
             data-testid="input-positions"
           />
+          <ValidationError message={validationErrors.numberOfPositions} />
         </div>
 
         {/* Expected Date of Onboarding - OFFSHORE ONLY */}
@@ -383,6 +393,7 @@ export default function BasicDetails({
                 })}
                 data-testid="input-onboarding-start"
               />
+              <ValidationError message={validationErrors.expectedDateOfOnboardingStart} />
             </div>
 
             <div className="space-y-2">
@@ -413,6 +424,7 @@ export default function BasicDetails({
                 })}
                 data-testid="input-onboarding-end"
               />
+              <ValidationError message={validationErrors.expectedDateOfOnboardingEnd} />
             </div>
           </>
         )}
@@ -447,6 +459,7 @@ export default function BasicDetails({
                 })}
                 data-testid="input-ideal-start-from"
               />
+              <ValidationError message={validationErrors.idealStartDateStart} />
             </div>
 
             <div className="space-y-2">
@@ -476,6 +489,7 @@ export default function BasicDetails({
                 })}
                 data-testid="input-ideal-start-to"
               />
+              <ValidationError message={validationErrors.idealStartDateEnd} />
             </div>
           </>
         )}
@@ -510,6 +524,7 @@ export default function BasicDetails({
               <SelectItem value="no">No</SelectItem>
             </SelectContent>
           </Select>
+          <ValidationError message={validationErrors.billable} />
         </div>
 
         {/* Client Billing Rate */}
@@ -573,6 +588,7 @@ export default function BasicDetails({
                 })}
                 data-testid="input-budget-min"
               />
+              <ValidationError message={validationErrors.totalBudgetMin} />
             </div>
 
             <div className="space-y-2">
@@ -603,6 +619,7 @@ export default function BasicDetails({
                 })}
                 data-testid="input-budget-max"
               />
+              <ValidationError message={validationErrors.totalBudgetMax} />
             </div>
           </>
         )}
@@ -639,6 +656,7 @@ export default function BasicDetails({
                 })}
                 data-testid="input-salary-min"
               />
+              <ValidationError message={validationErrors.expectedSalaryMin} />
             </div>
             <div className="space-y-2">
               <div className="flex items-center gap-2">
@@ -669,6 +687,7 @@ export default function BasicDetails({
                 })}
                 data-testid="input-salary-max"
               />
+              <ValidationError message={validationErrors.expectedSalaryMax} />
             </div>
           </>
         )}
