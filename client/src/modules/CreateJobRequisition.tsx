@@ -187,6 +187,15 @@ export default function CreateJobRequisition() {
       const preservedData = { ...formData };
       fieldsToRemove.forEach(field => delete preservedData[field]);
       
+      // Also clear validation errors for the removed fields
+      if (Object.keys(validationErrors).length > 0) {
+        const updatedErrors = { ...validationErrors };
+        fieldsToRemove.forEach(field => {
+          delete updatedErrors[field];
+        });
+        setValidationErrors(updatedErrors);
+      }
+      
       setWorkArrangement(pendingWorkArrangement);
       setFormData(preservedData);
       setCurrentStep(1);
