@@ -41,7 +41,7 @@ Preferred communication style: Simple, everyday language.
 
 1. **Billable Field Conditional Validation**: When Billable = "Yes", Client Billing Rate is now required with custom error message "Client Billing Rate is required"
 
-2. **Validation Error Clearing**: Validation errors clear immediately when user updates any field - providing instant feedback when corrections are made
+2. **Real-Time Validation Feedback**: Form re-validates on every field update - validation errors clear immediately when user provides valid data and appear/persist when user provides invalid data
 
 3. **Multi-Select Dropdown Validations**: Confirmed all multi-select fields display exact error messages:
    - Primary Skills: "Primary Skills is required"
