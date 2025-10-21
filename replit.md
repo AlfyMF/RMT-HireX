@@ -6,6 +6,47 @@ HireX is a full-stack job requisition management system designed to streamline t
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes
+
+### October 21, 2025 - Conditional Field Clearing Logic
+**Implemented automatic field clearing when key attributes change in Job Requisition forms:**
+
+1. **Work Arrangement Change (Offshore ↔ Onsite)**:
+   - Switching to Offshore: Clears all Onsite-specific fields (idealStartDate, onsiteWorkMode, onsiteLocation, onsiteDaysPerWeek, preferredTimeZone, rate, rateUnit, rateCurrency, paymentCycle, visaStatuses, contractDuration, durationUnit, reportingManager, interviewProcess, acceptH1Transfer, travelRequired)
+   - Switching to Onsite: Clears all Offshore-specific fields (expectedDateOfOnboarding Start/End, expectedSalary Min/Max, workLocations, workShift, shiftTime)
+   - Validation errors for cleared fields are automatically removed
+
+2. **Job Type Change (Contract/Consultant ↔ Permanent)**:
+   - Detects category change between contractual (Contract/Consultant) and Permanent types
+   - Automatically clears totalBudgetMin and totalBudgetMax when category switches
+
+3. **Onsite Work Mode Change (Hybrid/WFO ↔ Remote)**:
+   - When onsiteWorkMode changes between modes
+   - Automatically clears onsiteLocation and onsiteDaysPerWeek
+
+4. **Billable Change (Yes ↔ No)**:
+   - When billable field value changes
+   - Automatically clears clientBillingRate
+
+**Implementation Details**:
+- Logic implemented in `updateFormData()` (for Job Type, Onsite Work Mode, Billable) and `confirmWorkArrangementChange()` (for Work Arrangement)
+- Works during both job requisition creation and editing workflows
+- Cleared fields are completely removed from formData state
+- Associated validation errors are cleaned up automatically
+- Prevents stale data from being saved to database
+- User receives toast notification for work arrangement changes
+
+### October 21, 2025 - Form Validation Fixes
+**Fixed all validation error message issues:**
+
+1. **Custom Error Messages**: All 47 required fields now display field-specific error messages (no more generic "Required" or "Invalid input")
+   - Every `z.string()`, `z.number()`, `z.union()`, and `z.array()` has custom error parameters
+   - Every `.min()` and `.refine()` call includes the custom message
+
+2. **Empty Dropdown Arrays**: Array fields (primarySkills, secondarySkills, niceToHaveSkills, qualifications, workLocations, visaStatuses) now properly validate with `.min(1, "custom message")`
+
+3. **Validation Trigger**: Confirmed min/max comparison validations only trigger on Submit button (not on Next or Save & Continue)
+
 ## System Architecture
 
 ### Monorepo Structure
