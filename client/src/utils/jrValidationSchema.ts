@@ -134,9 +134,11 @@ export function validateJRFormData(
   
   // First collect all schema validation errors
   if (!result.success) {
+    console.log('🔍 VALIDATION ERRORS FOUND:', result.error.errors);
     result.error.errors.forEach((err) => {
       const fieldPath = err.path.join('.');
       errors[fieldPath] = err.message;
+      console.log(`❌ Field: ${fieldPath} | Error: ${err.message}`);
     });
   }
   

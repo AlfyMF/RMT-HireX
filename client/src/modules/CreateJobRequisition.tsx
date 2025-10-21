@@ -232,14 +232,20 @@ export default function CreateJobRequisition() {
     if (!isValid) {
       setValidationErrors(errors);
       
-      // Count errors
-      const errorCount = Object.keys(errors).length;
+      // Count errors and get field names
+      const errorFields = Object.keys(errors);
+      const errorCount = errorFields.length;
+      
+      // Create a helpful error message
+      const errorList = errorFields.map(field => `• ${field}`).join('\n');
       
       toast({
         title: "Validation Failed",
-        description: `Please fix ${errorCount} error${errorCount > 1 ? 's' : ''} before submitting.`,
+        description: `Please fix ${errorCount} error${errorCount > 1 ? 's' : ''} before submitting:\n${errorList}`,
         variant: "destructive",
       });
+      
+      console.log('📋 Validation Errors:', errors);
       
       // Scroll to top to see errors
       window.scrollTo({ top: 0, behavior: 'smooth' });
