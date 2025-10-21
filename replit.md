@@ -36,6 +36,25 @@ Preferred communication style: Simple, everyday language.
 - Prevents stale data from being saved to database
 - User receives toast notification for work arrangement changes
 
+### October 21, 2025 - Additional Validation Enhancements
+**Implemented missing validation rules and fixed validation persistence:**
+
+1. **Billable Field Conditional Validation**: When Billable = "Yes", Client Billing Rate is now required with custom error message "Client Billing Rate is required"
+
+2. **Validation Error Persistence**: Fixed max/min comparison validation errors (e.g., max < min) to persist until Submit button is clicked or field is truly corrected - errors no longer disappear automatically on field change
+
+3. **Multi-Select Dropdown Validations**: Confirmed all multi-select fields display exact error messages:
+   - Primary Skills: "Primary Skills is required"
+   - Secondary Skills: "Secondary Skills is required"
+   - Skills – Nice to have: "Skills – Nice to have is required"
+   - Qualification: "Qualification is required"
+
+4. **Work Arrangement Conditional Validations**: Verified all arrangement-specific fields have proper validations:
+   - **Onsite**: Onsite Work Mode, Onsite Location, Onsite Days Per Week, Preferred Visa Status
+   - **Offshore**: Work Location, Work Shift (fixed from "Work Shifts" to singular)
+
+5. **Validation Behavior**: All validation errors trigger only on form submission and persist until corrected
+
 ### October 21, 2025 - Form Validation Fixes
 **Fixed all validation error message issues:**
 
