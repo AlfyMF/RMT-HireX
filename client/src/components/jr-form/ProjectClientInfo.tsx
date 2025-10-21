@@ -9,7 +9,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Switch } from "@/components/ui/switch";
 import {
   Tooltip,
   TooltipContent,
@@ -34,20 +33,11 @@ export default function ProjectClientInfo({
   jobType,
   validationErrors = {},
 }: ProjectClientInfoProps) {
-  const [clientInterview, setClientInterview] = useState<boolean>(
-    data.clientInterview || false,
-  );
-
   // Fetch master data
   const { data: countries } = useQuery<any[]>({ queryKey: ["/countries"] });
 
   // Show Project Role/Job Title only for Contract/Consultant
   const showProjectRole = jobType === "contract" || jobType === "consultant";
-
-  // Update parent when clientInterview changes
-  useEffect(() => {
-    onUpdate({ clientInterview });
-  }, [clientInterview, onUpdate]);
 
   return (
     <div className="space-y-6">
@@ -167,7 +157,7 @@ export default function ProjectClientInfo({
         <div className="space-y-2">
           <div className="flex items-center gap-2">
             <Label htmlFor="clientInterview">
-              Client Interview
+              Client Interview <span className="text-destructive">*</span>
             </Label>
             <Tooltip>
               <TooltipTrigger asChild>
@@ -180,17 +170,19 @@ export default function ProjectClientInfo({
               </TooltipContent>
             </Tooltip>
           </div>
-          <div className="flex items-center gap-3">
-            <Switch
-              id="clientInterview"
-              checked={clientInterview}
-              onCheckedChange={setClientInterview}
-              data-testid="switch-client-interview"
-            />
-            <span className="text-sm text-muted-foreground">
-              {clientInterview ? "Yes" : "No"}
-            </span>
-          </div>
+          <Select
+            value={data.clientInterview || ""}
+            onValueChange={(value) => onUpdate({ clientInterview: value })}
+          >
+            <SelectTrigger data-testid="select-client-interview">
+              <SelectValue placeholder="Select option" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="yes">Yes</SelectItem>
+              <SelectItem value="no">No</SelectItem>
+            </SelectContent>
+          </Select>
+          <ValidationError message={validationErrors.clientInterview} />
         </div>
       </div>
     </div>
