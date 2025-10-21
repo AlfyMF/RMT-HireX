@@ -15,7 +15,10 @@ Preferred communication style: Simple, everyday language.
   - Each field has unique, specific error message (e.g., "Job Type is required", "Primary Skills is required")
   - Min-max comparison validations with specific messages (e.g., "Total Experience (Min) must be less than Total Experience (Max)")
   - Date range validations with specific messages (e.g., "Expected Date of Onboarding (Start) must be before Expected Date of Onboarding (End)")
-  - Conditional validation logic based on work arrangement type (Offshore vs Onsite)
+  - **Conditional validation logic based on work arrangement, job type, and field dependencies:**
+    - **Offshore-specific fields**: workLocations, workShift, expectedDateOfOnboarding (Start/End), expectedSalary (Min/Max)
+    - **Onsite-specific fields**: idealStartDate (Start/End), onsiteWorkMode, onsiteLocation, onsiteDaysPerWeek, preferredTimeZone, rate, rateUnit, rateCurrency, paymentCycle, visaStatuses, contractDuration, durationUnit, reportingManager
+    - **Job type conditional**: totalBudget (Min/Max) only required for Contract or Consultant job types
   - Custom validation function `validateJRFormData()` that extracts Zod error messages and returns errors object
   
 - **Client Interview Field Update**:

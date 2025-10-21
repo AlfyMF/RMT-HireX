@@ -55,24 +55,6 @@ const commonRequiredFields = z.object({
   primaryDuties: z.string().min(1, "Primary Duties is required"),
   goodToHaveDuties: z.string().min(1, "Good-to-Have Duties is required"),
   jobSpecification: z.string().min(1, "Job Specification is required"),
-  
-  // Budget & Salary (must be numeric)
-  expectedSalaryMin: z.union([
-    z.string().min(1, "Expected Salary Range (Min) is required").refine(val => !isNaN(Number(val)), "Expected Salary Range (Min) is required"),
-    z.number()
-  ]),
-  expectedSalaryMax: z.union([
-    z.string().min(1, "Expected Salary Range (Max) is required").refine(val => !isNaN(Number(val)), "Expected Salary Range (Max) is required"),
-    z.number()
-  ]),
-  totalBudgetMin: z.union([
-    z.string().min(1, "Total Budget (Min) is required").refine(val => !isNaN(Number(val)), "Total Budget (Min) is required"),
-    z.number()
-  ]),
-  totalBudgetMax: z.union([
-    z.string().min(1, "Total Budget (Max) is required").refine(val => !isNaN(Number(val)), "Total Budget (Max) is required"),
-    z.number()
-  ]),
 });
 
 // Offshore-specific required fields
@@ -81,7 +63,14 @@ const offshoreSpecificFields = z.object({
   expectedDateOfOnboardingEnd: z.string().min(1, "Expected Date of Onboarding (End) is required").refine(val => !isNaN(Date.parse(val)), "Expected Date of Onboarding (End) is required"),
   workLocations: z.array(z.string()).min(1, "Work Location is required"),
   workShift: z.string().min(1, "Work Shifts is required"),
-  preferredTimeZone: z.string().min(1, "Preferred Work Time Zone is required"),
+  expectedSalaryMin: z.union([
+    z.string().min(1, "Expected Salary Range (Min) is required").refine(val => !isNaN(Number(val)), "Expected Salary Range (Min) is required"),
+    z.number()
+  ]),
+  expectedSalaryMax: z.union([
+    z.string().min(1, "Expected Salary Range (Max) is required").refine(val => !isNaN(Number(val)), "Expected Salary Range (Max) is required"),
+    z.number()
+  ]),
 });
 
 // Onsite-specific required fields
@@ -94,6 +83,7 @@ const onsiteSpecificFields = z.object({
     z.string().min(1, "Onsite Days in Office per Week is required").refine(val => !isNaN(Number(val)) && Number(val) >= 0, "Onsite Days in Office per Week is required"),
     z.number().min(0, "Onsite Days in Office per Week is required")
   ]),
+  preferredTimeZone: z.string().min(1, "Preferred Work Time Zone is required"),
   rate: z.union([
     z.string().min(1, "Rate is required").refine(val => !isNaN(Number(val)), "Rate is required"),
     z.number()
@@ -140,6 +130,17 @@ export function validateJRFormData(
       errors[fieldPath] = err.message;
       console.log(`❌ Field: ${fieldPath} | Error: ${err.message}`);
     });
+  }
+  
+  // Conditional validation: Total Budget is required only for Contract or Consultant job types
+  const jobType = formData.jobType;
+  if (jobType === "Contract" || jobType === "Consultant") {
+    if (!formData.totalBudgetMin || formData.totalBudgetMin === "") {
+      errors.totalBudgetMin = "Total Budget (Min) is required";
+    }
+    if (!formData.totalBudgetMax || formData.totalBudgetMax === "") {
+      errors.totalBudgetMax = "Total Budget (Max) is required";
+    }
   }
   
   // Add custom comparison validations
