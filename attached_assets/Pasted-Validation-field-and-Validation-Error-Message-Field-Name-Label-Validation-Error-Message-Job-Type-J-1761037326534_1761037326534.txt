@@ -1,0 +1,56 @@
+Validation field and Validation Error Message
+Field Name / Label	Validation Error Message
+Job Type	Job Type is required
+Job Title	Job Title is required
+Requested Date	Requested Date is required
+Department	Department is required
+Requested By	Requested By is required
+Hiring Manager	Hiring Manager is required
+Number of Positions	Number of Positions is required
+Billable	Billable is required
+Primary Skills	Primary Skills is required
+Secondary Skills	Secondary Skills is required
+Skills – Nice to have	Skills – Nice to have is required
+Qualification	Qualification is required
+Total Experience (Min)	Total Experience (Min) is required
+Total Experience (Max)	Total Experience (Max) is required
+Relevant Experience (Min)	Relevant Experience (Min) is required
+Relevant Experience (Max)	Relevant Experience (Max) is required
+Project Name	Project Name is required
+Client	Client is required
+Client Country	Client Country is required
+Client Interview	Client Interview is required
+Job Purpose	Job Purpose is required
+Primary Duties	Primary Duties is required
+Good-to-Have Duties	Good-to-Have Duties is required
+Job Specification	Job Specification is required
+Expected Salary Range (Min)	Expected Salary Range (Min) is required
+Expected Salary Range (Max)	Expected Salary Range (Max) is required
+Expected Date of Onboarding (Start)	Expected Date of Onboarding (Start) is required
+Expected Date of Onboarding (End)	Expected Date of Onboarding (End) is required
+Work Location	Work Location is required
+Work Shifts	Work Shifts is required
+Total Budget (Min)	Total Budget (Min) is required
+Total Budget (Max)	Total Budget (Max) is required
+Ideal Start Date	Ideal Start Date is required
+Onsite Work Mode	Onsite Work Mode is required
+Onsite Location	Onsite Location is required
+Onsite Days in Office per Week	Onsite Days in Office per Week is required
+Preferred Work Time Zone	Preferred Work Time Zone is required
+Rate (for Contract)	Rate is required
+Rate Unit	Rate Unit is required
+Currency	Currency is required
+Payment Cycle	Payment Cycle is required
+Preferred Visa Status	Preferred Visa Status is required
+Contract Duration	Contract Duration is required
+Duration Unit	Duration Unit is required
+Reporting Manager	Reporting Manager is required
+
+
+Min max  validation checking 
+Total Budget (Min) < Total Budget (Max)	Total Budget (Min) must be less than Total Budget (Max)
+Expected Salary Range (Min) < Expected Salary Range (Max)	Expected Salary Range (Min) must be less than Expected Salary Range (Max)
+Expected Date of Onboarding (Start) < Expected Date of Onboarding (End)	Expected Date of Onboarding (Start) must be before Expected Date of Onboarding (End)
+Total Experience (Min) < Total Experience (Max)	Total Experience (Min) must be less than Total Experience (Max)
+Relevant Experience (Min) < Relevant Experience (Max)	Relevant Experience (Min) must be less than Relevant Experience (Max)
+ Ideal Start Date (Start) < Ideal Start Date (End)	Ideal Start Date (Start) must be before Ideal Start Date (End)
