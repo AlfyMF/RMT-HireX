@@ -85,10 +85,11 @@ export function transformFormDataToAPIPayload(
     requestedById: findUserIdByName(formData.requestedBy),
     hiringManagerId: findUserIdByName(formData.hiringManager),
     numberOfPositions: formData.numberOfPositions ? parseInt(formData.numberOfPositions) : 1,
-    expectedDateOfOnboardingStart: parseDate(formData.expectedDateOfOnboardingStart),
-    expectedDateOfOnboardingEnd: parseDate(formData.expectedDateOfOnboardingEnd),
-    idealStartDateStart: parseDate(formData.idealStartDateStart),
-    idealStartDateEnd: parseDate(formData.idealStartDateEnd),
+    // Support both canonical field names and UI aliases for date ranges
+    expectedDateOfOnboardingStart: parseDate(formData.expectedDateOfOnboardingStart || formData.onboardingFrom),
+    expectedDateOfOnboardingEnd: parseDate(formData.expectedDateOfOnboardingEnd || formData.onboardingTo),
+    idealStartDateStart: parseDate(formData.idealStartDateStart || formData.idealStartFrom),
+    idealStartDateEnd: parseDate(formData.idealStartDateEnd || formData.idealStartTo),
     billable: formData.billable === 'yes' || formData.billable === true,
     clientBillingRate: parseNumber(formData.clientBillingRate),
     totalBudgetMin: parseNumber(formData.totalBudgetMin),
@@ -116,7 +117,8 @@ export function transformFormDataToAPIPayload(
     clientInterview: formData.clientInterview === 'yes' || formData.clientInterview === true,
 
     // Location & Shift (Step 4)
-    workLocations: Array.isArray(formData.workLocations) ? formData.workLocations : [],
+    // For arrangement-specific arrays, don't default to [] - keep as undefined to allow nullification
+    workLocations: formData.workLocations !== undefined ? (Array.isArray(formData.workLocations) ? formData.workLocations : []) : undefined,
     workShiftId: findIdByName(workShifts, formData.workShift),
     shiftTime: formData.shiftTime,
     onsiteWorkMode: formData.onsiteWorkMode,
@@ -135,13 +137,14 @@ export function transformFormDataToAPIPayload(
     rateUnit: formData.rateUnit,
     rateCurrency: formData.rateCurrency,
     paymentCycle: formData.paymentCycle,
-    visaStatuses: Array.isArray(formData.visaStatuses) ? formData.visaStatuses : [],
+    // For arrangement-specific arrays and booleans, don't default - keep as undefined to allow nullification
+    visaStatuses: formData.visaStatuses !== undefined ? (Array.isArray(formData.visaStatuses) ? formData.visaStatuses : []) : undefined,
     contractDuration: formData.contractDuration,
     durationUnit: formData.durationUnit,
     reportingManager: formData.reportingManager,
     interviewProcess: formData.interviewProcess,
-    h1Transfer: formData.h1Transfer === 'yes' || formData.h1Transfer === true,
-    travelRequired: formData.travelRequired === 'yes' || formData.travelRequired === true,
+    h1Transfer: formData.h1Transfer !== undefined ? (formData.h1Transfer === 'yes' || formData.h1Transfer === true) : undefined,
+    travelRequired: formData.travelRequired !== undefined ? (formData.travelRequired === 'yes' || formData.travelRequired === true) : undefined,
 
     // Additional fields
     recruiterLeadId: findUserIdByName(formData.recruiterLead),
@@ -149,9 +152,37 @@ export function transformFormDataToAPIPayload(
     submittedBy: formData.submittedBy,
   };
 
-  // Remove undefined values
+  // Handle arrangement-specific fields: explicitly set to null if missing to clear them in DB
+  // This ensures switching work arrangements properly clears old fields
+  const arrangementSpecificFields = {
+    offshore: [
+      'expectedDateOfOnboardingStart', 'expectedDateOfOnboardingEnd',
+      'workLocations', 'workShiftId', 'shiftTime', 'preferredTimeZoneId'
+    ],
+    onsite: [
+      'idealStartDateStart', 'idealStartDateEnd',
+      'onsiteWorkMode', 'onsiteLocation', 'onsiteDaysPerWeek',
+      'rate', 'rateUnit', 'rateCurrency', 'paymentCycle', 'visaStatuses',
+      'contractDuration', 'durationUnit', 'reportingManager', 'interviewProcess',
+      'h1Transfer', 'travelRequired'
+    ]
+  };
+
+  // Set arrangement-specific fields to null if they're undefined
+  // This allows Prisma to clear them when switching arrangements
+  const fieldsToNullify = workArrangement === 'Offshore' 
+    ? arrangementSpecificFields.onsite 
+    : arrangementSpecificFields.offshore;
+
+  fieldsToNullify.forEach(field => {
+    if (payload[field] === undefined) {
+      payload[field] = null;
+    }
+  });
+
+  // Remove undefined values for other fields (but keep nulls for arrangement-specific fields)
   Object.keys(payload).forEach(key => {
-    if (payload[key] === undefined) {
+    if (payload[key] === undefined && !fieldsToNullify.includes(key)) {
       delete payload[key];
     }
   });
