@@ -163,21 +163,10 @@ export default function CreateJobRequisition() {
 
   const confirmWorkArrangementChange = () => {
     if (pendingWorkArrangement) {
-      // Define arrangement-specific fields to clear when switching
+      // Preserve common fields when switching arrangements
       const fieldsToRemove = pendingWorkArrangement === "Offshore" 
-        ? [
-            // Onsite-specific fields to clear when switching to Offshore
-            'idealStartDateStart', 'idealStartDateEnd', 'idealStartFrom', 'idealStartTo',
-            'onsiteWorkMode', 'onsiteLocation', 'onsiteDaysPerWeek', 
-            'rate', 'rateUnit', 'rateCurrency', 'paymentCycle', 'visaStatuses', 
-            'contractDuration', 'reportingManager', 'interviewProcess', 
-            'h1Transfer', 'acceptH1Transfer', 'travelRequired', 'durationUnit', 'preferredVisaStatus'
-          ]
-        : [
-            // Offshore-specific fields to clear when switching to Onsite
-            'expectedDateOfOnboardingStart', 'expectedDateOfOnboardingEnd', 'onboardingFrom', 'onboardingTo',
-            'workLocations', 'workShift', 'shiftTime', 'preferredTimeZone'
-          ];
+        ? ['onsiteWorkMode', 'onsiteLocation', 'onsiteDaysPerWeek', 'rate', 'rateUnit', 'rateCurrency', 'paymentCycle', 'visaStatuses', 'contractDuration', 'reportingManager', 'interviewProcess', 'h1Transfer', 'acceptH1Transfer', 'travelRequired', 'durationUnit', 'preferredVisaStatus']
+        : ['workLocations'];
       
       const preservedData = { ...formData };
       fieldsToRemove.forEach(field => delete preservedData[field]);
@@ -187,7 +176,7 @@ export default function CreateJobRequisition() {
       setCurrentStep(1);
       toast({
         title: "Work Arrangement Changed",
-        description: `Changed to ${pendingWorkArrangement}. Arrangement-specific fields have been cleared.`,
+        description: `Changed to ${pendingWorkArrangement}. Common data has been preserved.`,
       });
     }
     setShowChangeDialog(false);

@@ -8,26 +8,6 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-### October 21, 2025 - Work Arrangement Field Clearing Implementation
-**Implemented Automatic Clearing of Arrangement-Specific Fields:**
-- **Frontend (CreateJobRequisition.tsx)**: Updated `confirmWorkArrangementChange()` to clear comprehensive lists of arrangement-specific fields when switching between Offshore and Onsite:
-  - Offshore→Onsite: Clears onsite-specific fields (ideal start dates, onsite location, work mode, rate info, visa statuses, contract details, etc.)
-  - Onsite→Offshore: Clears offshore-specific fields (expected onboarding dates, work locations, shift details, preferred timezone)
-  - Clears both canonical field names and UI aliases to ensure complete data removal
-- **Transformer (jobRequisitionTransformer.ts)**: Enhanced payload generation to explicitly nullify arrangement-specific fields:
-  - Added alias fallback support for date fields (onboardingFrom/To → expectedDateOfOnboardingStart/End, idealStartFrom/To → idealStartDateStart/End)
-  - Fixed arrangement-specific arrays (workLocations, visaStatuses) to remain undefined instead of defaulting to [] when missing
-  - Fixed arrangement-specific booleans (h1Transfer, travelRequired) to remain undefined instead of defaulting to false when missing
-  - Implemented nullification logic: undefined arrangement-specific fields are explicitly set to null for the opposite work arrangement
-  - This ensures Prisma update operations properly clear database fields instead of leaving old values
-- **Backend Validator**: Confirmed `onsiteLocation` field accepts text strings (changed from UUID in previous update)
-
-**Expected Behavior:**
-- When user switches work arrangement, arrangement-specific data is removed from form state and sent as null to backend
-- Prisma update operations clear database fields by setting them to null
-- Common fields (job title, department, skills, etc.) are preserved across arrangement switches
-- No stale data persists when switching between Offshore and Onsite modes
-
 ### October 20, 2025 - CRUD Functionality Verification & Bug Fix
 **Verified Complete CRUD Implementation:**
 - **View**: ViewJobRequisition component exists with comprehensive, organized display of all JR fields using cards, badges, and icons. Accessible via `/view-jr/:id` route.
