@@ -163,7 +163,7 @@ export default function SkillsQualifications({ data, onUpdate, validationErrors 
             placeholder="Select qualifications"
             data-testid="multiselect-qualification"
           />
-          <ValidationError message={validationErrors.qualification} />
+          <ValidationError message={validationErrors.qualifications} />
         </div>
 
         <div className="space-y-2">

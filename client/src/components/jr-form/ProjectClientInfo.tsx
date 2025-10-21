@@ -129,7 +129,7 @@ export default function ProjectClientInfo({
             onChange={(e) => onUpdate({ client: e.target.value })}
             data-testid="input-client"
           />
-          <ValidationError message={validationErrors.clientName} />
+          <ValidationError message={validationErrors.client} />
         </div>
 
         <div className="space-y-2">

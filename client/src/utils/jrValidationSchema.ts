@@ -23,7 +23,7 @@ const commonRequiredFields = z.object({
   primarySkills: z.array(z.string()).min(1, "Primary Skills is required"),
   secondarySkills: z.array(z.string()).min(1, "Secondary Skills is required"),
   niceToHaveSkills: z.array(z.string()).min(1, "Skills – Nice to have is required"),
-  qualification: z.string().min(1, "Qualification is required"),
+  qualifications: z.array(z.string()).min(1, "Qualification is required"),
   
   // Experience with min-max validation (must be numeric)
   totalExperienceMin: z.union([
@@ -45,7 +45,7 @@ const commonRequiredFields = z.object({
   
   // Project & Client Info
   projectName: z.string().min(1, "Project Name is required"),
-  clientName: z.string().min(1, "Client is required"),
+  client: z.string().min(1, "Client is required"),
   clientCountry: z.string().min(1, "Client Country is required"),
   
   // Job Description
