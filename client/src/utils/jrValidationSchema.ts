@@ -15,8 +15,8 @@ const commonRequiredFields = z.object({
   requestedBy: z.string({ required_error: "Requested By is required" }).min(1, "Requested By is required"),
   hiringManager: z.string({ required_error: "Hiring Manager is required" }).min(1, "Hiring Manager is required"),
   numberOfPositions: z.union([
-    z.string().min(1).refine(val => !isNaN(Number(val)) && Number(val) > 0),
-    z.number().min(1)
+    z.string({ required_error: "Number of Positions is required" }).min(1, "Number of Positions is required").refine(val => !isNaN(Number(val)) && Number(val) > 0, "Number of Positions is required"),
+    z.number({ required_error: "Number of Positions is required", invalid_type_error: "Number of Positions is required" }).min(1, "Number of Positions is required")
   ], { required_error: "Number of Positions is required", invalid_type_error: "Number of Positions is required" }),
   billable: z.string({ required_error: "Billable is required" }).min(1, "Billable is required"),
   
@@ -28,20 +28,20 @@ const commonRequiredFields = z.object({
   
   // Experience with min-max validation (must be numeric)
   totalExperienceMin: z.union([
-    z.string().min(1).refine(val => !isNaN(Number(val))),
-    z.number()
+    z.string({ required_error: "Total Experience (Min) is required" }).min(1, "Total Experience (Min) is required").refine(val => !isNaN(Number(val)), "Total Experience (Min) is required"),
+    z.number({ required_error: "Total Experience (Min) is required", invalid_type_error: "Total Experience (Min) is required" })
   ], { required_error: "Total Experience (Min) is required", invalid_type_error: "Total Experience (Min) is required" }),
   totalExperienceMax: z.union([
-    z.string().min(1).refine(val => !isNaN(Number(val))),
-    z.number()
+    z.string({ required_error: "Total Experience (Max) is required" }).min(1, "Total Experience (Max) is required").refine(val => !isNaN(Number(val)), "Total Experience (Max) is required"),
+    z.number({ required_error: "Total Experience (Max) is required", invalid_type_error: "Total Experience (Max) is required" })
   ], { required_error: "Total Experience (Max) is required", invalid_type_error: "Total Experience (Max) is required" }),
   relevantExperienceMin: z.union([
-    z.string().min(1).refine(val => !isNaN(Number(val))),
-    z.number()
+    z.string({ required_error: "Relevant Experience (Min) is required" }).min(1, "Relevant Experience (Min) is required").refine(val => !isNaN(Number(val)), "Relevant Experience (Min) is required"),
+    z.number({ required_error: "Relevant Experience (Min) is required", invalid_type_error: "Relevant Experience (Min) is required" })
   ], { required_error: "Relevant Experience (Min) is required", invalid_type_error: "Relevant Experience (Min) is required" }),
   relevantExperienceMax: z.union([
-    z.string().min(1).refine(val => !isNaN(Number(val))),
-    z.number()
+    z.string({ required_error: "Relevant Experience (Max) is required" }).min(1, "Relevant Experience (Max) is required").refine(val => !isNaN(Number(val)), "Relevant Experience (Max) is required"),
+    z.number({ required_error: "Relevant Experience (Max) is required", invalid_type_error: "Relevant Experience (Max) is required" })
   ], { required_error: "Relevant Experience (Max) is required", invalid_type_error: "Relevant Experience (Max) is required" }),
   
   // Project & Client Info
@@ -64,12 +64,12 @@ const offshoreSpecificFields = z.object({
   workLocations: z.array(z.string(), { required_error: "Work Location is required", invalid_type_error: "Work Location is required" }).min(1, "Work Location is required"),
   workShift: z.string({ required_error: "Work Shifts is required" }).min(1, "Work Shifts is required"),
   expectedSalaryMin: z.union([
-    z.string().min(1).refine(val => !isNaN(Number(val))),
-    z.number()
+    z.string({ required_error: "Expected Salary Range (Min) is required" }).min(1, "Expected Salary Range (Min) is required").refine(val => !isNaN(Number(val)), "Expected Salary Range (Min) is required"),
+    z.number({ required_error: "Expected Salary Range (Min) is required", invalid_type_error: "Expected Salary Range (Min) is required" })
   ], { required_error: "Expected Salary Range (Min) is required", invalid_type_error: "Expected Salary Range (Min) is required" }),
   expectedSalaryMax: z.union([
-    z.string().min(1).refine(val => !isNaN(Number(val))),
-    z.number()
+    z.string({ required_error: "Expected Salary Range (Max) is required" }).min(1, "Expected Salary Range (Max) is required").refine(val => !isNaN(Number(val)), "Expected Salary Range (Max) is required"),
+    z.number({ required_error: "Expected Salary Range (Max) is required", invalid_type_error: "Expected Salary Range (Max) is required" })
   ], { required_error: "Expected Salary Range (Max) is required", invalid_type_error: "Expected Salary Range (Max) is required" }),
 });
 
@@ -80,13 +80,13 @@ const onsiteSpecificFields = z.object({
   onsiteWorkMode: z.string({ required_error: "Onsite Work Mode is required" }).min(1, "Onsite Work Mode is required"),
   onsiteLocation: z.string({ required_error: "Onsite Location is required" }).min(1, "Onsite Location is required"),
   onsiteDaysPerWeek: z.union([
-    z.string().min(1).refine(val => !isNaN(Number(val)) && Number(val) >= 0),
-    z.number().min(0)
+    z.string({ required_error: "Onsite Days in Office per Week is required" }).min(1, "Onsite Days in Office per Week is required").refine(val => !isNaN(Number(val)) && Number(val) >= 0, "Onsite Days in Office per Week is required"),
+    z.number({ required_error: "Onsite Days in Office per Week is required", invalid_type_error: "Onsite Days in Office per Week is required" }).min(0, "Onsite Days in Office per Week is required")
   ], { required_error: "Onsite Days in Office per Week is required", invalid_type_error: "Onsite Days in Office per Week is required" }),
   preferredTimeZone: z.string({ required_error: "Preferred Work Time Zone is required" }).min(1, "Preferred Work Time Zone is required"),
   rate: z.union([
-    z.string().min(1).refine(val => !isNaN(Number(val))),
-    z.number()
+    z.string({ required_error: "Rate is required" }).min(1, "Rate is required").refine(val => !isNaN(Number(val)), "Rate is required"),
+    z.number({ required_error: "Rate is required", invalid_type_error: "Rate is required" })
   ], { required_error: "Rate is required", invalid_type_error: "Rate is required" }),
   rateUnit: z.string({ required_error: "Rate Unit is required" }).min(1, "Rate Unit is required"),
   rateCurrency: z.string({ required_error: "Currency is required" }).min(1, "Currency is required"),
