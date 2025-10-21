@@ -166,9 +166,23 @@ export default function CreateJobRequisition() {
   const confirmWorkArrangementChange = () => {
     if (pendingWorkArrangement) {
       // Preserve common fields when switching arrangements
+      // Clear arrangement-specific fields based on the NEW arrangement
       const fieldsToRemove = pendingWorkArrangement === "Offshore" 
-        ? ['onsiteWorkMode', 'onsiteLocation', 'onsiteDaysPerWeek', 'rate', 'rateUnit', 'rateCurrency', 'paymentCycle', 'visaStatuses', 'contractDuration', 'reportingManager', 'interviewProcess', 'h1Transfer', 'acceptH1Transfer', 'travelRequired', 'durationUnit', 'preferredVisaStatus']
-        : ['workLocations'];
+        ? [
+            // Clear all Onsite-specific fields when switching to Offshore
+            'idealStartDateStart', 'idealStartDateEnd',
+            'onsiteWorkMode', 'onsiteLocation', 'onsiteDaysPerWeek',
+            'preferredTimeZone',
+            'rate', 'rateUnit', 'rateCurrency', 'paymentCycle',
+            'visaStatuses', 'contractDuration', 'durationUnit',
+            'reportingManager', 'interviewProcess', 'acceptH1Transfer', 'travelRequired'
+          ]
+        : [
+            // Clear all Offshore-specific fields when switching to Onsite
+            'expectedDateOfOnboardingStart', 'expectedDateOfOnboardingEnd',
+            'expectedSalaryMin', 'expectedSalaryMax',
+            'workLocations', 'workShift', 'shiftTime'
+          ];
       
       const preservedData = { ...formData };
       fieldsToRemove.forEach(field => delete preservedData[field]);
@@ -178,7 +192,7 @@ export default function CreateJobRequisition() {
       setCurrentStep(1);
       toast({
         title: "Work Arrangement Changed",
-        description: `Changed to ${pendingWorkArrangement}. Common data has been preserved.`,
+        description: `Changed to ${pendingWorkArrangement}. Arrangement-specific fields have been cleared.`,
       });
     }
     setShowChangeDialog(false);
@@ -281,13 +295,48 @@ export default function CreateJobRequisition() {
   };
 
   const updateFormData = (stepData: Record<string, any>) => {
-    setFormData({ ...formData, ...stepData });
+    const newFormData = { ...formData, ...stepData };
     
-    // Clear validation errors for fields that are being updated
+    // Conditional field clearing logic
+    const fieldsToClear: string[] = [];
+    
+    // 1. Job Type change: Clear totalBudget fields when switching between Contract/Consultant and Permanent
+    if (stepData.jobType !== undefined && formData.jobType !== stepData.jobType) {
+      const oldJobType = String(formData.jobType || "").toLowerCase();
+      const newJobType = String(stepData.jobType || "").toLowerCase();
+      const oldIsContractual = oldJobType === "contract" || oldJobType === "consultant";
+      const newIsContractual = newJobType === "contract" || newJobType === "consultant";
+      
+      if (oldIsContractual !== newIsContractual) {
+        fieldsToClear.push('totalBudgetMin', 'totalBudgetMax');
+      }
+    }
+    
+    // 2. Onsite Work Mode change: Clear onsiteLocation and onsiteDaysPerWeek when mode changes
+    if (stepData.onsiteWorkMode !== undefined && formData.onsiteWorkMode !== stepData.onsiteWorkMode) {
+      fieldsToClear.push('onsiteLocation', 'onsiteDaysPerWeek');
+    }
+    
+    // 3. Billable change: Clear clientBillingRate when value changes
+    if (stepData.billable !== undefined && formData.billable !== stepData.billable) {
+      fieldsToClear.push('clientBillingRate');
+    }
+    
+    // Clear identified fields from the new form data
+    fieldsToClear.forEach(field => {
+      delete newFormData[field];
+    });
+    
+    setFormData(newFormData);
+    
+    // Clear validation errors for fields that are being updated or cleared
     if (Object.keys(validationErrors).length > 0) {
       const updatedErrors = { ...validationErrors };
       Object.keys(stepData).forEach(key => {
         delete updatedErrors[key];
+      });
+      fieldsToClear.forEach(field => {
+        delete updatedErrors[field];
       });
       setValidationErrors(updatedErrors);
     }
