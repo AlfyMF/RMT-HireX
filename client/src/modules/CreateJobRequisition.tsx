@@ -309,7 +309,7 @@ export default function CreateJobRequisition() {
     // Conditional field clearing logic
     const fieldsToClear: string[] = [];
     
-    // 1. Job Type change: Clear totalBudget fields when switching between Contract/Consultant and Permanent
+    // 1. Job Type change: Clear totalBudget and projectRole fields when switching between Contract/Consultant and Permanent
     if (stepData.jobType !== undefined && formData.jobType !== stepData.jobType) {
       const oldJobType = String(formData.jobType || "").toLowerCase();
       const newJobType = String(stepData.jobType || "").toLowerCase();
@@ -317,7 +317,7 @@ export default function CreateJobRequisition() {
       const newIsContractual = newJobType === "contract" || newJobType === "consultant";
       
       if (oldIsContractual !== newIsContractual) {
-        fieldsToClear.push('totalBudgetMin', 'totalBudgetMax');
+        fieldsToClear.push('totalBudgetMin', 'totalBudgetMax', 'projectRole');
       }
     }
     

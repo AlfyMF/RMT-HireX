@@ -18,7 +18,7 @@ Preferred communication style: Simple, everyday language.
 
 2. **Job Type Change (Contract/Consultant ↔ Permanent)**:
    - Detects category change between contractual (Contract/Consultant) and Permanent types
-   - Automatically clears totalBudgetMin and totalBudgetMax when category switches
+   - Automatically clears totalBudgetMin, totalBudgetMax, and projectRole when category switches
 
 3. **Onsite Work Mode Change (Hybrid/WFO ↔ Remote)**:
    - When onsiteWorkMode changes between modes
