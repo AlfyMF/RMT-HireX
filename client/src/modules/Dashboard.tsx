@@ -121,10 +121,7 @@ export default function Dashboard() {
     const matchesLocation = locationFilter.length === 0 || (
       req.workArrangement === "Offshore"
         ? locationFilter.some(filter => req.workLocations?.some((loc: string) => loc.includes(filter)))
-        : locationFilter.some(filter => 
-            (req.onsiteLocation && req.onsiteLocation.includes(filter)) ||
-            (req.onsiteWorkMode && req.onsiteWorkMode.includes(filter))
-          )
+        : locationFilter.includes("Onsite")
     );
 
     return matchesSearch && matchesStatus && matchesDepartment && matchesWorkArrangement && matchesLocation;
@@ -199,7 +196,7 @@ export default function Dashboard() {
       if (r.workArrangement === "Offshore") {
         return r.workLocations || [];
       } else {
-        return [r.onsiteLocation, r.onsiteWorkMode].filter(Boolean);
+        return ["Onsite"];
       }
     }).filter(Boolean)
   )) as string[];

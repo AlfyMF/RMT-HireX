@@ -8,6 +8,23 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### October 22, 2025 - Dynamic Location Filter Enhancement
+**Implemented smart location filter logic on Dashboard:**
+
+1. **Filter Options Generation**: Location filter dynamically populates based on work arrangement:
+   - **Offshore Requisitions**: Shows actual work location names (Mumbai, Bangalore, Pune, etc.) from `workLocations` array
+   - **Onsite Requisitions**: Shows single "Onsite" option for all onsite positions (simplified from showing specific locations and work modes)
+   - All values automatically deduplicated using Set
+
+2. **Filter Matching Logic**: Updated filtering to correctly match:
+   - **Offshore**: Searches within `workLocations` array for selected filter values
+   - **Onsite**: Matches when "Onsite" is selected in filter
+
+3. **Benefits**: 
+   - Cleaner, more intuitive location filter
+   - Users can easily filter all onsite positions with one option
+   - Offshore positions retain granular location filtering by city/region
+
 ### October 21, 2025 - Conditional Field Clearing Logic
 **Implemented automatic field clearing when key attributes change in Job Requisition forms:**
 
