@@ -554,6 +554,7 @@ export default function BasicDetails({
               onChange={(e) => onUpdate({ clientBillingRate: e.target.value })}
               data-testid="input-billing-rate"
             />
+            <ValidationError message={validationErrors.clientBillingRate} />
           </div>
         )}
 
