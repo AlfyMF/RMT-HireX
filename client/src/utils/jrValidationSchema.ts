@@ -111,6 +111,27 @@ export function createJRValidationSchema(workArrangement: "Offshore" | "Onsite")
 export type JRValidationErrors = Record<string, string>;
 
 /**
+ * Validate a single field and return error message if invalid
+ * Returns null if field is valid, or error message string if invalid
+ */
+export function validateSingleField(
+  fieldName: string,
+  fieldValue: any,
+  formData: Record<string, any>,
+  workArrangement: "Offshore" | "Onsite"
+): string | null {
+  const toNumber = (val: any) => typeof val === 'string' ? parseFloat(val) : val;
+  const jobType = String(formData.jobType || "").toLowerCase();
+  const billable = String(formData.billable || "").toLowerCase();
+  
+  // Run full validation on the entire form to get all errors
+  const { errors } = validateJRFormData(formData, workArrangement);
+  
+  // Return the error for this specific field, or null if no error
+  return errors[fieldName] || null;
+}
+
+/**
  * Validate form data and return errors object
  */
 export function validateJRFormData(

@@ -35,7 +35,7 @@ import WorkArrangementSelection from "@/components/WorkArrangementSelection";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/services/api";
 import { transformFormDataToAPIPayload, transformAPIResponseToFormData } from "@/utils/jobRequisitionTransformer";
-import { validateJRFormData, type JRValidationErrors } from "@/utils/jrValidationSchema";
+import { validateJRFormData, validateSingleField, type JRValidationErrors } from "@/utils/jrValidationSchema";
 
 const steps = [
   { id: 1, name: "Basic Details", component: BasicDetails },
@@ -338,18 +338,42 @@ export default function CreateJobRequisition() {
     
     setFormData(newFormData);
     
-    // Smart error clearing: Only clear errors for fields that were updated or cleared
+    // Smart error clearing: Only clear errors for fields that are now valid
     // This happens ONLY after Submit has been clicked (when validationErrors exist)
-    // No validation is triggered - just clear the errors for corrected fields
-    if (Object.keys(validationErrors).length > 0) {
+    if (Object.keys(validationErrors).length > 0 && workArrangement) {
       const updatedErrors = { ...validationErrors };
       
-      // Clear errors for fields being updated (user is correcting them)
+      // Define comparison pairs - if one side is updated, check both sides
+      const comparisonPairs: Record<string, string[]> = {
+        'totalExperienceMin': ['totalExperienceMin', 'totalExperienceMax'],
+        'totalExperienceMax': ['totalExperienceMin', 'totalExperienceMax'],
+        'relevantExperienceMin': ['relevantExperienceMin', 'relevantExperienceMax'],
+        'relevantExperienceMax': ['relevantExperienceMin', 'relevantExperienceMax'],
+        'expectedSalaryMin': ['expectedSalaryMin', 'expectedSalaryMax'],
+        'expectedSalaryMax': ['expectedSalaryMin', 'expectedSalaryMax'],
+        'totalBudgetMin': ['totalBudgetMin', 'totalBudgetMax'],
+        'totalBudgetMax': ['totalBudgetMin', 'totalBudgetMax'],
+        'expectedDateOfOnboardingStart': ['expectedDateOfOnboardingStart', 'expectedDateOfOnboardingEnd'],
+        'expectedDateOfOnboardingEnd': ['expectedDateOfOnboardingStart', 'expectedDateOfOnboardingEnd'],
+        'idealStartDateStart': ['idealStartDateStart', 'idealStartDateEnd'],
+        'idealStartDateEnd': ['idealStartDateStart', 'idealStartDateEnd'],
+      };
+      
+      // For each updated field, validate it and its paired fields
       Object.keys(stepData).forEach(key => {
-        delete updatedErrors[key];
+        // Check if this field has comparison pairs
+        const fieldsToCheck = comparisonPairs[key] || [key];
+        
+        fieldsToCheck.forEach(fieldName => {
+          const fieldError = validateSingleField(fieldName, newFormData[fieldName], newFormData, workArrangement);
+          if (fieldError === null) {
+            // Field is now valid, clear its error
+            delete updatedErrors[fieldName];
+          }
+        });
       });
       
-      // Clear errors for fields being conditionally removed
+      // Always clear errors for fields being conditionally removed
       fieldsToClear.forEach(field => {
         delete updatedErrors[field];
       });
