@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { useMsal } from '@azure/msal-react';
-import { useLocation } from 'wouter';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { loginRequest } from '@/config/msalConfig';
@@ -9,14 +9,14 @@ import { Loader2 } from 'lucide-react';
 
 export default function Login() {
   const { instance, accounts, inProgress } = useMsal();
-  const [, setLocation] = useLocation();
+  const navigate = useNavigate();
   const { toast } = useToast();
 
   useEffect(() => {
     if (accounts.length > 0 && inProgress === 'none') {
-      setLocation('/dashboard');
+      navigate('/dashboard');
     }
-  }, [accounts, inProgress, setLocation]);
+  }, [accounts, inProgress, navigate]);
 
   const handleLogin = async () => {
     try {

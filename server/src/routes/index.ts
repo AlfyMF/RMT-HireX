@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { JobRequisitionController } from '../controllers/jobRequisition';
 import { MasterDataController } from '../controllers/masterData';
+import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
 
@@ -57,7 +58,7 @@ router.get('/', (req, res) => {
  *       200:
  *         description: Job requisitions retrieved successfully
  */
-router.get('/job-requisitions', jrController.findAll.bind(jrController));
+router.get('/job-requisitions', authenticateToken, jrController.findAll.bind(jrController));
 
 /**
  * @swagger
@@ -77,7 +78,7 @@ router.get('/job-requisitions', jrController.findAll.bind(jrController));
  *       404:
  *         description: Job requisition not found
  */
-router.get('/job-requisitions/:id', jrController.findById.bind(jrController));
+router.get('/job-requisitions/:id', authenticateToken, jrController.findById.bind(jrController));
 
 /**
  * @swagger
@@ -118,7 +119,7 @@ router.get('/job-requisitions/:id', jrController.findById.bind(jrController));
  *       201:
  *         description: Job requisition created successfully
  */
-router.post('/job-requisitions', jrController.create.bind(jrController));
+router.post('/job-requisitions', authenticateToken, jrController.create.bind(jrController));
 
 /**
  * @swagger
@@ -142,7 +143,7 @@ router.post('/job-requisitions', jrController.create.bind(jrController));
  *       200:
  *         description: Job requisition updated successfully
  */
-router.put('/job-requisitions/:id', jrController.update.bind(jrController));
+router.put('/job-requisitions/:id', authenticateToken, jrController.update.bind(jrController));
 
 /**
  * @swagger
