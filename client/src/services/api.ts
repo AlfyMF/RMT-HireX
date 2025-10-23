@@ -1,14 +1,39 @@
 import { QueryClient } from "@tanstack/react-query";
+import { msalInstance } from "../main";
+import { loginRequest } from "../config/msalConfig";
 
 const API_BASE_URL = import.meta.env.VITE_API_URL || "/api";
 
+async function getAccessToken(): Promise<string | null> {
+  const accounts = msalInstance.getAllAccounts();
+  if (accounts.length === 0) return null;
+
+  try {
+    const response = await msalInstance.acquireTokenSilent({
+      ...loginRequest,
+      account: accounts[0],
+    });
+    return response.accessToken;
+  } catch (error) {
+    console.error('Failed to acquire token:', error);
+    return null;
+  }
+}
+
 export const apiRequest = async (url: string, options?: RequestInit) => {
+  const token = await getAccessToken();
+  const headers: HeadersInit = {
+    "Content-Type": "application/json",
+    ...options?.headers,
+  };
+
+  if (token) {
+    headers["Authorization"] = `Bearer ${token}`;
+  }
+
   const response = await fetch(`${API_BASE_URL}${url}`, {
     ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...options?.headers,
-    },
+    headers,
   });
 
   if (!response.ok) {
