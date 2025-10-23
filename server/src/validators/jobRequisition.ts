@@ -27,11 +27,11 @@ export const createJobRequisitionSchema = z.object({
   expectedSalaryMax: z.union([z.number(), z.string(), z.null()]).optional().transform(val => (val === null || val === undefined || val === '') ? null : Number(val)),
 
   // Skills & Qualifications (Step 2)
-  primarySkills: z.array(z.string()).default([]),
-  secondarySkills: z.array(z.string()).default([]),
-  niceToHaveSkills: z.array(z.string()).default([]),
-  qualifications: z.array(z.string()).default([]),
-  certifications: z.array(z.string()).default([]),
+  primarySkills: z.union([z.array(z.string()), z.null()]).transform(val => val === null ? [] : val).default([]),
+  secondarySkills: z.union([z.array(z.string()), z.null()]).transform(val => val === null ? [] : val).default([]),
+  niceToHaveSkills: z.union([z.array(z.string()), z.null()]).transform(val => val === null ? [] : val).default([]),
+  qualifications: z.union([z.array(z.string()), z.null()]).transform(val => val === null ? [] : val).default([]),
+  certifications: z.union([z.array(z.string()), z.null()]).transform(val => val === null ? [] : val).default([]),
   specificQualification: z.string().nullable().optional(),
   totalExperienceMin: z.union([z.number(), z.string(), z.null()]).optional().transform(val => (val === null || val === undefined || val === '') ? null : Number(val)),
   totalExperienceMax: z.union([z.number(), z.string(), z.null()]).optional().transform(val => (val === null || val === undefined || val === '') ? null : Number(val)),
@@ -46,7 +46,7 @@ export const createJobRequisitionSchema = z.object({
   clientInterview: z.boolean().default(false),
 
   // Location & Shift (Step 4)
-  workLocations: z.union([z.array(z.string()), z.null()]).default([]),
+  workLocations: z.union([z.array(z.string()), z.null()]).transform(val => val === null ? [] : val).default([]),
   workShiftId: z.string().uuid().nullable().optional(),
   shiftTime: z.string().nullable().optional(),
   onsiteWorkMode: z.string().nullable().optional(),
@@ -65,13 +65,13 @@ export const createJobRequisitionSchema = z.object({
   rateUnit: z.string().nullable().optional(),
   rateCurrency: z.string().nullable().optional(),
   paymentCycle: z.string().nullable().optional(),
-  visaStatuses: z.union([z.array(z.string()), z.null()]).default([]),
+  visaStatuses: z.union([z.array(z.string()), z.null()]).transform(val => val === null ? [] : val).default([]),
   contractDuration: z.string().nullable().optional(),
   durationUnit: z.string().nullable().optional(),
   reportingManager: z.string().nullable().optional(),
   interviewProcess: z.string().nullable().optional(),
-  h1Transfer: z.union([z.boolean(), z.null()]).default(false),
-  travelRequired: z.union([z.boolean(), z.null()]).default(false),
+  h1Transfer: z.union([z.boolean(), z.null()]).nullable().optional(),
+  travelRequired: z.union([z.boolean(), z.null()]).nullable().optional(),
 
   // Additional Required Fields
   recruiterLeadId: z.string().uuid().optional(),

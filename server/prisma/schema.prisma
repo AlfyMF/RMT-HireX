@@ -274,7 +274,7 @@ model JobRequisition {
   clientInterview  Boolean  @default(false) @map("client_interview")
 
   // Location & Shift (Step 4)
-  workLocations       String[] @default([]) @map("work_locations")
+  workLocations       String[] @map("work_locations")
   workShiftId         String?  @db.VarChar(36) @map("work_shift_id")
   shiftTime           String?  @db.VarChar(100) @map("shift_time")
   onsiteWorkMode      String?  @db.VarChar(50) @map("onsite_work_mode")
@@ -293,13 +293,13 @@ model JobRequisition {
   rateUnit         String?  @db.VarChar(50) @map("rate_unit")
   rateCurrency     String?  @db.VarChar(10) @map("rate_currency")
   paymentCycle     String?  @db.VarChar(50) @map("payment_cycle")
-  visaStatuses     String[] @default([]) @map("visa_statuses")
+  visaStatuses     String[] @map("visa_statuses")
   contractDuration String?  @db.VarChar(50) @map("contract_duration")
   durationUnit     String?  @db.VarChar(20) @map("duration_unit")
   reportingManager String?  @db.VarChar(255) @map("reporting_manager")
   interviewProcess String?  @db.Text @map("interview_process")
-  h1Transfer       Boolean  @default(false) @map("h1_transfer")
-  travelRequired   Boolean  @default(false) @map("travel_required")
+  h1Transfer       Boolean?  @map("h1_transfer")
+  travelRequired   Boolean?  @map("travel_required")
 
   // Additional Required Fields
   recruiterLeadId String? @db.VarChar(36) @map("recruiter_lead_id")

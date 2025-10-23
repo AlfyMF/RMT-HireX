@@ -124,7 +124,7 @@ export function transformFormDataToAPIPayload(
     clientInterview: formData.clientInterview === 'yes' || formData.clientInterview === true,
 
     // Location & Shift (Step 4)
-    workLocations: formData.workLocations === null ? null : (Array.isArray(formData.workLocations) ? formData.workLocations : []),
+    workLocations: Array.isArray(formData.workLocations) ? formData.workLocations : [],
     workShiftId: findIdByName(workShifts, formData.workShift),
     shiftTime: formData.shiftTime === null ? null : formData.shiftTime,
     onsiteWorkMode: formData.onsiteWorkMode === null ? null : formData.onsiteWorkMode,
@@ -143,7 +143,7 @@ export function transformFormDataToAPIPayload(
     rateUnit: formData.rateUnit === null ? null : formData.rateUnit,
     rateCurrency: formData.rateCurrency === null ? null : formData.rateCurrency,
     paymentCycle: formData.paymentCycle === null ? null : formData.paymentCycle,
-    visaStatuses: formData.visaStatuses === null ? null : (Array.isArray(formData.visaStatuses) ? formData.visaStatuses : []),
+    visaStatuses: Array.isArray(formData.visaStatuses) ? formData.visaStatuses : [],
     contractDuration: formData.contractDuration === null ? null : formData.contractDuration,
     durationUnit: formData.durationUnit === null ? null : formData.durationUnit,
     reportingManager: formData.reportingManager === null ? null : formData.reportingManager,
