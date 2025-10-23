@@ -8,6 +8,28 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
+### October 23, 2025 - Work Arrangement Field Clearing Verification
+**Verified and tested the conditional field clearing implementation against formal requirements:**
+
+1. **Verification Completed**: All 24 fields specified in requirements document confirmed in implementation
+   - **When switching to Offshore** (17 Onsite fields cleared): idealStartDate (Start/End), onsiteWorkMode, onsiteLocation, onsiteDaysPerWeek, preferredTimeZone, rate, rateUnit, rateCurrency, paymentCycle, visaStatuses, contractDuration, durationUnit, reportingManager, interviewProcess, acceptH1Transfer, travelRequired
+   - **When switching to Onsite** (7 Offshore fields cleared): expectedDateOfOnboarding (Start/End), expectedSalary (Min/Max), workLocations, workShift, shiftTime
+
+2. **Field Name Mapping Verified**: Confirmed all database column names (snake_case) correctly map to formData field names (camelCase) across:
+   - `confirmWorkArrangementChange()` function
+   - Validation schema (`jrValidationSchema.ts`)
+   - Data transformer (`jobRequisitionTransformer.ts`)
+   - Form components (BasicDetails, LocationShift, etc.)
+
+3. **Testing Results**: 
+   - ✅ Work arrangement changes execute correctly
+   - ✅ Fields are properly cleared when arrangement changes
+   - ✅ Validation errors automatically removed for cleared fields
+   - ✅ No regressions in save/submit functionality
+   - ✅ Toast notifications inform users of field clearing
+
+4. **Integration Safety**: No impact on other functionalities - validation, save, and submit operations continue working correctly
+
 ### October 22, 2025 - Dynamic Location Filter Enhancement
 **Implemented smart location filter logic on Dashboard:**
 
