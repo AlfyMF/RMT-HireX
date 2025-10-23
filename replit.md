@@ -8,42 +8,57 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-### October 23, 2025 - Work Arrangement Field Clearing Fix (CRITICAL BUG FIX)
-**Fixed critical bug where arrangement-specific fields were not clearing to NULL in database:**
+### October 23, 2025 - Work Arrangement Field Clearing Fix (CRITICAL BUG FIX - COMPLETE)
+**Fixed critical bug where arrangement-specific fields were not clearing properly in database:**
 
-**Root Cause Identified:**
-- Fields were being deleted from frontend state, but NOT sent as NULL to backend
-- Transformer was removing undefined fields from API payload, so backend never received NULL values
-- Prisma kept old values instead of setting fields to NULL
+**Root Causes Identified:**
+1. Fields were being deleted from frontend state, but NOT sent as NULL to backend
+2. Transformer was removing undefined fields from API payload
+3. Backend validator wasn't accepting NULL for date fields
+4. **Prisma Limitation**: PostgreSQL arrays cannot be marked nullable in Prisma schema (`String[]?` not supported)
+5. Prisma boolean fields needed to be explicitly nullable (`Boolean?`) in schema
+6. Zod's `.default([])` only applies to undefined, not null - null values passed through to Prisma
 
-**Complete Fix Implemented:**
+**Complete Solution Implemented:**
 
-1. **Frontend State Management** (`CreateJobRequisition.tsx`):
-   - Changed field clearing to set fields to `null` instead of deleting them
-   - Fixed field name mismatch: `h1Transfer` (was incorrectly `acceptH1Transfer`)
+1. **Prisma Schema** (`server/prisma/schema.prisma`):
+   - Made `h1Transfer` and `travelRequired` nullable: `Boolean?`
+   - Arrays remain `String[]` (Prisma limitation - nullable arrays not supported)
+   - Successfully pushed schema changes to database without data loss
 
-2. **API Payload Transformer** (`jobRequisitionTransformer.ts`):
-   - Updated `transformFormDataToAPIPayload()`:
-     * All helper functions (parseDate, parseNumber, findIdByName, findUserIdByName) now preserve explicit `null` values
-     * Array fields (workLocations, visaStatuses) preserve `null` instead of converting to `[]`
-     * Boolean fields (h1Transfer, travelRequired) preserve `null` instead of converting to `false`
-   - Updated `transformAPIResponseToFormData()`:
-     * Preserves `null` for workLocations, visaStatuses, h1Transfer, travelRequired when loading from database
-     * Prevents regression where NULL values were converted back to defaults on reload
+2. **Frontend Transformer** (`jobRequisitionTransformer.ts`):
+   - `transformFormDataToAPIPayload()`:
+     * Helper functions (parseDate, parseNumber, findIdByName, findUserIdByName) preserve explicit `null` values
+     * **Array fields** (workLocations, visaStatuses): Convert `null` to `[]` for Prisma compatibility
+     * **Boolean fields** (h1Transfer, travelRequired): Preserve `null` values
+   - `transformAPIResponseToFormData()`:
+     * Preserves `null` for h1Transfer, travelRequired when loading from database
+     * Arrays load as `[]` when empty (Prisma constraint)
 
 3. **Backend Validator** (`server/src/validators/jobRequisition.ts`):
-   - Date fields: `z.union([z.string().datetime(), z.date(), z.null()]).optional()` for expectedDateOfOnboardingStart, expectedDateOfOnboardingEnd, idealStartDateStart, idealStartDateEnd
-   - Array fields: `z.union([z.array(z.string()), z.null()])` to explicitly accept NULL
-   - Boolean fields: `z.union([z.boolean(), z.null()])` to explicitly accept NULL
+   - **Date fields**: `z.union([z.string().datetime(), z.date(), z.null()]).optional()`
+   - **Array fields**: `z.union([z.array(z.string()), z.null()]).transform(val => val === null ? [] : val).default([])` (converts null→[])
+   - **Boolean fields**: `z.union([z.boolean(), z.null()]).nullable().optional()`
+
+4. **Frontend Clearing Logic** (`CreateJobRequisition.tsx`):
+   - Sets fields to `null` instead of deleting them
+   - Fixed field name: `h1Transfer` (was incorrectly `acceptH1Transfer`)
 
 **Fields Correctly Cleared:**
-- **Offshore→Onsite** (4 fields): expectedDateOfOnboardingStart, expectedDateOfOnboardingEnd, workShift, shiftTime
-- **Onsite→Offshore** (6 fields): idealStartDateStart, idealStartDateEnd, onsiteWorkMode, onsiteLocation, onsiteDaysPerWeek, preferredTimeZone
+- **Offshore→Onsite**: expectedDateOfOnboardingStart, expectedDateOfOnboardingEnd, workShift, shiftTime, workLocations (set to `[]`)
+- **Onsite→Offshore**: idealStartDateStart, idealStartDateEnd, onsiteWorkMode, onsiteLocation, onsiteDaysPerWeek, preferredTimeZone, visaStatuses (set to `[]`), h1Transfer (`null`), travelRequired (`null`)
+
+**Technical Notes:**
+- Arrays clear to `[]` in database (Prisma constraint - nullable arrays unsupported)
+- Booleans clear to `null` in database
+- Date/string/number fields clear to `null` in database
+- Double safety: Both transformer AND validator convert array nulls to `[]`
 
 **Verification:**
-- ✅ NULL values persist through complete save/load/edit/resubmit cycles
-- ✅ No regressions in other functionalities
+- ✅ Cleared values persist through complete save/load/edit/resubmit cycles
+- ✅ No regressions in existing functionality
 - ✅ Production-ready per architect review
+- ✅ All type mismatches resolved across entire stack
 
 ### October 22, 2025 - Dynamic Location Filter Enhancement
 **Implemented smart location filter logic on Dashboard:**
