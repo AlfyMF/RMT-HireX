@@ -6,135 +6,6 @@ HireX is a full-stack job requisition management system designed to streamline t
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
-## Recent Changes
-
-### October 23, 2025 - Work Arrangement Field Clearing Fix (CRITICAL BUG FIX - COMPLETE)
-**Fixed critical bug where arrangement-specific fields were not clearing properly in database:**
-
-**Root Causes Identified:**
-1. Fields were being deleted from frontend state, but NOT sent as NULL to backend
-2. Transformer was removing undefined fields from API payload
-3. Backend validator wasn't accepting NULL for date fields
-4. **Prisma Limitation**: PostgreSQL arrays cannot be marked nullable in Prisma schema (`String[]?` not supported)
-5. Prisma boolean fields needed to be explicitly nullable (`Boolean?`) in schema
-6. Zod's `.default([])` only applies to undefined, not null - null values passed through to Prisma
-
-**Complete Solution Implemented:**
-
-1. **Prisma Schema** (`server/prisma/schema.prisma`):
-   - Made `h1Transfer` and `travelRequired` nullable: `Boolean?`
-   - Arrays remain `String[]` (Prisma limitation - nullable arrays not supported)
-   - Successfully pushed schema changes to database without data loss
-
-2. **Frontend Transformer** (`jobRequisitionTransformer.ts`):
-   - `transformFormDataToAPIPayload()`:
-     * Helper functions (parseDate, parseNumber, findIdByName, findUserIdByName) preserve explicit `null` values
-     * **Array fields** (workLocations, visaStatuses): Convert `null` to `[]` for Prisma compatibility
-     * **Boolean fields** (h1Transfer, travelRequired): Preserve `null` values
-   - `transformAPIResponseToFormData()`:
-     * Preserves `null` for h1Transfer, travelRequired when loading from database
-     * Arrays load as `[]` when empty (Prisma constraint)
-
-3. **Backend Validator** (`server/src/validators/jobRequisition.ts`):
-   - **Date fields**: `z.union([z.string().datetime(), z.date(), z.null()]).optional()`
-   - **Array fields**: `z.union([z.array(z.string()), z.null()]).transform(val => val === null ? [] : val).default([])` (converts null→[])
-   - **Boolean fields**: `z.union([z.boolean(), z.null()]).nullable().optional()`
-
-4. **Frontend Clearing Logic** (`CreateJobRequisition.tsx`):
-   - Sets fields to `null` instead of deleting them
-   - Fixed field name: `h1Transfer` (was incorrectly `acceptH1Transfer`)
-
-**Fields Correctly Cleared:**
-- **Offshore→Onsite**: expectedDateOfOnboardingStart, expectedDateOfOnboardingEnd, workShift, shiftTime, workLocations (set to `[]`)
-- **Onsite→Offshore**: idealStartDateStart, idealStartDateEnd, onsiteWorkMode, onsiteLocation, onsiteDaysPerWeek, preferredTimeZone, visaStatuses (set to `[]`), h1Transfer (`null`), travelRequired (`null`)
-
-**Technical Notes:**
-- Arrays clear to `[]` in database (Prisma constraint - nullable arrays unsupported)
-- Booleans clear to `null` in database
-- Date/string/number fields clear to `null` in database
-- Double safety: Both transformer AND validator convert array nulls to `[]`
-
-**Verification:**
-- ✅ Cleared values persist through complete save/load/edit/resubmit cycles
-- ✅ No regressions in existing functionality
-- ✅ Production-ready per architect review
-- ✅ All type mismatches resolved across entire stack
-
-### October 22, 2025 - Dynamic Location Filter Enhancement
-**Implemented smart location filter logic on Dashboard:**
-
-1. **Filter Options Generation**: Location filter dynamically populates based on work arrangement:
-   - **Offshore Requisitions**: Shows actual work location names (Mumbai, Bangalore, Pune, etc.) from `workLocations` array
-   - **Onsite Requisitions**: Shows single "Onsite" option for all onsite positions (simplified from showing specific locations and work modes)
-   - All values automatically deduplicated using Set
-
-2. **Filter Matching Logic**: Updated filtering to correctly match:
-   - **Offshore**: Searches within `workLocations` array for selected filter values
-   - **Onsite**: Matches when "Onsite" is selected in filter
-
-3. **Benefits**: 
-   - Cleaner, more intuitive location filter
-   - Users can easily filter all onsite positions with one option
-   - Offshore positions retain granular location filtering by city/region
-
-### October 21, 2025 - Conditional Field Clearing Logic
-**Implemented automatic field clearing when key attributes change in Job Requisition forms:**
-
-1. **Work Arrangement Change (Offshore ↔ Onsite)**:
-   - Switching to Offshore: Clears all Onsite-specific fields (idealStartDate, onsiteWorkMode, onsiteLocation, onsiteDaysPerWeek, preferredTimeZone, rate, rateUnit, rateCurrency, paymentCycle, visaStatuses, contractDuration, durationUnit, reportingManager, interviewProcess, acceptH1Transfer, travelRequired)
-   - Switching to Onsite: Clears all Offshore-specific fields (expectedDateOfOnboarding Start/End, expectedSalary Min/Max, workLocations, workShift, shiftTime)
-   - Validation errors for cleared fields are automatically removed
-
-2. **Job Type Change (Contract/Consultant ↔ Permanent)**:
-   - Detects category change between contractual (Contract/Consultant) and Permanent types
-   - Automatically clears totalBudgetMin, totalBudgetMax, and projectRole when category switches
-
-3. **Onsite Work Mode Change (Hybrid/WFO ↔ Remote)**:
-   - When onsiteWorkMode changes between modes
-   - Automatically clears onsiteLocation and onsiteDaysPerWeek
-
-4. **Billable Change (Yes ↔ No)**:
-   - When billable field value changes
-   - Automatically clears clientBillingRate
-
-**Implementation Details**:
-- Logic implemented in `updateFormData()` (for Job Type, Onsite Work Mode, Billable) and `confirmWorkArrangementChange()` (for Work Arrangement)
-- Works during both job requisition creation and editing workflows
-- Cleared fields are completely removed from formData state
-- Associated validation errors are cleaned up automatically
-- Prevents stale data from being saved to database
-- User receives toast notification for work arrangement changes
-
-### October 21, 2025 - Additional Validation Enhancements
-**Implemented missing validation rules and fixed validation persistence:**
-
-1. **Billable Field Conditional Validation**: When Billable = "Yes", Client Billing Rate is now required with custom error message "Client Billing Rate is required"
-
-2. **Submit-Only Validation with Smart Error Clearing**: Validation triggers ONLY on Submit button (not on Next, Save & Continue, or field updates). Once errors appear after Submit, they clear immediately when user corrects that specific field with a valid value. For comparison fields (min/max, start/end dates), fixing either side clears errors on both fields when the comparison becomes valid
-
-3. **Multi-Select Dropdown Validations**: Confirmed all multi-select fields display exact error messages:
-   - Primary Skills: "Primary Skills is required"
-   - Secondary Skills: "Secondary Skills is required"
-   - Skills – Nice to have: "Skills – Nice to have is required"
-   - Qualification: "Qualification is required"
-
-4. **Work Arrangement Conditional Validations**: Verified all arrangement-specific fields have proper validations:
-   - **Onsite**: Onsite Work Mode, Onsite Location, Onsite Days Per Week, Preferred Visa Status
-   - **Offshore**: Work Location, Work Shift (fixed from "Work Shifts" to singular)
-
-5. **Validation Behavior**: All validation errors trigger only on form submission and persist until corrected
-
-### October 21, 2025 - Form Validation Fixes
-**Fixed all validation error message issues:**
-
-1. **Custom Error Messages**: All 47 required fields now display field-specific error messages (no more generic "Required" or "Invalid input")
-   - Every `z.string()`, `z.number()`, `z.union()`, and `z.array()` has custom error parameters
-   - Every `.min()` and `.refine()` call includes the custom message
-
-2. **Empty Dropdown Arrays**: Array fields (primarySkills, secondarySkills, niceToHaveSkills, qualifications, workLocations, visaStatuses) now properly validate with `.min(1, "custom message")`
-
-3. **Validation Trigger**: Confirmed min/max comparison validations only trigger on Submit button (not on Next or Save & Continue)
-
 ## System Architecture
 
 ### Monorepo Structure
@@ -148,11 +19,11 @@ The project uses npm workspaces to manage client and server as independent packa
 
 ### Backend Architecture
 - **Server Framework**: Express.js with TypeScript and ESNext modules.
-- **Middleware**: Includes Helmet for security, CORS for cross-origin resource sharing, and Morgan for logging.
+- **Middleware**: Includes Helmet for security, CORS for cross-origin resource sharing, and Morgan for logging. Integrated secure Microsoft Azure AD authentication using MSAL for JWT validation.
 - **API Structure**: Follows RESTful design principles with centralized routing and consistent response formatting.
 - **Configuration**: Environment-based configuration using dotenv.
 - **Data Layer**: Designed for PostgreSQL database integration (currently Neon DB) with Prisma ORM, utilizing PascalCase naming conventions and comprehensive foreign key relationships across 70+ fields in the JobRequisition schema. Includes strategic indexing for performance.
-- **Workflow**: Manages draft creation, persistent saving, validation before submission, and a confirmation/success modal flow. The system generates unique JR numbers upon submission, transitioning a requisition from 'DRAFT-PENDING' to 'Submitted'.
+- **Workflow**: Manages draft creation, persistent saving, validation before submission, and a confirmation/success modal flow. The system generates unique JR numbers upon submission, transitioning a requisition from 'DRAFT-PENDING' to 'Submitted'. Includes dynamic field clearing based on key attribute changes (e.g., work arrangement, job type).
 
 ### Type Safety
 TypeScript is configured for both client and server, with centralized type definitions and interface-based API contracts.
@@ -161,6 +32,9 @@ TypeScript is configured for both client and server, with centralized type defin
 ESLint ensures code quality, while Vite and SWC handle efficient client-side bundling and TypeScript compilation.
 
 ## External Dependencies
+
+### Authentication
+- **Azure AD**: For secure user authentication using MSAL.
 
 ### UI Component Libraries
 - **Radix UI**: Accessible, unstyled components.
@@ -179,6 +53,8 @@ ESLint ensures code quality, while Vite and SWC handle efficient client-side bun
 - **TanStack Query (React Query)**: Server state management.
 - **Zod**: Schema declaration and validation.
 - **React Hook Form**: Form management.
+- **jsonwebtoken**: For JWT validation.
+- **jwks-rsa**: For retrieving RSA public keys from a JWKS endpoint.
 
 ### Backend Dependencies
 - **Express.js**: Web application framework.

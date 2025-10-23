@@ -161,7 +161,7 @@ router.put('/job-requisitions/:id', authenticateToken, jrController.update.bind(
  *       200:
  *         description: Job requisition deleted successfully
  */
-router.delete('/job-requisitions/:id', jrController.delete.bind(jrController));
+router.delete('/job-requisitions/:id', authenticateToken, jrController.delete.bind(jrController));
 
 /**
  * @swagger
