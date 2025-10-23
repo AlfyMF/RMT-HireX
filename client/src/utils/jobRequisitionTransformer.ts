@@ -32,7 +32,9 @@ export function transformFormDataToAPIPayload(
   } = options;
 
   // Helper function to find ID by name
-  const findIdByName = (array: any[], name: string | undefined) => {
+  const findIdByName = (array: any[], name: string | undefined | null) => {
+    // Preserve explicit null values (for clearing fields)
+    if (name === null) return null;
     if (!name) return undefined;
     const item = array.find(
       (i) => i.name?.toLowerCase() === name.toLowerCase() || 
@@ -43,7 +45,9 @@ export function transformFormDataToAPIPayload(
   };
 
   // Helper function to find user ID by name
-  const findUserIdByName = (name: string | undefined) => {
+  const findUserIdByName = (name: string | undefined | null) => {
+    // Preserve explicit null values (for clearing fields)
+    if (name === null) return null;
     if (!name) return undefined;
     const user = users.find((u) => u.name === name || u.email === name);
     return user?.id;
@@ -51,6 +55,8 @@ export function transformFormDataToAPIPayload(
 
   // Helper to parse date
   const parseDate = (dateValue: any) => {
+    // Preserve explicit null values (for clearing fields)
+    if (dateValue === null) return null;
     if (!dateValue) return undefined;
     if (dateValue instanceof Date) return dateValue.toISOString();
     if (typeof dateValue === 'string' && dateValue) {
@@ -65,7 +71,9 @@ export function transformFormDataToAPIPayload(
 
   // Helper to parse number
   const parseNumber = (value: any) => {
-    if (value === null || value === undefined || value === '') return undefined;
+    // Preserve explicit null values (for clearing fields)
+    if (value === null) return null;
+    if (value === undefined || value === '') return undefined;
     const num = typeof value === 'string' ? parseFloat(value) : value;
     return isNaN(num) ? undefined : num;
   };
@@ -97,11 +105,11 @@ export function transformFormDataToAPIPayload(
     expectedSalaryMax: parseNumber(formData.expectedSalaryMax),
 
     // Skills & Qualifications (Step 2)
-    primarySkills: Array.isArray(formData.primarySkills) ? formData.primarySkills : [],
-    secondarySkills: Array.isArray(formData.secondarySkills) ? formData.secondarySkills : [],
-    niceToHaveSkills: Array.isArray(formData.niceToHaveSkills) ? formData.niceToHaveSkills : [],
-    qualifications: Array.isArray(formData.qualifications) ? formData.qualifications : [],
-    certifications: Array.isArray(formData.certifications) ? formData.certifications : [],
+    primarySkills: formData.primarySkills === null ? null : (Array.isArray(formData.primarySkills) ? formData.primarySkills : []),
+    secondarySkills: formData.secondarySkills === null ? null : (Array.isArray(formData.secondarySkills) ? formData.secondarySkills : []),
+    niceToHaveSkills: formData.niceToHaveSkills === null ? null : (Array.isArray(formData.niceToHaveSkills) ? formData.niceToHaveSkills : []),
+    qualifications: formData.qualifications === null ? null : (Array.isArray(formData.qualifications) ? formData.qualifications : []),
+    certifications: formData.certifications === null ? null : (Array.isArray(formData.certifications) ? formData.certifications : []),
     specificQualification: formData.specificQualification,
     totalExperienceMin: parseNumber(formData.totalExperienceMin),
     totalExperienceMax: parseNumber(formData.totalExperienceMax),
@@ -116,12 +124,12 @@ export function transformFormDataToAPIPayload(
     clientInterview: formData.clientInterview === 'yes' || formData.clientInterview === true,
 
     // Location & Shift (Step 4)
-    workLocations: Array.isArray(formData.workLocations) ? formData.workLocations : [],
+    workLocations: formData.workLocations === null ? null : (Array.isArray(formData.workLocations) ? formData.workLocations : []),
     workShiftId: findIdByName(workShifts, formData.workShift),
-    shiftTime: formData.shiftTime,
-    onsiteWorkMode: formData.onsiteWorkMode,
-    onsiteLocation: formData.onsiteLocation,
-    onsiteDaysPerWeek: formData.onsiteDaysPerWeek ? parseInt(formData.onsiteDaysPerWeek) : undefined,
+    shiftTime: formData.shiftTime === null ? null : formData.shiftTime,
+    onsiteWorkMode: formData.onsiteWorkMode === null ? null : formData.onsiteWorkMode,
+    onsiteLocation: formData.onsiteLocation === null ? null : formData.onsiteLocation,
+    onsiteDaysPerWeek: formData.onsiteDaysPerWeek === null ? null : (formData.onsiteDaysPerWeek ? parseInt(formData.onsiteDaysPerWeek) : undefined),
     preferredTimeZoneId: findIdByName(workTimeZones, formData.preferredTimeZone),
 
     // Job Description (Step 5)
@@ -132,16 +140,16 @@ export function transformFormDataToAPIPayload(
 
     // Onsite-Specific (Step 6)
     rate: parseNumber(formData.rate),
-    rateUnit: formData.rateUnit,
-    rateCurrency: formData.rateCurrency,
-    paymentCycle: formData.paymentCycle,
-    visaStatuses: Array.isArray(formData.visaStatuses) ? formData.visaStatuses : [],
-    contractDuration: formData.contractDuration,
-    durationUnit: formData.durationUnit,
-    reportingManager: formData.reportingManager,
-    interviewProcess: formData.interviewProcess,
-    h1Transfer: formData.h1Transfer === 'yes' || formData.h1Transfer === true,
-    travelRequired: formData.travelRequired === 'yes' || formData.travelRequired === true,
+    rateUnit: formData.rateUnit === null ? null : formData.rateUnit,
+    rateCurrency: formData.rateCurrency === null ? null : formData.rateCurrency,
+    paymentCycle: formData.paymentCycle === null ? null : formData.paymentCycle,
+    visaStatuses: formData.visaStatuses === null ? null : (Array.isArray(formData.visaStatuses) ? formData.visaStatuses : []),
+    contractDuration: formData.contractDuration === null ? null : formData.contractDuration,
+    durationUnit: formData.durationUnit === null ? null : formData.durationUnit,
+    reportingManager: formData.reportingManager === null ? null : formData.reportingManager,
+    interviewProcess: formData.interviewProcess === null ? null : formData.interviewProcess,
+    h1Transfer: formData.h1Transfer === null ? null : (formData.h1Transfer === 'yes' || formData.h1Transfer === true),
+    travelRequired: formData.travelRequired === null ? null : (formData.travelRequired === 'yes' || formData.travelRequired === true),
 
     // Additional fields
     recruiterLeadId: findUserIdByName(formData.recruiterLead),
@@ -149,11 +157,12 @@ export function transformFormDataToAPIPayload(
     submittedBy: formData.submittedBy,
   };
 
-  // Remove undefined values
+  // Remove undefined values but keep null (null explicitly clears fields in DB)
   Object.keys(payload).forEach(key => {
     if (payload[key] === undefined) {
       delete payload[key];
     }
+    // Keep null values - they tell the backend to set fields to NULL
   });
 
   return payload;

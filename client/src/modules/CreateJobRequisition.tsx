@@ -185,7 +185,8 @@ export default function CreateJobRequisition() {
           ];
       
       const preservedData = { ...formData };
-      fieldsToRemove.forEach(field => delete preservedData[field]);
+      // Set fields to null instead of deleting them so they're sent to backend as NULL
+      fieldsToRemove.forEach(field => preservedData[field] = null);
       
       // Also clear validation errors for the removed fields
       if (Object.keys(validationErrors).length > 0) {
