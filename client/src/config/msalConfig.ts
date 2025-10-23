@@ -2,7 +2,16 @@ import { Configuration, LogLevel, BrowserCacheLocation } from '@azure/msal-brows
 
 const AZURE_AD_CLIENT_ID = import.meta.env.VITE_AZURE_AD_CLIENT_ID || '';
 const AZURE_AD_TENANT_ID = import.meta.env.VITE_AZURE_AD_TENANT_ID || '';
-const REDIRECT_URI = window.location.origin;
+
+const getRedirectUri = () => {
+  const port = window.location.port;
+  if (port) {
+    return `${window.location.protocol}//${window.location.hostname}:${port}`;
+  }
+  return window.location.origin;
+};
+
+const REDIRECT_URI = getRedirectUri();
 
 export const msalConfig: Configuration = {
   auth: {
