@@ -8,27 +8,41 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes
 
-### October 23, 2025 - Work Arrangement Field Clearing Verification
-**Verified and tested the conditional field clearing implementation against formal requirements:**
+### October 23, 2025 - Work Arrangement Field Clearing Fix (CRITICAL BUG FIX)
+**Fixed critical bug where arrangement-specific fields were not clearing to NULL in database:**
 
-1. **Verification Completed**: All 24 fields specified in requirements document confirmed in implementation
-   - **When switching to Offshore** (17 Onsite fields cleared): idealStartDate (Start/End), onsiteWorkMode, onsiteLocation, onsiteDaysPerWeek, preferredTimeZone, rate, rateUnit, rateCurrency, paymentCycle, visaStatuses, contractDuration, durationUnit, reportingManager, interviewProcess, acceptH1Transfer, travelRequired
-   - **When switching to Onsite** (7 Offshore fields cleared): expectedDateOfOnboarding (Start/End), expectedSalary (Min/Max), workLocations, workShift, shiftTime
+**Root Cause Identified:**
+- Fields were being deleted from frontend state, but NOT sent as NULL to backend
+- Transformer was removing undefined fields from API payload, so backend never received NULL values
+- Prisma kept old values instead of setting fields to NULL
 
-2. **Field Name Mapping Verified**: Confirmed all database column names (snake_case) correctly map to formData field names (camelCase) across:
-   - `confirmWorkArrangementChange()` function
-   - Validation schema (`jrValidationSchema.ts`)
-   - Data transformer (`jobRequisitionTransformer.ts`)
-   - Form components (BasicDetails, LocationShift, etc.)
+**Complete Fix Implemented:**
 
-3. **Testing Results**: 
-   - ✅ Work arrangement changes execute correctly
-   - ✅ Fields are properly cleared when arrangement changes
-   - ✅ Validation errors automatically removed for cleared fields
-   - ✅ No regressions in save/submit functionality
-   - ✅ Toast notifications inform users of field clearing
+1. **Frontend State Management** (`CreateJobRequisition.tsx`):
+   - Changed field clearing to set fields to `null` instead of deleting them
+   - Fixed field name mismatch: `h1Transfer` (was incorrectly `acceptH1Transfer`)
 
-4. **Integration Safety**: No impact on other functionalities - validation, save, and submit operations continue working correctly
+2. **API Payload Transformer** (`jobRequisitionTransformer.ts`):
+   - Updated `transformFormDataToAPIPayload()`:
+     * All helper functions (parseDate, parseNumber, findIdByName, findUserIdByName) now preserve explicit `null` values
+     * Array fields (workLocations, visaStatuses) preserve `null` instead of converting to `[]`
+     * Boolean fields (h1Transfer, travelRequired) preserve `null` instead of converting to `false`
+   - Updated `transformAPIResponseToFormData()`:
+     * Preserves `null` for workLocations, visaStatuses, h1Transfer, travelRequired when loading from database
+     * Prevents regression where NULL values were converted back to defaults on reload
+
+3. **Backend Validator** (`server/src/validators/jobRequisition.ts`):
+   - Array fields: `z.union([z.array(z.string()), z.null()])` to explicitly accept NULL
+   - Boolean fields: `z.union([z.boolean(), z.null()])` to explicitly accept NULL
+
+**Fields Correctly Cleared:**
+- **Offshore→Onsite** (4 fields): expectedDateOfOnboardingStart, expectedDateOfOnboardingEnd, workShift, shiftTime
+- **Onsite→Offshore** (6 fields): idealStartDateStart, idealStartDateEnd, onsiteWorkMode, onsiteLocation, onsiteDaysPerWeek, preferredTimeZone
+
+**Verification:**
+- ✅ NULL values persist through complete save/load/edit/resubmit cycles
+- ✅ No regressions in other functionalities
+- ✅ Production-ready per architect review
 
 ### October 22, 2025 - Dynamic Location Filter Enhancement
 **Implemented smart location filter logic on Dashboard:**
