@@ -219,7 +219,7 @@ export function transformAPIResponseToFormData(apiData: any): Record<string, any
     clientInterview: apiData.clientInterview ? 'yes' : 'no',
 
     // Location & Shift
-    workLocations: apiData.workLocations || [],
+    workLocations: apiData.workLocations === null ? null : (apiData.workLocations || []),
     workShift: apiData.workShift?.name,
     shiftTime: apiData.shiftTime,
     onsiteWorkMode: apiData.onsiteWorkMode,
@@ -238,13 +238,13 @@ export function transformAPIResponseToFormData(apiData: any): Record<string, any
     rateUnit: apiData.rateUnit,
     rateCurrency: apiData.rateCurrency,
     paymentCycle: apiData.paymentCycle,
-    visaStatuses: apiData.visaStatuses || [],
+    visaStatuses: apiData.visaStatuses === null ? null : (apiData.visaStatuses || []),
     contractDuration: apiData.contractDuration,
     durationUnit: apiData.durationUnit,
     reportingManager: apiData.reportingManager,
     interviewProcess: apiData.interviewProcess,
-    h1Transfer: apiData.h1Transfer ? 'yes' : 'no',
-    travelRequired: apiData.travelRequired ? 'yes' : 'no',
+    h1Transfer: apiData.h1Transfer === null ? null : (apiData.h1Transfer ? 'yes' : 'no'),
+    travelRequired: apiData.travelRequired === null ? null : (apiData.travelRequired ? 'yes' : 'no'),
 
     // Status and IDs
     workArrangement: apiData.workArrangement,

@@ -46,7 +46,7 @@ export const createJobRequisitionSchema = z.object({
   clientInterview: z.boolean().default(false),
 
   // Location & Shift (Step 4)
-  workLocations: z.array(z.string()).default([]),
+  workLocations: z.union([z.array(z.string()), z.null()]).default([]),
   workShiftId: z.string().uuid().nullable().optional(),
   shiftTime: z.string().nullable().optional(),
   onsiteWorkMode: z.string().nullable().optional(),
@@ -65,13 +65,13 @@ export const createJobRequisitionSchema = z.object({
   rateUnit: z.string().nullable().optional(),
   rateCurrency: z.string().nullable().optional(),
   paymentCycle: z.string().nullable().optional(),
-  visaStatuses: z.array(z.string()).default([]),
+  visaStatuses: z.union([z.array(z.string()), z.null()]).default([]),
   contractDuration: z.string().nullable().optional(),
   durationUnit: z.string().nullable().optional(),
   reportingManager: z.string().nullable().optional(),
   interviewProcess: z.string().nullable().optional(),
-  h1Transfer: z.boolean().default(false),
-  travelRequired: z.boolean().default(false),
+  h1Transfer: z.union([z.boolean(), z.null()]).default(false),
+  travelRequired: z.union([z.boolean(), z.null()]).default(false),
 
   // Additional Required Fields
   recruiterLeadId: z.string().uuid().optional(),

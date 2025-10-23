@@ -175,7 +175,7 @@ export default function CreateJobRequisition() {
             'preferredTimeZone',
             'rate', 'rateUnit', 'rateCurrency', 'paymentCycle',
             'visaStatuses', 'contractDuration', 'durationUnit',
-            'reportingManager', 'interviewProcess', 'acceptH1Transfer', 'travelRequired'
+            'reportingManager', 'interviewProcess', 'h1Transfer', 'travelRequired'
           ]
         : [
             // Clear all Offshore-specific fields when switching to Onsite
