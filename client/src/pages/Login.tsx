@@ -20,7 +20,8 @@ export default function Login() {
 
   const handleLogin = async () => {
     try {
-      await instance.loginRedirect(loginRequest);
+      await instance.loginPopup(loginRequest);
+      navigate('/dashboard');
     } catch (error) {
       console.error('Login error:', error);
       toast({
