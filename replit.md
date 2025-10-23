@@ -36,8 +36,10 @@ ESLint ensures code quality, while Vite and SWC handle efficient client-side bun
 ### Authentication
 - **Azure AD**: For secure user authentication using MSAL with popup-based flow (iframe-compatible).
 - **Authentication Flow**: Uses `loginPopup()` and `logoutPopup()` to work within Replit's iframe environment.
+- **Redirect URI Configuration**: Dynamically detects the application port (e.g., :5000 in development) to construct the correct redirect URI for MSAL, ensuring compatibility across different deployment environments.
 - **Protected Routes**: All job requisition CRUD endpoints require valid JWT tokens.
 - **Token Validation**: Backend validates Azure AD tokens using JWKS with RSA public keys.
+- **Environment Configuration**: Backend server uses `server/start.sh` script to validate and export Azure AD credentials (AZURE_AD_CLIENT_ID and AZURE_AD_TENANT_ID) from Replit Secrets. The script fails fast if credentials are missing, preventing misconfigured deployment.
 
 ### UI Component Libraries
 - **Radix UI**: Accessible, unstyled components.
