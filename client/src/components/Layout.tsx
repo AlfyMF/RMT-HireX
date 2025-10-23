@@ -31,10 +31,18 @@ export default function Layout({ children }: LayoutProps) {
 
   const isActive = (path: string) => location.pathname === path;
 
-  const handleLogout = () => {
-    instance.logoutRedirect({
-      postLogoutRedirectUri: window.location.origin,
-    });
+  const handleLogout = async () => {
+    try {
+      await instance.logoutPopup({
+        postLogoutRedirectUri: window.location.origin,
+        mainWindowRedirectUri: '/login',
+      });
+    } catch (error) {
+      console.error('Logout error:', error);
+      // If popup fails, fallback to clearing local cache
+      instance.clearCache();
+      window.location.href = '/login';
+    }
   };
 
   const userAccount = accounts[0];
