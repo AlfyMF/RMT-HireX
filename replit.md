@@ -34,7 +34,10 @@ ESLint ensures code quality, while Vite and SWC handle efficient client-side bun
 ## External Dependencies
 
 ### Authentication
-- **Azure AD**: For secure user authentication using MSAL.
+- **Azure AD**: For secure user authentication using MSAL with popup-based flow (iframe-compatible).
+- **Authentication Flow**: Uses `loginPopup()` and `logoutPopup()` to work within Replit's iframe environment.
+- **Protected Routes**: All job requisition CRUD endpoints require valid JWT tokens.
+- **Token Validation**: Backend validates Azure AD tokens using JWKS with RSA public keys.
 
 ### UI Component Libraries
 - **Radix UI**: Accessible, unstyled components.
