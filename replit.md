@@ -32,6 +32,7 @@ Preferred communication style: Simple, everyday language.
      * Prevents regression where NULL values were converted back to defaults on reload
 
 3. **Backend Validator** (`server/src/validators/jobRequisition.ts`):
+   - Date fields: `z.union([z.string().datetime(), z.date(), z.null()]).optional()` for expectedDateOfOnboardingStart, expectedDateOfOnboardingEnd, idealStartDateStart, idealStartDateEnd
    - Array fields: `z.union([z.array(z.string()), z.null()])` to explicitly accept NULL
    - Boolean fields: `z.union([z.boolean(), z.null()])` to explicitly accept NULL
 
