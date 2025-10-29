@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { JobRequisitionService } from '../services/jobRequisition';
+import { approvalWorkflowService } from '../services/approvalWorkflow';
 import { createJobRequisitionSchema, updateJobRequisitionSchema, jobRequisitionQuerySchema } from '../validators/jobRequisition';
 import { successResponse, errorResponse } from '../utils/responseFormatter';
 
@@ -10,6 +11,12 @@ export class JobRequisitionController {
     try {
       const validatedData = createJobRequisitionSchema.parse(req.body);
       const result = await service.create(validatedData);
+      
+      // If JR is submitted (not draft), initiate approval workflow
+      if (validatedData.jrStatus === 'Submitted' && result.id) {
+        await approvalWorkflowService.initiateApprovalWorkflow(result.id);
+      }
+      
       return res.status(201).json(successResponse(result, 'Job requisition created successfully'));
     } catch (error: any) {
       return res.status(400).json(errorResponse(error.message));
@@ -19,7 +26,12 @@ export class JobRequisitionController {
   async findAll(req: Request, res: Response) {
     try {
       const query = jobRequisitionQuerySchema.parse(req.query);
-      const result = await service.findAll(query);
+      
+      // Get user info from JWT token (set by auth middleware)
+      const userId = (req as any).user?.userId;
+      const userRole = (req as any).user?.role;
+      
+      const result = await service.findAll(query, userId, userRole);
       return res.json(successResponse(result.data, 'Job requisitions retrieved successfully', result.meta));
     } catch (error: any) {
       return res.status(400).json(errorResponse(error.message));

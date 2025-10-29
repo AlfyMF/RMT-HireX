@@ -79,12 +79,99 @@ export class JobRequisitionService {
     });
   }
 
-  async findAll(query: JobRequisitionQuery) {
+  /**
+   * Build role-based filter for JR listing
+   * - Hiring Manager → Can view only JRs they submitted
+   * - DU Head → Can view JRs belonging to their Department
+   * - Recruiter Lead / Recruiter POC → Can view JRs assigned to them
+   * - CDO / COO → Can view JRs in their approval/review pipeline
+   * - Admin → Can view all JRs
+   */
+  async buildRoleBasedFilter(userId: string, userRole: string): Promise<any> {
+    const filter: any = {};
+
+    switch (userRole) {
+      case 'Hiring Manager':
+        // Only JRs they submitted or are hiring manager for
+        filter.OR = [
+          { submittedBy: userId },
+          { hiringManagerId: userId }
+        ];
+        break;
+
+      case 'DU Head':
+        // JRs from their department
+        const duDepartments = await prisma.department.findMany({
+          where: { duHead: userId },
+          select: { id: true }
+        });
+        filter.departmentId = {
+          in: duDepartments.map(d => d.id)
+        };
+        break;
+
+      case 'CDO':
+        // JRs from departments they oversee (as CDO) or in CDO approval pipeline
+        const cdoDepartments = await prisma.department.findMany({
+          where: { cdo: userId },
+          select: { id: true }
+        });
+        filter.OR = [
+          {
+            departmentId: {
+              in: cdoDepartments.map(d => d.id)
+            }
+          },
+          {
+            jrStatus: {
+              in: ['Pending CDO Approval', 'Pending COO Approval', 'Approved']
+            }
+          }
+        ];
+        break;
+
+      case 'COO':
+        // All JRs that reached COO level or are approved
+        filter.jrStatus = {
+          in: ['Pending COO Approval', 'Approved']
+        };
+        break;
+
+      case 'Recruiter Lead':
+        // JRs assigned to them as recruiter lead
+        filter.recruiterLeadId = userId;
+        break;
+
+      case 'Recruiter POC':
+        // JRs assigned to them as recruiter POC
+        filter.recruiterPocId = userId;
+        break;
+
+      case 'Admin':
+        // No filter - can view all
+        break;
+
+      default:
+        // Unknown role - only their submissions
+        filter.submittedBy = userId;
+        break;
+    }
+
+    return filter;
+  }
+
+  async findAll(query: JobRequisitionQuery, userId?: string, userRole?: string) {
     const page = parseInt(query.page) || 1;
     const limit = parseInt(query.limit) || 10;
     const skip = (page - 1) * limit;
 
     const where: any = {};
+
+    // Apply role-based filtering
+    if (userId && userRole) {
+      const roleFilter = await this.buildRoleBasedFilter(userId, userRole);
+      Object.assign(where, roleFilter);
+    }
 
     if (query.status) {
       where.jrStatus = query.status;

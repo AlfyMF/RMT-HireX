@@ -2,13 +2,16 @@ import { Router } from 'express';
 import { JobRequisitionController } from '../controllers/jobRequisition';
 import { MasterDataController } from '../controllers/masterData';
 import { UserController } from '../controllers/user';
+import { ApprovalController } from '../controllers/approval';
 import { authenticateToken } from '../middleware/auth';
+import { enrichUserData } from '../middleware/enrichAuth';
 
 const router = Router();
 
 const jrController = new JobRequisitionController();
 const masterDataController = new MasterDataController();
 const userController = new UserController();
+const approvalController = new ApprovalController();
 
 router.get('/', (req, res) => {
   res.json({ message: 'HireX API v1' });
@@ -80,7 +83,7 @@ router.get('/user/profile', authenticateToken, userController.getProfile.bind(us
  *       200:
  *         description: Job requisitions retrieved successfully
  */
-router.get('/job-requisitions', authenticateToken, jrController.findAll.bind(jrController));
+router.get('/job-requisitions', authenticateToken, enrichUserData, jrController.findAll.bind(jrController));
 
 /**
  * @swagger
@@ -141,7 +144,7 @@ router.get('/job-requisitions/:id', authenticateToken, jrController.findById.bin
  *       201:
  *         description: Job requisition created successfully
  */
-router.post('/job-requisitions', authenticateToken, jrController.create.bind(jrController));
+router.post('/job-requisitions', authenticateToken, enrichUserData, jrController.create.bind(jrController));
 
 /**
  * @swagger
@@ -165,7 +168,7 @@ router.post('/job-requisitions', authenticateToken, jrController.create.bind(jrC
  *       200:
  *         description: Job requisition updated successfully
  */
-router.put('/job-requisitions/:id', authenticateToken, jrController.update.bind(jrController));
+router.put('/job-requisitions/:id', authenticateToken, enrichUserData, jrController.update.bind(jrController));
 
 /**
  * @swagger
@@ -340,5 +343,93 @@ router.get('/work-shifts', masterDataController.getWorkShifts.bind(masterDataCon
  *         description: Work timezones retrieved successfully
  */
 router.get('/work-timezones', masterDataController.getWorkTimezones.bind(masterDataController));
+
+// ==================== Approval Workflow Routes ====================
+
+/**
+ * @swagger
+ * /api/job-requisitions/{id}/approve-reject:
+ *   post:
+ *     summary: Approve or reject a job requisition
+ *     tags: [Approvals]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             required:
+ *               - action
+ *             properties:
+ *               action:
+ *                 type: string
+ *                 enum: [approve, reject]
+ *               comments:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Approval decision processed successfully
+ */
+router.post('/job-requisitions/:id/approve-reject', authenticateToken, enrichUserData, approvalController.processApproval.bind(approvalController));
+
+/**
+ * @swagger
+ * /api/job-requisitions/{id}/approval-history:
+ *   get:
+ *     summary: Get approval history for a job requisition
+ *     tags: [Approvals]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Approval history retrieved successfully
+ */
+router.get('/job-requisitions/:id/approval-history', authenticateToken, enrichUserData, approvalController.getApprovalHistory.bind(approvalController));
+
+/**
+ * @swagger
+ * /api/job-requisitions/{id}/revise:
+ *   post:
+ *     summary: Revise a rejected job requisition (move to draft for editing)
+ *     tags: [Approvals]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Job requisition moved to draft for revision
+ */
+router.post('/job-requisitions/:id/revise', authenticateToken, enrichUserData, approvalController.reviseJobRequisition.bind(approvalController));
+
+/**
+ * @swagger
+ * /api/job-requisitions/{id}/can-approve:
+ *   get:
+ *     summary: Check if current user can approve a job requisition
+ *     tags: [Approvals]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Approval permission check completed
+ */
+router.get('/job-requisitions/:id/can-approve', authenticateToken, enrichUserData, approvalController.canApprove.bind(approvalController));
 
 export default router;
