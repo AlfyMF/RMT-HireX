@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Card } from "@/components/ui/card";
 import { MultiSelect } from "@/components/ui/multi-select";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -15,6 +17,14 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { 
   Search, 
   Plus, 
@@ -31,25 +41,31 @@ import {
   MapPin,
   Briefcase,
   DollarSign,
-  Code
+  Code,
+  ThumbsUp,
+  ThumbsDown,
+  RefreshCw
 } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/services/api";
+import { useUser } from "@/contexts/UserContext";
 
-const statusColors: Record<string, "default" | "warning" | "success" | "secondary"> = {
+const statusColors: Record<string, "default" | "warning" | "success" | "secondary" | "destructive"> = {
   "Draft": "secondary",
   "Submitted": "warning",
-  "DU Head Approved": "warning",
-  "CDO Approved": "warning",
-  "COO Approved": "warning",
+  "Pending DU Head Approval": "warning",
+  "Pending CDO Approval": "warning",
+  "Pending COO Approval": "warning",
   "Approved": "success",
+  "Rejected": "destructive",
 };
 
-const statusOptions = ["Draft", "Submitted", "DU Head Approved", "CDO Approved", "COO Approved", "Approved"];
+const statusOptions = ["Draft", "Submitted", "Pending DU Head Approval", "Pending CDO Approval", "Pending COO Approval", "Approved", "Rejected"];
 
 export default function Dashboard() {
   const { toast } = useToast();
+  const { userProfile } = useUser();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [departmentFilter, setDepartmentFilter] = useState<string[]>([]);
@@ -58,6 +74,10 @@ export default function Dashboard() {
   const [currentPage, setCurrentPage] = useState(1);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [jrToDelete, setJrToDelete] = useState<any>(null);
+  const [approvalDialogOpen, setApprovalDialogOpen] = useState(false);
+  const [approvalAction, setApprovalAction] = useState<'approve' | 'reject' | null>(null);
+  const [approvalComments, setApprovalComments] = useState("");
+  const [jrForApproval, setJrForApproval] = useState<any>(null);
   const itemsPerPage = 10;
 
   // Fetch job requisitions
@@ -105,6 +125,111 @@ export default function Dashboard() {
     if (jrToDelete) {
       deleteMutation.mutate(jrToDelete.id);
     }
+  };
+
+  // Approval/Rejection mutation
+  const approvalMutation = useMutation({
+    mutationFn: async ({ id, action, comments }: { id: string; action: 'approve' | 'reject'; comments: string }) => {
+      return await apiRequest(`/job-requisitions/${id}/approve-reject`, {
+        method: "POST",
+        body: JSON.stringify({ action, comments }),
+        headers: { "Content-Type": "application/json" },
+      });
+    },
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ["/job-requisitions"] });
+      toast({
+        title: variables.action === 'approve' ? "JR Approved" : "JR Rejected",
+        description: `Job requisition has been ${variables.action === 'approve' ? 'approved' : 'rejected'} successfully.`,
+      });
+      setApprovalDialogOpen(false);
+      setJrForApproval(null);
+      setApprovalComments("");
+      setApprovalAction(null);
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to process approval.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  // Revise mutation (for rejected JRs)
+  const reviseMutation = useMutation({
+    mutationFn: async (id: string) => {
+      return await apiRequest(`/job-requisitions/${id}/revise`, {
+        method: "POST",
+      });
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["/job-requisitions"] });
+      toast({
+        title: "JR Moved to Draft",
+        description: "Job requisition has been moved to draft for revision.",
+      });
+    },
+    onError: (error: any) => {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to move JR to draft.",
+        variant: "destructive",
+      });
+    },
+  });
+
+  const handleApprovalClick = (jr: any, action: 'approve' | 'reject') => {
+    setJrForApproval(jr);
+    setApprovalAction(action);
+    setApprovalDialogOpen(true);
+  };
+
+  const confirmApproval = () => {
+    if (jrForApproval && approvalAction) {
+      approvalMutation.mutate({
+        id: jrForApproval.id,
+        action: approvalAction,
+        comments: approvalComments,
+      });
+    }
+  };
+
+  const handleReviseClick = (jr: any) => {
+    reviseMutation.mutate(jr.id);
+  };
+
+  // Helper function to determine if current user can approve a JR
+  const canApprove = (jr: any): boolean => {
+    if (!userProfile) return false;
+    
+    const userRole = userProfile.role;
+    const jrStatus = jr.jrStatus;
+    const userDeptId = userProfile.department?.id;
+    const jrDeptId = jr.departmentId;
+
+    // DU Head can approve if status is "Pending DU Head Approval" and same department
+    if (userRole === "DU Head" && jrStatus === "Pending DU Head Approval" && userDeptId === jrDeptId) {
+      return true;
+    }
+
+    // CDO can approve if status is "Pending CDO Approval"
+    if (userRole === "CDO" && jrStatus === "Pending CDO Approval") {
+      return true;
+    }
+
+    // COO can approve if status is "Pending COO Approval"
+    if (userRole === "COO" && jrStatus === "Pending COO Approval") {
+      return true;
+    }
+
+    return false;
+  };
+
+  // Helper function to determine if current user can revise a rejected JR
+  const canRevise = (jr: any): boolean => {
+    if (!userProfile) return false;
+    return jr.jrStatus === "Rejected" && jr.submittedBy === userProfile.id;
   };
 
   // Filter requisitions client-side
@@ -368,6 +493,49 @@ export default function Dashboard() {
                         <Eye className="h-4 w-4" />
                       </Button>
                     </Link>
+                    
+                    {/* Approval buttons for authorized users */}
+                    {canApprove(req) && (
+                      <>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="hover:bg-green-500 hover:text-white gap-1.5"
+                          onClick={() => handleApprovalClick(req, 'approve')}
+                          data-testid={`button-approve-${req.jrId}`}
+                        >
+                          <ThumbsUp className="h-4 w-4" />
+                          Approve
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="hover:bg-red-500 hover:text-white gap-1.5"
+                          onClick={() => handleApprovalClick(req, 'reject')}
+                          data-testid={`button-reject-${req.jrId}`}
+                        >
+                          <ThumbsDown className="h-4 w-4" />
+                          Reject
+                        </Button>
+                      </>
+                    )}
+
+                    {/* Revise button for rejected JRs */}
+                    {canRevise(req) && (
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        className="hover:bg-blue-500 hover:text-white gap-1.5"
+                        onClick={() => handleReviseClick(req)}
+                        disabled={reviseMutation.isPending}
+                        data-testid={`button-revise-${req.jrId}`}
+                      >
+                        <RefreshCw className={`h-4 w-4 ${reviseMutation.isPending ? 'animate-spin' : ''}`} />
+                        Revise
+                      </Button>
+                    )}
+
+                    {/* Edit/Delete for drafts */}
                     {req.jrStatus === "Draft" && (
                       <>
                         <Link to={`/create-requisition/${req.id}`}>
@@ -568,6 +736,86 @@ export default function Dashboard() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Approval/Rejection Confirmation Dialog */}
+      <Dialog open={approvalDialogOpen} onOpenChange={setApprovalDialogOpen}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {approvalAction === 'approve' ? 'Approve' : 'Reject'} Job Requisition
+            </DialogTitle>
+            <DialogDescription>
+              {approvalAction === 'approve' 
+                ? `You are about to approve ${jrForApproval?.jrId}. This will move it to the next approval stage.`
+                : `You are about to reject ${jrForApproval?.jrId}. The submitter will be able to revise and resubmit.`
+              }
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="comments">
+                Comments {approvalAction === 'reject' && <span className="text-destructive">*</span>}
+              </Label>
+              <Textarea
+                id="comments"
+                placeholder={approvalAction === 'approve' 
+                  ? "Optional: Add any comments or feedback..." 
+                  : "Please provide a reason for rejection..."}
+                value={approvalComments}
+                onChange={(e) => setApprovalComments(e.target.value)}
+                rows={4}
+                data-testid="textarea-approval-comments"
+              />
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setApprovalDialogOpen(false);
+                setJrForApproval(null);
+                setApprovalComments("");
+                setApprovalAction(null);
+              }}
+              disabled={approvalMutation.isPending}
+              data-testid="button-cancel-approval"
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmApproval}
+              disabled={approvalMutation.isPending || (approvalAction === 'reject' && !approvalComments.trim())}
+              className={approvalAction === 'approve' 
+                ? "bg-green-600 hover:bg-green-700" 
+                : "bg-red-600 hover:bg-red-700"}
+              data-testid="button-confirm-approval"
+            >
+              {approvalMutation.isPending ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  {approvalAction === 'approve' ? (
+                    <>
+                      <ThumbsUp className="h-4 w-4 mr-2" />
+                      Approve
+                    </>
+                  ) : (
+                    <>
+                      <ThumbsDown className="h-4 w-4 mr-2" />
+                      Reject
+                    </>
+                  )}
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
