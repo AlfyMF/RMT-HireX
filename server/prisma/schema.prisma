@@ -174,6 +174,7 @@ model User {
   jobRequisitionsRecruiterLead JobRequisition[] @relation("JRRecruiterLead")
   jobRequisitionsRecruiterPoc  JobRequisition[] @relation("JRRecruiterPoc")
   jobRequisitionsSubmitter     JobRequisition[] @relation("JRSubmitter")
+  approvalHistoryAsApprover    ApprovalHistory[] @relation("ApprovalHistoryApprover")
 
   @@index([email, isActive])
   @@index([departmentId])
@@ -329,4 +330,102 @@ model JobRequisition {
   @@index([updatedAt])
   @@index([jrId])
   @@map("JobRequisition")
+  
+  approvalHistory ApprovalHistory[]
+  jobDescription  JobDescription?
+}
+
+model ApprovalHistory {
+  id                String   @id @default(uuid())
+  jobRequisitionId  String   @db.VarChar(36) @map("job_requisition_id")
+  approverRole      String   @db.VarChar(50) @map("approver_role")
+  approverId        String?  @db.VarChar(36) @map("approver_id")
+  action            String   @db.VarChar(20)
+  comments          String?  @db.Text
+  previousStatus    String   @db.VarChar(50) @map("previous_status")
+  newStatus         String   @db.VarChar(50) @map("new_status")
+  actionDate        DateTime @default(now()) @map("action_date")
+  createdAt         DateTime @default(now()) @map("created_at")
+  
+  jobRequisition JobRequisition @relation(fields: [jobRequisitionId], references: [id], onDelete: Cascade)
+  approver       User?          @relation("ApprovalHistoryApprover", fields: [approverId], references: [id])
+  
+  @@index([jobRequisitionId])
+  @@index([approverId])
+  @@index([action])
+  @@index([actionDate])
+  @@map("ApprovalHistory")
+}
+
+model EmailNotification {
+  id               String    @id @default(uuid())
+  recipientEmail   String    @db.VarChar(255) @map("recipient_email")
+  recipientName    String?   @db.VarChar(255) @map("recipient_name")
+  emailType        String    @db.VarChar(50) @map("email_type")
+  subject          String    @db.VarChar(500)
+  body             String    @db.Text
+  jrId             String?   @db.VarChar(50) @map("jr_id")
+  sentAt           DateTime? @map("sent_at")
+  status           String    @default("pending") @db.VarChar(20)
+  error            String?   @db.Text
+  createdAt        DateTime  @default(now()) @map("created_at")
+  
+  @@index([recipientEmail])
+  @@index([emailType])
+  @@index([status])
+  @@index([sentAt])
+  @@map("EmailNotification")
+}
+
+model JobDescription {
+  id                              String    @id @default(uuid())
+  jrId                            String    @unique @db.VarChar(50) @map("jr_id")
+  jobRequisitionId                String    @unique @db.VarChar(36) @map("job_requisition_id")
+  primarySkills                   String[]  @default([]) @map("primary_skills")
+  secondarySkills                 String[]  @default([]) @map("secondary_skills")
+  niceToHaveSkills                String[]  @default([]) @map("nice_to_have_skills")
+  qualifications                  String[]  @default([])
+  certifications                  String[]  @default([])
+  specificQualification           String?   @db.VarChar(255) @map("specific_qualification")
+  totalExperienceMin              Decimal?  @db.Decimal(5, 2) @map("total_experience_min")
+  totalExperienceMax              Decimal?  @db.Decimal(5, 2) @map("total_experience_max")
+  relevantExperienceMin           Decimal?  @db.Decimal(5, 2) @map("relevant_experience_min")
+  relevantExperienceMax           Decimal?  @db.Decimal(5, 2) @map("relevant_experience_max")
+  numberOfPositions               Int       @default(1) @map("number_of_positions")
+  expectedDateOfOnboardingStart   DateTime? @map("expected_date_of_onboarding_start")
+  expectedDateOfOnboardingEnd     DateTime? @map("expected_date_of_onboarding_end")
+  workLocations                   String[]  @map("work_locations")
+  workShiftId                     String?   @db.VarChar(36) @map("work_shift_id")
+  shiftTime                       String?   @db.VarChar(100) @map("shift_time")
+  jobPurpose                      String?   @db.Text @map("job_purpose")
+  primaryDuties                   String?   @db.Text @map("primary_duties")
+  goodToHaveDuties                String?   @db.Text @map("good_to_have_duties")
+  jobSpecification                String?   @db.Text @map("job_specification")
+  workArrangement                 String    @db.VarChar(50) @map("work_arrangement")
+  requestedDate                   DateTime? @map("requested_date")
+  departmentId                    String    @db.VarChar(36) @map("department_id")
+  hiringManagerId                 String    @db.VarChar(36) @map("hiring_manager_id")
+  recruiterLeadId                 String?   @db.VarChar(36) @map("recruiter_lead_id")
+  recruiterPocId                  String?   @db.VarChar(36) @map("recruiter_poc_id")
+  submittedBy                     String?   @db.VarChar(36) @map("submitted_by")
+  isActive                        Boolean   @default(true) @map("is_active")
+  createdAt                       DateTime  @default(now()) @map("created_at")
+  updatedAt                       DateTime  @updatedAt @map("updated_at")
+  
+  jobRequisition JobRequisition @relation(fields: [jobRequisitionId], references: [id], onDelete: Cascade)
+  
+  @@index([jrId])
+  @@index([departmentId])
+  @@map("JobDescription")
+}
+
+model AppConfiguration {
+  id        String   @id @default(uuid())
+  key       String   @unique @db.VarChar(100)
+  value     String   @db.Text
+  dataType  String   @default("string") @db.VarChar(20) @map("data_type")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  
+  @@map("AppConfiguration")
 }
