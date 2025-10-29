@@ -53,7 +53,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, [accounts]);
 
   // Fetch user profile from backend
-  const { data, isLoading, error, refetch } = useQuery<{ success: boolean; data: UserProfile }>({
+  const { data, isLoading, error, refetch } = useQuery<UserProfile>({
     queryKey: ['/user/profile'],
     enabled: shouldFetch, // Only fetch when user is authenticated
     retry: 1, // Retry once on failure
@@ -61,7 +61,7 @@ export function UserProvider({ children }: { children: ReactNode }) {
   });
 
   const value: UserContextValue = {
-    userProfile: data?.data || null,
+    userProfile: data || null,
     isLoading,
     error: error as Error | null,
     refetchProfile: () => {
