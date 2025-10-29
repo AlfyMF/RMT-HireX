@@ -1,14 +1,7 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { 
-  LayoutDashboard, 
-  FileText, 
-  User, 
-  Menu,
-  X,
-  LogOut
-} from "lucide-react";
+import { LayoutDashboard, FileText, User, Menu, X, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useMsal } from "@azure/msal-react";
 import {
@@ -33,26 +26,27 @@ export default function Layout({ children }: LayoutProps) {
 
   const handleLogout = async () => {
     try {
-      await instance.logoutPopup({
+      await instance.logoutRedirect({
         postLogoutRedirectUri: window.location.origin,
-        mainWindowRedirectUri: '/login',
       });
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
       // If popup fails, fallback to clearing local cache
       instance.clearCache();
-      window.location.href = '/login';
+      window.location.href = "/login";
     }
   };
 
   const userAccount = accounts[0];
-  const userName = userAccount?.name || '';
-  const userInitials = userName
-    .split(' ')
-    .map(n => n[0])
-    .join('')
-    .toUpperCase()
-    .substring(0, 2) || 'U';
+  console.log("userAccount", userAccount);
+  const userName = userAccount?.name || "";
+  const userInitials =
+    userName
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase()
+      .substring(0, 2) || "U";
 
   const navigation = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
@@ -68,7 +62,9 @@ export default function Layout({ children }: LayoutProps) {
           <div className="flex items-center gap-8">
             <Link to="/dashboard" className="flex items-center gap-2">
               <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-gradient-to-br from-primary to-primary-glow">
-                <span className="text-lg font-bold text-primary-foreground">H</span>
+                <span className="text-lg font-bold text-primary-foreground">
+                  H
+                </span>
               </div>
               <span className="text-xl font-bold bg-gradient-to-r from-primary to-primary-glow bg-clip-text text-transparent">
                 HireX
@@ -109,7 +105,9 @@ export default function Layout({ children }: LayoutProps) {
               <DropdownMenuContent align="end" className="w-56">
                 <DropdownMenuLabel>
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{userName}</p>
+                    <p className="text-sm font-medium leading-none">
+                      {userName}
+                    </p>
                     <p className="text-xs leading-none text-muted-foreground">
                       {userAccount?.username}
                     </p>
@@ -123,9 +121,13 @@ export default function Layout({ children }: LayoutProps) {
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive" data-testid="button-logout">
+                <DropdownMenuItem
+                  onClick={handleLogout}
+                  className="cursor-pointer text-destructive"
+                  data-testid="button-logout"
+                >
                   <LogOut className="mr-2 h-4 w-4" />
-                  Sign Out
+                  Log Out
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
@@ -175,9 +177,7 @@ export default function Layout({ children }: LayoutProps) {
       </header>
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        {children}
-      </main>
+      <main className="container mx-auto px-4 py-8">{children}</main>
     </div>
   );
 }

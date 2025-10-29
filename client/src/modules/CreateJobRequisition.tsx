@@ -4,16 +4,16 @@ import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { 
-  ChevronLeft, 
-  ChevronRight, 
-  Save, 
+import {
+  ChevronLeft,
+  ChevronRight,
+  Save,
   Send,
   Check,
   Building2,
   Globe2,
   Pencil,
-  Loader2
+  Loader2,
 } from "lucide-react";
 import {
   AlertDialog,
@@ -34,8 +34,15 @@ import OnsiteSpecific from "@/components/jr-form/OnsiteSpecific";
 import WorkArrangementSelection from "@/components/WorkArrangementSelection";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/services/api";
-import { transformFormDataToAPIPayload, transformAPIResponseToFormData } from "@/utils/jobRequisitionTransformer";
-import { validateJRFormData, validateSingleField, type JRValidationErrors } from "@/utils/jrValidationSchema";
+import {
+  transformFormDataToAPIPayload,
+  transformAPIResponseToFormData,
+} from "@/utils/jobRequisitionTransformer";
+import {
+  validateJRFormData,
+  validateSingleField,
+  type JRValidationErrors,
+} from "@/utils/jrValidationSchema";
 
 const steps = [
   { id: 1, name: "Basic Details", component: BasicDetails },
@@ -43,7 +50,12 @@ const steps = [
   { id: 3, name: "Project & Client Info", component: ProjectClientInfo },
   { id: 4, name: "Location & Shift", component: LocationShift },
   { id: 5, name: "Job Description", component: JobDescription },
-  { id: 6, name: "Onsite Specific", component: OnsiteSpecific, conditional: true },
+  {
+    id: 6,
+    name: "Onsite Specific",
+    component: OnsiteSpecific,
+    conditional: true,
+  },
 ];
 
 export default function CreateJobRequisition() {
@@ -51,16 +63,24 @@ export default function CreateJobRequisition() {
   const navigate = useNavigate();
   const isEditMode = !!id;
   const [currentStep, setCurrentStep] = useState(1);
-  const [workArrangement, setWorkArrangement] = useState<"Offshore" | "Onsite" | null>(null);
+  const [workArrangement, setWorkArrangement] = useState<
+    "Offshore" | "Onsite" | null
+  >(null);
   const [jobType, setJobType] = useState<string>("");
   const [formData, setFormData] = useState<Record<string, any>>({});
   const [showChangeDialog, setShowChangeDialog] = useState(false);
-  const [pendingWorkArrangement, setPendingWorkArrangement] = useState<"Offshore" | "Onsite" | null>(null);
-  const [draftJrId, setDraftJrId] = useState<string | null>(isEditMode ? id : null);
+  const [pendingWorkArrangement, setPendingWorkArrangement] = useState<
+    "Offshore" | "Onsite" | null
+  >(null);
+  const [draftJrId, setDraftJrId] = useState<string | null>(
+    isEditMode ? id : null,
+  );
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [generatedJrNumber, setGeneratedJrNumber] = useState<string>("");
-  const [validationErrors, setValidationErrors] = useState<JRValidationErrors>({});
+  const [validationErrors, setValidationErrors] = useState<JRValidationErrors>(
+    {},
+  );
   const { toast } = useToast();
 
   // Fetch master data for transformer
@@ -71,8 +91,12 @@ export default function CreateJobRequisition() {
   const { data: users } = useQuery<any[]>({ queryKey: ["/users"] });
   const { data: countries } = useQuery<any[]>({ queryKey: ["/countries"] });
   const { data: workShifts } = useQuery<any[]>({ queryKey: ["/work-shifts"] });
-  const { data: officeLocations } = useQuery<any[]>({ queryKey: ["/office-locations"] });
-  const { data: workTimeZones } = useQuery<any[]>({ queryKey: ["/work-timezones"] });
+  const { data: officeLocations } = useQuery<any[]>({
+    queryKey: ["/office-locations"],
+  });
+  const { data: workTimeZones } = useQuery<any[]>({
+    queryKey: ["/work-timezones"],
+  });
 
   // Fetch existing JR data if in edit mode
   const { data: existingJR, isLoading: isLoadingJR } = useQuery<any>({
@@ -95,14 +119,20 @@ export default function CreateJobRequisition() {
   // Set default requested date to today for new JRs
   useEffect(() => {
     if (!isEditMode && !formData.requestedDate) {
-      const today = new Date().toISOString().split('T')[0];
-      setFormData(prev => ({ ...prev, requestedDate: today }));
+      const today = new Date().toISOString().split("T")[0];
+      setFormData((prev) => ({ ...prev, requestedDate: today }));
     }
   }, [isEditMode]);
 
   // Create/Update mutation
   const createOrUpdateMutation = useMutation({
-    mutationFn: async ({ payload, isDraft }: { payload: any; isDraft: boolean }) => {
+    mutationFn: async ({
+      payload,
+      isDraft,
+    }: {
+      payload: any;
+      isDraft: boolean;
+    }) => {
       // If we have a draftJrId, always use PUT to update the existing draft
       if (draftJrId) {
         return await apiRequest(`/job-requisitions/${draftJrId}`, {
@@ -121,14 +151,14 @@ export default function CreateJobRequisition() {
     },
     onSuccess: (data, variables) => {
       queryClient.invalidateQueries({ queryKey: ["/job-requisitions"] });
-      
+
       const { isDraft } = variables;
-      
+
       // Store the JR ID if this is the first save (draft creation)
       if (!draftJrId && data?.id) {
         setDraftJrId(data.id);
       }
-      
+
       // If submission succeeded and we got a JR number, show success modal
       if (!isDraft && data?.jrId) {
         setGeneratedJrNumber(data.jrId);
@@ -147,7 +177,8 @@ export default function CreateJobRequisition() {
     onError: (error: any) => {
       toast({
         title: "Error",
-        description: error.message || "Failed to save job requisition. Please try again.",
+        description:
+          error.message || "Failed to save job requisition. Please try again.",
         variant: "destructive",
       });
     },
@@ -158,7 +189,9 @@ export default function CreateJobRequisition() {
     setCurrentStep(1);
   };
 
-  const handleWorkArrangementChange = (newArrangement: "Offshore" | "Onsite") => {
+  const handleWorkArrangementChange = (
+    newArrangement: "Offshore" | "Onsite",
+  ) => {
     setPendingWorkArrangement(newArrangement);
     setShowChangeDialog(true);
   };
@@ -167,36 +200,52 @@ export default function CreateJobRequisition() {
     if (pendingWorkArrangement) {
       // Preserve common fields when switching arrangements
       // Clear arrangement-specific fields based on the NEW arrangement
-      const fieldsToRemove = pendingWorkArrangement === "Offshore" 
-        ? [
-            // Clear all Onsite-specific fields when switching to Offshore
-            'idealStartDateStart', 'idealStartDateEnd',
-            'onsiteWorkMode', 'onsiteLocation', 'onsiteDaysPerWeek',
-            'preferredTimeZone',
-            'rate', 'rateUnit', 'rateCurrency', 'paymentCycle',
-            'visaStatuses', 'contractDuration', 'durationUnit',
-            'reportingManager', 'interviewProcess', 'h1Transfer', 'travelRequired'
-          ]
-        : [
-            // Clear all Offshore-specific fields when switching to Onsite
-            'expectedDateOfOnboardingStart', 'expectedDateOfOnboardingEnd',
-            'expectedSalaryMin', 'expectedSalaryMax',
-            'workLocations', 'workShift', 'shiftTime'
-          ];
-      
+      const fieldsToRemove =
+        pendingWorkArrangement === "Offshore"
+          ? [
+              // Clear all Onsite-specific fields when switching to Offshore
+              "idealStartDateStart",
+              "idealStartDateEnd",
+              "onsiteWorkMode",
+              "onsiteLocation",
+              "onsiteDaysPerWeek",
+              "preferredTimeZone",
+              "rate",
+              "rateUnit",
+              "rateCurrency",
+              "paymentCycle",
+              "visaStatuses",
+              "contractDuration",
+              "durationUnit",
+              "reportingManager",
+              "interviewProcess",
+              "h1Transfer",
+              "travelRequired",
+            ]
+          : [
+              // Clear all Offshore-specific fields when switching to Onsite
+              "expectedDateOfOnboardingStart",
+              "expectedDateOfOnboardingEnd",
+              "expectedSalaryMin",
+              "expectedSalaryMax",
+              "workLocations",
+              "workShift",
+              "shiftTime",
+            ];
+
       const preservedData = { ...formData };
       // Set fields to null instead of deleting them so they're sent to backend as NULL
-      fieldsToRemove.forEach(field => preservedData[field] = null);
-      
+      fieldsToRemove.forEach((field) => (preservedData[field] = null));
+
       // Also clear validation errors for the removed fields
       if (Object.keys(validationErrors).length > 0) {
         const updatedErrors = { ...validationErrors };
-        fieldsToRemove.forEach(field => {
+        fieldsToRemove.forEach((field) => {
           delete updatedErrors[field];
         });
         setValidationErrors(updatedErrors);
       }
-      
+
       setWorkArrangement(pendingWorkArrangement);
       setFormData(preservedData);
       setCurrentStep(1);
@@ -209,9 +258,10 @@ export default function CreateJobRequisition() {
     setPendingWorkArrangement(null);
   };
 
-  const visibleSteps = workArrangement === "Offshore" 
-    ? steps.filter(s => !s.conditional)
-    : steps;
+  const visibleSteps =
+    workArrangement === "Offshore"
+      ? steps.filter((s) => !s.conditional)
+      : steps;
 
   const maxStep = visibleSteps.length;
 
@@ -252,33 +302,33 @@ export default function CreateJobRequisition() {
 
     // Validate all fields using comprehensive validation schema
     const { isValid, errors } = validateJRFormData(formData, workArrangement);
-    
+
     if (!isValid) {
       setValidationErrors(errors);
-      
+
       // Count errors and get field names
       const errorFields = Object.keys(errors);
       const errorCount = errorFields.length;
-      
+
       // Create a helpful error message
-      const errorList = errorFields.map(field => `• ${field}`).join('\n');
-      
+      const errorList = errorFields.map((field) => `• ${field}`).join("\n");
+
       toast({
         title: "Validation Failed",
-        description: `Please fix ${errorCount} error${errorCount > 1 ? 's' : ''} before submitting:\n${errorList}`,
+        description: `Please fix ${errorCount} error${errorCount > 1 ? "s" : ""} before submitting`,
         variant: "destructive",
       });
-      
-      console.log('📋 Validation Errors:', errors);
-      
+
+      console.log("📋 Validation Errors:", errors);
+
       // Scroll to top to see errors
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
 
     // Clear any previous validation errors
     setValidationErrors({});
-    
+
     // Show confirmation modal
     setShowConfirmModal(true);
   };
@@ -306,84 +356,114 @@ export default function CreateJobRequisition() {
 
   const updateFormData = (stepData: Record<string, any>) => {
     const newFormData = { ...formData, ...stepData };
-    
+
     // Conditional field clearing logic
     const fieldsToClear: string[] = [];
-    
+
     // 1. Job Type change: Clear totalBudget and projectRole fields when switching between Contract/Consultant and Permanent
-    if (stepData.jobType !== undefined && formData.jobType !== stepData.jobType) {
+    if (
+      stepData.jobType !== undefined &&
+      formData.jobType !== stepData.jobType
+    ) {
       const oldJobType = String(formData.jobType || "").toLowerCase();
       const newJobType = String(stepData.jobType || "").toLowerCase();
-      const oldIsContractual = oldJobType === "contract" || oldJobType === "consultant";
-      const newIsContractual = newJobType === "contract" || newJobType === "consultant";
-      
+      const oldIsContractual =
+        oldJobType === "contract" || oldJobType === "consultant";
+      const newIsContractual =
+        newJobType === "contract" || newJobType === "consultant";
+
       if (oldIsContractual !== newIsContractual) {
-        fieldsToClear.push('totalBudgetMin', 'totalBudgetMax', 'projectRole');
+        fieldsToClear.push("totalBudgetMin", "totalBudgetMax", "projectRole");
       }
     }
-    
+
     // 2. Onsite Work Mode change: Clear onsiteLocation and onsiteDaysPerWeek when mode changes
-    if (stepData.onsiteWorkMode !== undefined && formData.onsiteWorkMode !== stepData.onsiteWorkMode) {
-      fieldsToClear.push('onsiteLocation', 'onsiteDaysPerWeek');
+    if (
+      stepData.onsiteWorkMode !== undefined &&
+      formData.onsiteWorkMode !== stepData.onsiteWorkMode
+    ) {
+      fieldsToClear.push("onsiteLocation", "onsiteDaysPerWeek");
     }
-    
+
     // 3. Billable change: Clear clientBillingRate when value changes
-    if (stepData.billable !== undefined && formData.billable !== stepData.billable) {
-      fieldsToClear.push('clientBillingRate');
+    if (
+      stepData.billable !== undefined &&
+      formData.billable !== stepData.billable
+    ) {
+      fieldsToClear.push("clientBillingRate");
     }
-    
+
     // Clear identified fields from the new form data
-    fieldsToClear.forEach(field => {
+    fieldsToClear.forEach((field) => {
       delete newFormData[field];
     });
-    
+
     setFormData(newFormData);
-    
+
     // Smart error clearing: Only clear errors for fields that are now valid
     // This happens ONLY after Submit has been clicked (when validationErrors exist)
     if (Object.keys(validationErrors).length > 0 && workArrangement) {
       const updatedErrors = { ...validationErrors };
-      
+
       // Define comparison pairs - if one side is updated, check both sides
       const comparisonPairs: Record<string, string[]> = {
-        'totalExperienceMin': ['totalExperienceMin', 'totalExperienceMax'],
-        'totalExperienceMax': ['totalExperienceMin', 'totalExperienceMax'],
-        'relevantExperienceMin': ['relevantExperienceMin', 'relevantExperienceMax'],
-        'relevantExperienceMax': ['relevantExperienceMin', 'relevantExperienceMax'],
-        'expectedSalaryMin': ['expectedSalaryMin', 'expectedSalaryMax'],
-        'expectedSalaryMax': ['expectedSalaryMin', 'expectedSalaryMax'],
-        'totalBudgetMin': ['totalBudgetMin', 'totalBudgetMax'],
-        'totalBudgetMax': ['totalBudgetMin', 'totalBudgetMax'],
-        'expectedDateOfOnboardingStart': ['expectedDateOfOnboardingStart', 'expectedDateOfOnboardingEnd'],
-        'expectedDateOfOnboardingEnd': ['expectedDateOfOnboardingStart', 'expectedDateOfOnboardingEnd'],
-        'idealStartDateStart': ['idealStartDateStart', 'idealStartDateEnd'],
-        'idealStartDateEnd': ['idealStartDateStart', 'idealStartDateEnd'],
+        totalExperienceMin: ["totalExperienceMin", "totalExperienceMax"],
+        totalExperienceMax: ["totalExperienceMin", "totalExperienceMax"],
+        relevantExperienceMin: [
+          "relevantExperienceMin",
+          "relevantExperienceMax",
+        ],
+        relevantExperienceMax: [
+          "relevantExperienceMin",
+          "relevantExperienceMax",
+        ],
+        expectedSalaryMin: ["expectedSalaryMin", "expectedSalaryMax"],
+        expectedSalaryMax: ["expectedSalaryMin", "expectedSalaryMax"],
+        totalBudgetMin: ["totalBudgetMin", "totalBudgetMax"],
+        totalBudgetMax: ["totalBudgetMin", "totalBudgetMax"],
+        expectedDateOfOnboardingStart: [
+          "expectedDateOfOnboardingStart",
+          "expectedDateOfOnboardingEnd",
+        ],
+        expectedDateOfOnboardingEnd: [
+          "expectedDateOfOnboardingStart",
+          "expectedDateOfOnboardingEnd",
+        ],
+        idealStartDateStart: ["idealStartDateStart", "idealStartDateEnd"],
+        idealStartDateEnd: ["idealStartDateStart", "idealStartDateEnd"],
       };
-      
+
       // For each updated field, validate it and its paired fields
-      Object.keys(stepData).forEach(key => {
+      Object.keys(stepData).forEach((key) => {
         // Check if this field has comparison pairs
         const fieldsToCheck = comparisonPairs[key] || [key];
-        
-        fieldsToCheck.forEach(fieldName => {
-          const fieldError = validateSingleField(fieldName, newFormData[fieldName], newFormData, workArrangement);
+
+        fieldsToCheck.forEach((fieldName) => {
+          const fieldError = validateSingleField(
+            fieldName,
+            newFormData[fieldName],
+            newFormData,
+            workArrangement,
+          );
           if (fieldError === null) {
             // Field is now valid, clear its error
             delete updatedErrors[fieldName];
           }
         });
       });
-      
+
       // Always clear errors for fields being conditionally removed
-      fieldsToClear.forEach(field => {
+      fieldsToClear.forEach((field) => {
         delete updatedErrors[field];
       });
-      
+
       setValidationErrors(updatedErrors);
     }
   };
 
-  const CurrentStepComponent = workArrangement ? visibleSteps[currentStep - 1]?.component : null;
+  const CurrentStepComponent = workArrangement
+    ? visibleSteps[currentStep - 1]?.component
+    : null;
 
   // Show loading state when fetching existing JR
   if (isEditMode && isLoadingJR) {
@@ -414,11 +494,15 @@ export default function CreateJobRequisition() {
       {/* Header */}
       <div>
         <h1 className="text-3xl font-bold tracking-tight">
-          {isEditMode ? (existingJR?.jrId ? `Edit Job Requisition - ${existingJR.jrId}` : "Edit Job Requisition") : "Create Job Requisition"}
+          {isEditMode
+            ? existingJR?.jrId
+              ? `Edit Job Requisition - ${existingJR.jrId}`
+              : "Edit Job Requisition"
+            : "Create Job Requisition"}
         </h1>
         <p className="text-muted-foreground">
-          {isEditMode 
-            ? "Update the details of the job requisition" 
+          {isEditMode
+            ? "Update the details of the job requisition"
             : "Fill in the details to create a new job requisition"}
         </p>
       </div>
@@ -428,8 +512,8 @@ export default function CreateJobRequisition() {
         {/* Work Arrangement Display */}
         <div className="flex justify-end mb-4">
           <div className="flex items-center gap-3">
-            <Badge 
-              variant="outline" 
+            <Badge
+              variant="outline"
               className="px-3 py-1.5 text-sm font-medium flex items-center gap-2"
               data-testid="badge-work-arrangement"
             >
@@ -448,7 +532,11 @@ export default function CreateJobRequisition() {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => handleWorkArrangementChange(workArrangement === "Offshore" ? "Onsite" : "Offshore")}
+              onClick={() =>
+                handleWorkArrangementChange(
+                  workArrangement === "Offshore" ? "Onsite" : "Offshore",
+                )
+              }
               className="gap-2"
               data-testid="button-change-work-arrangement"
             >
@@ -468,8 +556,8 @@ export default function CreateJobRequisition() {
                     currentStep > step.id
                       ? "border-success bg-success text-success-foreground shadow-success/20"
                       : currentStep === step.id
-                      ? "border-primary bg-primary text-primary-foreground shadow-primary/30"
-                      : "border-border bg-background hover:border-primary/50"
+                        ? "border-primary bg-primary text-primary-foreground shadow-primary/30"
+                        : "border-border bg-background hover:border-primary/50"
                   }`}
                 >
                   {currentStep > step.id ? (
@@ -478,9 +566,13 @@ export default function CreateJobRequisition() {
                     <span className="text-sm font-semibold">{step.id}</span>
                   )}
                 </div>
-                <span className={`mt-2 text-xs font-medium text-center hidden sm:block transition-colors ${
-                  currentStep === step.id ? "text-primary" : "text-muted-foreground"
-                }`}>
+                <span
+                  className={`mt-2 text-xs font-medium text-center hidden sm:block transition-colors ${
+                    currentStep === step.id
+                      ? "text-primary"
+                      : "text-muted-foreground"
+                  }`}
+                >
                   {step.name}
                 </span>
               </div>
@@ -539,8 +631,8 @@ export default function CreateJobRequisition() {
           </Button>
 
           {currentStep === maxStep ? (
-            <Button 
-              onClick={handleSubmit} 
+            <Button
+              onClick={handleSubmit}
               disabled={isSaving}
               className="gap-2"
               data-testid="button-submit"
@@ -553,8 +645,8 @@ export default function CreateJobRequisition() {
               {isEditMode ? "Update Requisition" : "Submit Requisition"}
             </Button>
           ) : (
-            <Button 
-              onClick={handleNext} 
+            <Button
+              onClick={handleNext}
               disabled={isSaving}
               className="gap-2"
               data-testid="button-next"
@@ -572,15 +664,18 @@ export default function CreateJobRequisition() {
           <AlertDialogHeader>
             <AlertDialogTitle>Change Work Arrangement?</AlertDialogTitle>
             <AlertDialogDescription>
-              Common data will be preserved when changing the work arrangement. Only arrangement-specific fields will be cleared.
-              Are you sure you want to change from {workArrangement} to {pendingWorkArrangement}?
+              Common data will be preserved when changing the work arrangement.
+              Only arrangement-specific fields will be cleared. Are you sure you
+              want to change from {workArrangement} to {pendingWorkArrangement}?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel onClick={() => {
-              setShowChangeDialog(false);
-              setPendingWorkArrangement(null);
-            }}>
+            <AlertDialogCancel
+              onClick={() => {
+                setShowChangeDialog(false);
+                setPendingWorkArrangement(null);
+              }}
+            >
               No, Keep Current
             </AlertDialogCancel>
             <AlertDialogAction onClick={confirmWorkArrangementChange}>
@@ -592,7 +687,10 @@ export default function CreateJobRequisition() {
 
       {/* Submission Confirmation Modal */}
       <AlertDialog open={showConfirmModal} onOpenChange={setShowConfirmModal}>
-        <AlertDialogContent className="max-w-md" data-testid="modal-confirm-submission">
+        <AlertDialogContent
+          className="max-w-md"
+          data-testid="modal-confirm-submission"
+        >
           <AlertDialogHeader>
             <AlertDialogTitle className="text-2xl font-bold">
               Are you sure?
@@ -602,14 +700,14 @@ export default function CreateJobRequisition() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex gap-3 sm:gap-3">
-            <AlertDialogCancel 
+            <AlertDialogCancel
               onClick={() => setShowConfirmModal(false)}
               className="flex-1"
               data-testid="button-cancel-submission"
             >
               Cancel
             </AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleConfirmSubmit}
               className="flex-1 bg-[#f59e0b] hover:bg-[#d97706] text-white"
               data-testid="button-confirm-submit"
@@ -630,7 +728,10 @@ export default function CreateJobRequisition() {
                 Submission Complete!
               </AlertDialogTitle>
               <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-                <p className="text-lg font-semibold text-green-800" data-testid="text-jr-number">
+                <p
+                  className="text-lg font-semibold text-green-800"
+                  data-testid="text-jr-number"
+                >
                   JR Number: {generatedJrNumber}
                 </p>
               </div>

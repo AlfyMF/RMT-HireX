@@ -1,66 +1,79 @@
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { User, Mail, Building, Shield, Key, Edit2, Save } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
+import { User, Mail, Building, Shield, AlertCircle, Loader2 } from "lucide-react";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { useUser } from "@/contexts/UserContext";
+import { format } from "date-fns";
 
+/**
+ * Profile component displays the authenticated user's profile information
+ * Data is fetched from the backend based on Azure AD email
+ */
 export default function Profile() {
-  const [isEditing, setIsEditing] = useState(false);
-  const [isChangingPassword, setIsChangingPassword] = useState(false);
-  const { toast } = useToast();
+  const { userProfile, isLoading, error } = useUser();
 
-  const [profile, setProfile] = useState({
-    firstName: "Admin",
-    lastName: "User",
-    email: "admin@hirex.com",
-    department: "Human Resources",
-    role: "Admin",
-    phone: "+1 (555) 123-4567",
-  });
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight" data-testid="text-profile-title">Profile</h1>
+          <p className="text-muted-foreground">
+            Manage your account settings and preferences
+          </p>
+        </div>
+        <Card className="p-8">
+          <div className="flex items-center justify-center py-12">
+            <div className="text-center space-y-4">
+              <Loader2 className="h-12 w-12 animate-spin text-primary mx-auto" data-testid="loader-profile" />
+              <p className="text-muted-foreground">Loading your profile...</p>
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
-  const [passwords, setPasswords] = useState({
-    current: "",
-    new: "",
-    confirm: "",
-  });
+  // Error state
+  if (error || !userProfile) {
+    return (
+      <div className="max-w-4xl mx-auto space-y-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight" data-testid="text-profile-title">Profile</h1>
+          <p className="text-muted-foreground">
+            Manage your account settings and preferences
+          </p>
+        </div>
+        <Alert variant="destructive" data-testid="alert-profile-error">
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error Loading Profile</AlertTitle>
+          <AlertDescription>
+            {error?.message || "Unable to load your profile. Please make sure you are registered in the system and try refreshing the page."}
+          </AlertDescription>
+        </Alert>
+      </div>
+    );
+  }
 
-  const handleSave = () => {
-    setIsEditing(false);
-    toast({
-      title: "Profile Updated",
-      description: "Your profile has been updated successfully.",
-    });
-  };
-
-  const handlePasswordChange = () => {
-    if (passwords.new !== passwords.confirm) {
-      toast({
-        title: "Error",
-        description: "New passwords do not match.",
-        variant: "destructive",
-      });
-      return;
+  // Get initials for avatar
+  const getInitials = (name: string | null): string => {
+    if (!name) return "U";
+    const parts = name.split(" ");
+    if (parts.length >= 2) {
+      return `${parts[0][0]}${parts[parts.length - 1][0]}`.toUpperCase();
     }
-    setIsChangingPassword(false);
-    setPasswords({ current: "", new: "", confirm: "" });
-    toast({
-      title: "Password Changed",
-      description: "Your password has been changed successfully.",
-    });
+    return name.substring(0, 2).toUpperCase();
   };
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold tracking-tight">Profile</h1>
+        <h1 className="text-3xl font-bold tracking-tight" data-testid="text-profile-title">Profile</h1>
         <p className="text-muted-foreground">
-          Manage your account settings and preferences
+          View your account information and role details
         </p>
       </div>
 
@@ -68,29 +81,25 @@ export default function Profile() {
       <Card className="p-8">
         <div className="flex items-start justify-between mb-6">
           <div className="flex items-center gap-4">
-            <Avatar className="h-20 w-20 ring-4 ring-primary/10">
+            <Avatar className="h-20 w-20 ring-4 ring-primary/10" data-testid="avatar-user">
               <AvatarFallback className="bg-primary text-primary-foreground text-2xl font-bold">
-                {profile.firstName[0]}{profile.lastName[0]}
+                {getInitials(userProfile.name)}
               </AvatarFallback>
             </Avatar>
             <div>
-              <h2 className="text-2xl font-bold">
-                {profile.firstName} {profile.lastName}
+              <h2 className="text-2xl font-bold" data-testid="text-user-name">
+                {userProfile.name || "Name not set"}
               </h2>
               <div className="flex items-center gap-2 mt-1">
-                <Badge variant="default">{profile.role}</Badge>
-                <span className="text-sm text-muted-foreground">
-                  {profile.department}
-                </span>
+                <Badge variant="default" data-testid="badge-user-role">{userProfile.role}</Badge>
+                {userProfile.department && (
+                  <span className="text-sm text-muted-foreground" data-testid="text-user-department">
+                    {userProfile.department.name}
+                  </span>
+                )}
               </div>
             </div>
           </div>
-          {!isEditing && (
-            <Button onClick={() => setIsEditing(true)} className="gap-2">
-              <Edit2 className="h-4 w-4" />
-              Edit Profile
-            </Button>
-          )}
         </div>
 
         <Separator className="my-6" />
@@ -102,173 +111,147 @@ export default function Profile() {
             Personal Information
           </h3>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* Name */}
             <div className="space-y-2">
-              <Label htmlFor="firstName">First Name</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="firstName"
-                  value={profile.firstName}
-                  onChange={(e) => setProfile({ ...profile, firstName: e.target.value })}
-                  disabled={!isEditing}
-                  className="pl-10"
-                />
+              <div className="text-sm font-medium text-muted-foreground">Full Name</div>
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4 text-muted-foreground" />
+                <div className="font-medium" data-testid="text-profile-name">
+                  {userProfile.name || "Not provided"}
+                </div>
               </div>
             </div>
 
+            {/* Email */}
             <div className="space-y-2">
-              <Label htmlFor="lastName">Last Name</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="lastName"
-                  value={profile.lastName}
-                  onChange={(e) => setProfile({ ...profile, lastName: e.target.value })}
-                  disabled={!isEditing}
-                  className="pl-10"
-                />
+              <div className="text-sm font-medium text-muted-foreground">Email Address</div>
+              <div className="flex items-center gap-2">
+                <Mail className="h-4 w-4 text-muted-foreground" />
+                <div className="font-medium" data-testid="text-profile-email">
+                  {userProfile.email}
+                </div>
               </div>
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="email"
-                  type="email"
-                  value={profile.email}
-                  onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-                  disabled={!isEditing}
-                  className="pl-10"
-                />
+            {/* Department */}
+            {userProfile.department && (
+              <div className="space-y-2">
+                <div className="text-sm font-medium text-muted-foreground">Department</div>
+                <div className="flex items-center gap-2">
+                  <Building className="h-4 w-4 text-muted-foreground" />
+                  <div className="font-medium" data-testid="text-profile-department">
+                    {userProfile.department.name}
+                  </div>
+                </div>
               </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="phone">Phone</Label>
-              <Input
-                id="phone"
-                type="tel"
-                value={profile.phone}
-                onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-                disabled={!isEditing}
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="department">Department</Label>
-              <div className="relative">
-                <Building className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="department"
-                  value={profile.department}
-                  disabled
-                  className="pl-10 bg-muted"
-                />
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="role">Role</Label>
-              <div className="relative">
-                <Shield className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <Input
-                  id="role"
-                  value={profile.role}
-                  disabled
-                  className="pl-10 bg-muted"
-                />
-              </div>
-            </div>
-          </div>
-
-          {isEditing && (
-            <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={() => setIsEditing(false)}>
-                Cancel
-              </Button>
-              <Button onClick={handleSave} className="gap-2">
-                <Save className="h-4 w-4" />
-                Save Changes
-              </Button>
-            </div>
-          )}
-        </div>
-      </Card>
-
-      {/* Security Card */}
-      <Card className="p-8">
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold flex items-center gap-2">
-              <Key className="h-5 w-5" />
-              Security
-            </h3>
-            {!isChangingPassword && (
-              <Button
-                variant="outline"
-                onClick={() => setIsChangingPassword(true)}
-              >
-                Change Password
-              </Button>
             )}
-          </div>
 
-          {isChangingPassword && (
-            <>
-              <Separator />
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  <Label htmlFor="currentPassword">Current Password</Label>
-                  <Input
-                    id="currentPassword"
-                    type="password"
-                    value={passwords.current}
-                    onChange={(e) => setPasswords({ ...passwords, current: e.target.value })}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="newPassword">New Password</Label>
-                  <Input
-                    id="newPassword"
-                    type="password"
-                    value={passwords.new}
-                    onChange={(e) => setPasswords({ ...passwords, new: e.target.value })}
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="confirmPassword">Confirm New Password</Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    value={passwords.confirm}
-                    onChange={(e) => setPasswords({ ...passwords, confirm: e.target.value })}
-                  />
-                </div>
-
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setIsChangingPassword(false);
-                      setPasswords({ current: "", new: "", confirm: "" });
-                    }}
-                  >
-                    Cancel
-                  </Button>
-                  <Button onClick={handlePasswordChange}>
-                    Update Password
-                  </Button>
+            {/* Role */}
+            <div className="space-y-2">
+              <div className="text-sm font-medium text-muted-foreground">Role</div>
+              <div className="flex items-center gap-2">
+                <Shield className="h-4 w-4 text-muted-foreground" />
+                <div className="font-medium" data-testid="text-profile-role">
+                  {userProfile.role}
                 </div>
               </div>
-            </>
-          )}
+            </div>
+          </div>
+        </div>
+
+        {/* Role Details Section */}
+        {userProfile.roleDetails && (
+          <>
+            <Separator className="my-6" />
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Shield className="h-5 w-5" />
+                Role Details
+              </h3>
+              <div className="space-y-2">
+                <div className="text-sm font-medium text-muted-foreground">Role Name</div>
+                <div className="font-medium" data-testid="text-role-name">
+                  {userProfile.roleDetails.name}
+                </div>
+              </div>
+              {userProfile.roleDetails.description && (
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-muted-foreground">Description</div>
+                  <div className="text-sm" data-testid="text-role-description">
+                    {userProfile.roleDetails.description}
+                  </div>
+                </div>
+              )}
+            </div>
+          </>
+        )}
+
+        {/* Department Details Section */}
+        {userProfile.department && (
+          <>
+            <Separator className="my-6" />
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold flex items-center gap-2">
+                <Building className="h-5 w-5" />
+                Department Details
+              </h3>
+              <div className="grid gap-4 md:grid-cols-2">
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-muted-foreground">Department Code</div>
+                  <div className="font-medium font-mono" data-testid="text-department-code">
+                    {userProfile.department.code}
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <div className="text-sm font-medium text-muted-foreground">Department Name</div>
+                  <div className="font-medium" data-testid="text-department-name">
+                    {userProfile.department.name}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </>
+        )}
+
+        {/* Account Information */}
+        <Separator className="my-6" />
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold">Account Information</h3>
+          <div className="grid gap-4 md:grid-cols-2 text-sm">
+            <div className="space-y-1">
+              <div className="text-muted-foreground">Account Created</div>
+              <div className="font-medium" data-testid="text-account-created">
+                {format(new Date(userProfile.createdAt), "PPP")}
+              </div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-muted-foreground">Last Updated</div>
+              <div className="font-medium" data-testid="text-account-updated">
+                {format(new Date(userProfile.updatedAt), "PPP")}
+              </div>
+            </div>
+            <div className="space-y-1">
+              <div className="text-muted-foreground">Account Status</div>
+              <Badge 
+                variant={userProfile.isActive ? "default" : "destructive"}
+                data-testid="badge-account-status"
+              >
+                {userProfile.isActive ? "Active" : "Inactive"}
+              </Badge>
+            </div>
+          </div>
         </div>
       </Card>
+
+      {/* Authentication Notice */}
+      <Alert data-testid="alert-auth-notice">
+        <AlertCircle className="h-4 w-4" />
+        <AlertTitle>Authentication</AlertTitle>
+        <AlertDescription>
+          Your account is managed through Microsoft Azure AD. To update your email or password, please contact your IT administrator.
+        </AlertDescription>
+      </Alert>
     </div>
   );
 }

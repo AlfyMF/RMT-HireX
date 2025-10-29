@@ -51,5 +51,6 @@ export const msalConfig: Configuration = {
 };
 
 export const loginRequest = {
-  scopes: ['User.Read', 'openid', 'profile', 'email'],
+  // scopes: ['User.Read', 'openid', 'profile', 'email'],
+  scopes: [`api://${AZURE_AD_CLIENT_ID}/access_as_user`, 'openid', 'profile', 'email'],
 };

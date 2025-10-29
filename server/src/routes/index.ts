@@ -1,16 +1,38 @@
 import { Router } from 'express';
 import { JobRequisitionController } from '../controllers/jobRequisition';
 import { MasterDataController } from '../controllers/masterData';
+import { UserController } from '../controllers/user';
 import { authenticateToken } from '../middleware/auth';
 
 const router = Router();
 
 const jrController = new JobRequisitionController();
 const masterDataController = new MasterDataController();
+const userController = new UserController();
 
 router.get('/', (req, res) => {
   res.json({ message: 'HireX API v1' });
 });
+
+/**
+ * @swagger
+ * /api/user/profile:
+ *   get:
+ *     summary: Get the current authenticated user's profile
+ *     tags: [User]
+ *     security:
+ *       - BearerAuth: []
+ *     responses:
+ *       200:
+ *         description: User profile retrieved successfully
+ *       401:
+ *         description: Unauthorized - Invalid or missing token
+ *       404:
+ *         description: User not found in database
+ *       500:
+ *         description: Internal server error
+ */
+router.get('/user/profile', authenticateToken, userController.getProfile.bind(userController));
 
 /**
  * @swagger

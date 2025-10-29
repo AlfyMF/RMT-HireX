@@ -7,6 +7,7 @@ import { MsalProvider } from '@azure/msal-react';
 import { IPublicClientApplication } from '@azure/msal-browser';
 import { AppRoutes } from "./routes";
 import { queryClient } from "./services/api";
+import { UserProvider } from "./contexts/UserContext";
 
 interface AppProps {
   msalInstance: IPublicClientApplication;
@@ -15,13 +16,15 @@ interface AppProps {
 const App = ({ msalInstance }: AppProps) => (
   <MsalProvider instance={msalInstance}>
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </TooltipProvider>
+      <UserProvider>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </TooltipProvider>
+      </UserProvider>
     </QueryClientProvider>
   </MsalProvider>
 );
