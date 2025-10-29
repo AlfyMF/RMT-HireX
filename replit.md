@@ -4,12 +4,58 @@
 HireX is a full-stack job requisition management system designed to streamline the creation, management, and tracking of job requisitions. It provides organizations with an efficient tool for their hiring processes, supporting a comprehensive multi-step workflow for job requisition creation, including draft saving, approval tracking, and detailed job specifications encompassing skills, qualifications, project specifics, and location preferences.
 
 ## Recent Changes (October 29, 2025)
-- **User Profile Management**: Implemented comprehensive user profile feature that integrates Azure AD authentication with database user records.
-  - Backend endpoint `/api/user/profile` fetches user details from database based on email from Azure AD JWT token
-  - Created `UserContext` for frontend state management with automatic profile fetching after login
-  - Updated Profile page to display real user data including name, email, department, role, and account status
-  - Added comprehensive error handling for missing tokens, user not found scenarios, and server errors
-  - Uses Prisma `findFirst` to query users by email and active status
+
+### Approval Workflow System (Latest)
+- **Database Schema**: Added 4 new tables to support approval workflow
+  - `ApprovalHistory`: Tracks complete approval chain with approver details, actions, comments, and timestamps
+  - `EmailNotification`: Logs all email notifications sent (approval requests, rejections, reminders, status updates)
+  - `JobDescription`: Auto-created subset of JobRequisition after final COO approval
+  - `AppConfiguration`: Stores system config (COO email, approval waiting period = 2 days, reminder email toggle)
+
+- **Email Integration**: Integrated Resend for transactional emails via Replit connector
+  - 6 email templates: approval request, approval notification, rejection, reminder, status change, recruiter assignment
+  - Email service with HTML templates and automatic logging to EmailNotification table
+  - Dynamic email content based on JR details and approval workflow stage
+
+- **Approval Workflow Service** (`server/src/services/approvalWorkflow.ts`):
+  - Automatic routing based on submitter role: HM → DU Head → CDO → COO or DU Head → CDO → COO
+  - Dynamic status updates: "Pending DU Head Approval" → "Pending CDO Approval" → "Pending COO Approval" → "Approved"
+  - Approval history tracking for audit trail
+  - Auto-creation of JobDescription after COO approval
+  - Auto-assignment to Recruiter Lead from department master data
+  - Rejection handling with revision workflow (status changes to "Rejected", allows submitter to revise and resubmit)
+  - Reminder email system for pending approvals exceeding 2-day threshold
+
+- **Role-Based Access Control**: Implemented granular JR filtering based on user role
+  - Hiring Manager: Only their submitted JRs
+  - DU Head: JRs from their department
+  - CDO: JRs from their departments + JRs in CDO/COO approval pipeline
+  - COO: All JRs in COO approval stage or approved
+  - Recruiter Lead/POC: Only JRs assigned to them
+  - Admin: All JRs (no filtering)
+
+- **Enhanced Authentication Middleware** (`server/src/middleware/enrichAuth.ts`):
+  - Enriches JWT token data with full user profile from database
+  - Adds userId, role, departmentId to request context for authorization
+  - Seamlessly integrates with existing Azure AD authentication
+
+- **New API Endpoints**:
+  - `POST /api/job-requisitions/:id/approve-reject`: Approve or reject JR with comments
+  - `GET /api/job-requisitions/:id/approval-history`: View complete approval chain
+  - `POST /api/job-requisitions/:id/revise`: Move rejected JR back to draft for editing
+  - `GET /api/job-requisitions/:id/can-approve`: Check if current user can approve specific JR
+
+- **Workflow Integration**:
+  - JR submission automatically triggers approval workflow
+  - Email notifications sent at each approval stage
+  - Frontend dashboard will display role-based action buttons (Approve/Reject/Revise)
+  
+### User Profile Management
+- **Backend endpoint** `/api/user/profile` fetches user details from database based on email from Azure AD JWT token
+- Created `UserContext` for frontend state management with automatic profile fetching after login
+- Updated Profile page to display real user data including name, email, department, role, and account status
+- Added comprehensive error handling for missing tokens, user not found scenarios, and server errors
+- Uses Prisma `findFirst` to query users by email and active status
 
 ## User Preferences
 Preferred communication style: Simple, everyday language.
