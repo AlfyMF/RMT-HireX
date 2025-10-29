@@ -3,6 +3,14 @@
 ## Overview
 HireX is a full-stack job requisition management system designed to streamline the creation, management, and tracking of job requisitions. It provides organizations with an efficient tool for their hiring processes, supporting a comprehensive multi-step workflow for job requisition creation, including draft saving, approval tracking, and detailed job specifications encompassing skills, qualifications, project specifics, and location preferences.
 
+## Recent Changes (October 29, 2025)
+- **User Profile Management**: Implemented comprehensive user profile feature that integrates Azure AD authentication with database user records.
+  - Backend endpoint `/api/user/profile` fetches user details from database based on email from Azure AD JWT token
+  - Created `UserContext` for frontend state management with automatic profile fetching after login
+  - Updated Profile page to display real user data including name, email, department, role, and account status
+  - Added comprehensive error handling for missing tokens, user not found scenarios, and server errors
+  - Uses Prisma `findFirst` to query users by email and active status
+
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
