@@ -3,9 +3,31 @@
 ## Overview
 HireX is a full-stack job requisition management system designed to streamline the creation, management, and tracking of job requisitions. It provides organizations with an efficient tool for their hiring processes, supporting a comprehensive multi-step workflow for job requisition creation, including draft saving, approval tracking, and detailed job specifications encompassing skills, qualifications, project specifics, and location preferences.
 
-## Recent Changes (October 29, 2025)
+## Recent Changes (October 30, 2025)
 
-### Approval Workflow System (Latest)
+### Role-Based JR Update Logic & Dashboard Improvements (Latest)
+- **Role-Based Auto-Advancement on Update**: When updating a Draft JR, the system now automatically advances status based on user role:
+  - **Hiring Manager** updates Draft → Status changes to "Pending DU Head Approval"
+  - **DU Head** updates Draft → Status changes to "Pending CDO Approval"
+  - JR ID is auto-generated when Draft transitions to any approval status
+  - Approval workflow (email notifications, approval history) automatically triggered on status change
+  
+- **Dashboard Pending Count Enhancement**: Updated pending count logic to include all statuses starting with "Pending"
+  - Previously: Only counted "Submitted", "DU Head Approved", "CDO Approved"
+  - Now: Includes "Pending DU Head Approval", "Pending CDO Approval", "Pending COO Approval", plus "Submitted"
+  - Uses dynamic `startsWith("Pending")` filter for future-proof status detection
+
+- **Improved Update Controller** (`server/src/controllers/jobRequisition.ts`):
+  - Passes user role, userId, and departmentId to service layer for role-based logic
+  - Leverages enrichAuth middleware data for seamless role detection
+
+- **Enhanced Update Service** (`server/src/services/jobRequisition.ts`):
+  - Implements role-based status auto-advancement logic
+  - Generates JR ID when transitioning from Draft to any approval status
+  - Automatically triggers approval workflow with email notifications
+  - Error handling ensures update succeeds even if email service fails
+
+### Approval Workflow System
 - **Database Schema**: Added 4 new tables to support approval workflow
   - `ApprovalHistory`: Tracks complete approval chain with approver details, actions, comments, and timestamps
   - `EmailNotification`: Logs all email notifications sent (approval requests, rejections, reminders, status updates)
