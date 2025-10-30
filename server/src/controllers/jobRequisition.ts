@@ -57,7 +57,13 @@ export class JobRequisitionController {
     try {
       const { id } = req.params;
       const validatedData = updateJobRequisitionSchema.parse(req.body);
-      const result = await service.update(id, validatedData);
+      
+      // Get user info from JWT token (set by enrichAuth middleware)
+      const userId = (req as any).user?.userId;
+      const userRole = (req as any).user?.role;
+      const userDepartmentId = (req as any).user?.departmentId;
+      
+      const result = await service.update(id, validatedData, userId, userRole, userDepartmentId);
       return res.json(successResponse(result, 'Job requisition updated successfully'));
     } catch (error: any) {
       return res.status(400).json(errorResponse(error.message));

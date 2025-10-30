@@ -249,24 +249,60 @@ export class JobRequisitionService {
     });
   }
 
-  async update(id: string, data: UpdateJobRequisitionInput) {
+  async update(
+    id: string, 
+    data: UpdateJobRequisitionInput,
+    userId?: string,
+    userRole?: string,
+    userDepartmentId?: string
+  ) {
     // Use id field (primary key) to identify and update the record
     const existingJR = await prisma.jobRequisition.findUnique({
       where: { id },
-      select: { jrStatus: true, jrId: true, departmentId: true },
+      select: { 
+        jrStatus: true, 
+        jrId: true, 
+        departmentId: true,
+        submittedBy: true 
+      },
     });
+
+    if (!existingJR) {
+      throw new Error('Job requisition not found');
+    }
 
     // Prepare the update data
     const updateData: any = { ...data };
 
-    // If transitioning to Submitted and JR ID is not yet set (null), generate formatted JR number
-    if (
-      data.jrStatus === 'Submitted' && 
-      existingJR?.jrStatus === 'Draft' &&
-      !existingJR?.jrId
-    ) {
+    // Role-based auto-advancement logic for Draft JRs
+    // Only auto-advance if the JR is currently in Draft status and user is updating it
+    if (existingJR.jrStatus === 'Draft' && userRole && userId) {
+      let autoAdvanceStatus: string | null = null;
+
+      // Hiring Manager updates Draft → Pending DU Head Approval
+      if (userRole === 'Hiring Manager') {
+        autoAdvanceStatus = 'Pending DU Head Approval';
+      } 
+      // DU Head updates Draft → Pending CDO Approval
+      else if (userRole === 'DU Head') {
+        autoAdvanceStatus = 'Pending CDO Approval';
+      }
+
+      // If we determined an auto-advance status, update it
+      if (autoAdvanceStatus) {
+        updateData.jrStatus = autoAdvanceStatus;
+      }
+    }
+
+    // Generate JR ID if transitioning from Draft to any approval status
+    const isTransitioningFromDraft = existingJR.jrStatus === 'Draft' && 
+                                      updateData.jrStatus && 
+                                      updateData.jrStatus !== 'Draft' &&
+                                      !existingJR.jrId;
+
+    if (isTransitioningFromDraft) {
       // Use departmentId from payload or fall back to existing record
-      const deptId = data.departmentId || existingJR?.departmentId;
+      const deptId = data.departmentId || existingJR.departmentId;
       if (deptId) {
         const jrId = await this.generateJrId(deptId);
         updateData.jrId = jrId;
@@ -275,7 +311,8 @@ export class JobRequisitionService {
       }
     }
 
-    return await prisma.jobRequisition.update({
+    // Update the job requisition
+    const updatedJR = await prisma.jobRequisition.update({
       where: { id },
       data: updateData,
       include: {
@@ -293,6 +330,22 @@ export class JobRequisitionService {
         submitter: true,
       },
     });
+
+    // Trigger approval workflow if status was auto-advanced
+    if (isTransitioningFromDraft && updateData.jrStatus && updateData.jrStatus !== 'Draft') {
+      // Import and trigger approval workflow
+      const { ApprovalWorkflowService } = await import('./approvalWorkflow.js');
+      const approvalService = new ApprovalWorkflowService();
+      
+      try {
+        await approvalService.initiateApprovalWorkflow(updatedJR.id);
+      } catch (error) {
+        console.error('Failed to initiate approval workflow:', error);
+        // Don't fail the update if approval workflow has issues
+      }
+    }
+
+    return updatedJR;
   }
 
   async delete(id: string) {
