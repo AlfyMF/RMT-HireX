@@ -273,7 +273,7 @@ export default function Dashboard() {
   // Calculate status counts
   const totalCount = jobRequisitions.length;
   const pendingCount = jobRequisitions.filter((r: any) => 
-    r.jrStatus === "Submitted" || r.jrStatus === "DU Head Approved" || r.jrStatus === "CDO Approved"
+    r.jrStatus?.startsWith("Pending") || r.jrStatus === "Submitted"
   ).length;
   const approvedCount = jobRequisitions.filter((r: any) => r.jrStatus === "Approved" || r.jrStatus === "COO Approved").length;
   const rejectedCount = jobRequisitions.filter((r: any) => r.jrStatus === "Rejected").length;
