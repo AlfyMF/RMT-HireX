@@ -5,7 +5,27 @@ HireX is a full-stack job requisition management system designed to streamline t
 
 ## Recent Changes (October 31, 2025)
 
-### Fixed JR Update & Revise Workflow (Latest)
+### Critical Bug Fix: submittedBy Field Population (Latest - Part 2)
+- **Root Cause Analysis**: Identified that `submittedBy` field was not being populated during JR creation/update, causing three cascading failures:
+  1. Auto-advancement logic unable to detect correct user role
+  2. Rejected JRs not visible in Dashboard (role-based filter uses `submittedBy`)
+  3. Revise button not appearing (checks `submittedBy === userProfile.id`)
+
+- **Fix Implementation**:
+  - **Create Controller** (`server/src/controllers/jobRequisition.ts`):
+    - Now extracts `userId` from enrichAuth middleware
+    - Sets `submittedBy` field automatically on JR creation if not already provided
+    - Ensures every new JR has proper submitter tracking
+  
+  - **Update Service** (`server/src/services/jobRequisition.ts`):
+    - Preserves existing `submittedBy` value during updates (never allows it to be changed)
+    - Backfills missing `submittedBy` for legacy JRs (backward compatibility)
+    - Added comprehensive debug logging to track auto-advancement decisions
+    - Logs: current status, payload status, user role, and auto-advancement outcome
+  
+  - **Role-Based Filtering**: No changes needed - existing filter logic correctly handles all statuses (including Rejected) via `submittedBy` and `hiringManagerId` fields
+
+### Fixed JR Update & Revise Workflow (Latest - Part 1)
 - **Fixed Backend Auto-Advancement Logic**: Backend now correctly respects frontend intent
   - **Save & Continue** (sends `jrStatus="Draft"`) → Status stays as "Draft" (no auto-advancement)
   - **Update/Submit Requisition** (sends `jrStatus="Submitted"`) → Status auto-advances based on role:
