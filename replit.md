@@ -3,12 +3,32 @@
 ## Overview
 HireX is a full-stack job requisition management system designed to streamline the creation, management, and tracking of job requisitions. It provides organizations with an efficient tool for their hiring processes, supporting a comprehensive multi-step workflow for job requisition creation, including draft saving, approval tracking, and detailed job specifications encompassing skills, qualifications, project specifics, and location preferences.
 
-## Recent Changes (October 30, 2025)
+## Recent Changes (October 31, 2025)
 
-### Role-Based JR Update Logic & Dashboard Improvements (Latest)
-- **Role-Based Auto-Advancement on Update**: When updating a Draft JR, the system now automatically advances status based on user role:
-  - **Hiring Manager** updates Draft → Status changes to "Pending DU Head Approval"
-  - **DU Head** updates Draft → Status changes to "Pending CDO Approval"
+### Fixed JR Update & Revise Workflow (Latest)
+- **Fixed Backend Auto-Advancement Logic**: Backend now correctly respects frontend intent
+  - **Save & Continue** (sends `jrStatus="Draft"`) → Status stays as "Draft" (no auto-advancement)
+  - **Update/Submit Requisition** (sends `jrStatus="Submitted"`) → Status auto-advances based on role:
+    - Hiring Manager → "Pending DU Head Approval"
+    - DU Head → "Pending CDO Approval"
+  - Backend only auto-advances when payload explicitly contains `jrStatus="Submitted"`
+  
+- **Revise Button for Rejected JRs**:
+  - Added functional "Revise" button on Dashboard for Rejected JRs
+  - Visible only to the JR submitter (Hiring Manager or DU Head)
+  - Clicking "Revise" calls `/api/job-requisitions/:id/revise` to move JR to Draft, then navigates to Edit form
+  - Dashboard location: Next to Approve/Reject buttons in JR card action area
+
+- **Disabled Save & Continue During Revision**:
+  - Edit form detects revision mode by checking if JR has a `jrId` but status is "Draft"
+  - "Save & Continue" button is disabled during revision with tooltip: "Save & Continue is disabled when revising a rejected JR. Please use Update Requisition to submit."
+  - Forces users to use "Update Requisition" button to resubmit after revision
+  - Ensures proper workflow: Revise → Edit → Update (no intermediate draft saves)
+
+### Role-Based JR Update Logic & Dashboard Improvements (October 30)
+- **Role-Based Auto-Advancement on Update**: When updating a Draft JR by clicking "Update Requisition", the system automatically advances status based on user role
+  - Hiring Manager updates Draft → "Pending DU Head Approval"
+  - DU Head updates Draft → "Pending CDO Approval"
   - JR ID is auto-generated when Draft transitions to any approval status
   - Approval workflow (email notifications, approval history) automatically triggered on status change
   
@@ -22,7 +42,7 @@ HireX is a full-stack job requisition management system designed to streamline t
   - Leverages enrichAuth middleware data for seamless role detection
 
 - **Enhanced Update Service** (`server/src/services/jobRequisition.ts`):
-  - Implements role-based status auto-advancement logic
+  - Implements role-based status auto-advancement logic only when `jrStatus="Submitted"` in payload
   - Generates JR ID when transitioning from Draft to any approval status
   - Automatically triggers approval workflow with email notifications
   - Error handling ensures update succeeds even if email service fails
