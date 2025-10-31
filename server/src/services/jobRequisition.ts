@@ -274,11 +274,23 @@ export class JobRequisitionService {
     // Prepare the update data
     const updateData: any = { ...data };
 
+    // Ensure submittedBy is preserved (set on creation, never changed)
+    // If it's missing in existing JR and we have userId, set it now (backward compatibility)
+    if (!existingJR.submittedBy && userId) {
+      updateData.submittedBy = userId;
+      console.log(`[JR Update] Setting missing submittedBy to userId: ${userId}`);
+    } else if (existingJR.submittedBy) {
+      // Preserve existing submittedBy, don't allow it to be changed
+      updateData.submittedBy = existingJR.submittedBy;
+    }
+
     // Role-based auto-advancement logic for Draft JRs
     // Only auto-advance if:
     // 1. JR is currently in Draft status
     // 2. User is submitting (jrStatus in payload is "Submitted")
     // 3. User has a role that can submit
+    console.log(`[JR Update] Auto-advancement check - Current Status: ${existingJR.jrStatus}, Payload Status: ${data.jrStatus}, User Role: ${userRole}`);
+    
     if (
       existingJR.jrStatus === 'Draft' && 
       data.jrStatus === 'Submitted' && 
@@ -290,16 +302,21 @@ export class JobRequisitionService {
       // Hiring Manager submits Draft → Pending DU Head Approval
       if (userRole === 'Hiring Manager') {
         autoAdvanceStatus = 'Pending DU Head Approval';
+        console.log(`[JR Update] Auto-advancing HM Draft → ${autoAdvanceStatus}`);
       } 
       // DU Head submits Draft → Pending CDO Approval
       else if (userRole === 'DU Head') {
         autoAdvanceStatus = 'Pending CDO Approval';
+        console.log(`[JR Update] Auto-advancing DU Head Draft → ${autoAdvanceStatus}`);
       }
 
       // If we determined an auto-advance status, update it
       if (autoAdvanceStatus) {
         updateData.jrStatus = autoAdvanceStatus;
+        console.log(`[JR Update] Status auto-advanced to: ${autoAdvanceStatus}`);
       }
+    } else {
+      console.log(`[JR Update] No auto-advancement - Conditions not met`);
     }
 
     // Generate JR ID if transitioning from Draft to any approval status

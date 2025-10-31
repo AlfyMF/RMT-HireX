@@ -10,6 +10,15 @@ export class JobRequisitionController {
   async create(req: Request, res: Response) {
     try {
       const validatedData = createJobRequisitionSchema.parse(req.body);
+      
+      // Get user info from JWT token (set by enrichAuth middleware)
+      const userId = (req as any).user?.userId;
+      
+      // Set submittedBy to current user if not already set
+      if (userId && !validatedData.submittedBy) {
+        validatedData.submittedBy = userId;
+      }
+      
       const result = await service.create(validatedData);
       
       // If JR is submitted (not draft), initiate approval workflow
