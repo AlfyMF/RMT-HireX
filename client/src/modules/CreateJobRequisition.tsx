@@ -81,6 +81,7 @@ export default function CreateJobRequisition() {
   const [validationErrors, setValidationErrors] = useState<JRValidationErrors>(
     {},
   );
+  const [isRevising, setIsRevising] = useState(false); // Track if revising a rejected JR
   const { toast } = useToast();
 
   // Fetch master data for transformer
@@ -112,6 +113,13 @@ export default function CreateJobRequisition() {
       setWorkArrangement(transformed.workArrangement || "Offshore");
       if (transformed.jobType) {
         setJobType(transformed.jobType.toLowerCase());
+      }
+      
+      // Check if this JR was previously Rejected (now moved to Draft for revision)
+      // The Revise button calls /revise API which moves status to Draft
+      // We detect revision by checking if jrId exists but status is Draft (means it was reverted from Rejected)
+      if (existingJR.jrId && existingJR.jrStatus === 'Draft') {
+        setIsRevising(true);
       }
     }
   }, [existingJR, isEditMode]);
@@ -618,9 +626,10 @@ export default function CreateJobRequisition() {
           <Button
             variant="outline"
             onClick={handleSaveAndContinue}
-            disabled={isSaving}
+            disabled={isSaving || isRevising}
             className="gap-2"
             data-testid="button-save-continue"
+            title={isRevising ? "Save & Continue is disabled when revising a rejected JR. Please use Update Requisition to submit." : ""}
           >
             {isSaving ? (
               <Loader2 className="h-4 w-4 animate-spin" />
