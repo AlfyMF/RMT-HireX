@@ -275,15 +275,23 @@ export class JobRequisitionService {
     const updateData: any = { ...data };
 
     // Role-based auto-advancement logic for Draft JRs
-    // Only auto-advance if the JR is currently in Draft status and user is updating it
-    if (existingJR.jrStatus === 'Draft' && userRole && userId) {
+    // Only auto-advance if:
+    // 1. JR is currently in Draft status
+    // 2. User is submitting (jrStatus in payload is "Submitted")
+    // 3. User has a role that can submit
+    if (
+      existingJR.jrStatus === 'Draft' && 
+      data.jrStatus === 'Submitted' && 
+      userRole && 
+      userId
+    ) {
       let autoAdvanceStatus: string | null = null;
 
-      // Hiring Manager updates Draft → Pending DU Head Approval
+      // Hiring Manager submits Draft → Pending DU Head Approval
       if (userRole === 'Hiring Manager') {
         autoAdvanceStatus = 'Pending DU Head Approval';
       } 
-      // DU Head updates Draft → Pending CDO Approval
+      // DU Head submits Draft → Pending CDO Approval
       else if (userRole === 'DU Head') {
         autoAdvanceStatus = 'Pending CDO Approval';
       }
