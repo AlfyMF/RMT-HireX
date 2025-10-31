@@ -46,7 +46,7 @@ import {
   ThumbsDown,
   RefreshCw
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/services/api";
 import { useUser } from "@/contexts/UserContext";
@@ -66,6 +66,7 @@ const statusOptions = ["Draft", "Submitted", "Pending DU Head Approval", "Pendin
 export default function Dashboard() {
   const { toast } = useToast();
   const { userProfile } = useUser();
+  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [departmentFilter, setDepartmentFilter] = useState<string[]>([]);
@@ -196,7 +197,13 @@ export default function Dashboard() {
   };
 
   const handleReviseClick = (jr: any) => {
-    reviseMutation.mutate(jr.id);
+    // Move JR back to Draft status, then redirect to edit form
+    reviseMutation.mutate(jr.id, {
+      onSuccess: () => {
+        // Navigate to edit form after successfully moving to Draft
+        navigate(`/create-requisition/${jr.id}`);
+      }
+    });
   };
 
   // Helper function to determine if current user can approve a JR
