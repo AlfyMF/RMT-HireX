@@ -16,5 +16,8 @@
     "build:server": "npm run build --workspace=server",
     "lint": "npm run lint --workspaces",
     "preview": "npm run preview --workspace=client"
+  },
+  "dependencies": {
+    "resend": "^6.4.0"
   }
 }
