@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery, useMutation } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -81,9 +81,16 @@ export default function Dashboard() {
   const [jrForApproval, setJrForApproval] = useState<any>(null);
   const itemsPerPage = 10;
 
-  // Fetch job requisitions
+  // Fetch job requisitions with server-side pagination and filtering
   const { data: jrsData, isLoading } = useQuery<any>({
-    queryKey: ["/job-requisitions", { page: currentPage, limit: itemsPerPage, search: searchQuery }],
+    queryKey: ["/job-requisitions", { 
+      page: currentPage, 
+      limit: itemsPerPage, 
+      search: searchQuery,
+      status: statusFilter.length > 0 ? statusFilter[0] : undefined,
+      department: departmentFilter.length > 0 ? departmentFilter[0] : undefined,
+      workArrangement: workArrangementFilter.length > 0 ? workArrangementFilter[0] : undefined,
+    }],
   });
 
   // Fetch departments for filter options
@@ -91,6 +98,18 @@ export default function Dashboard() {
 
   const jobRequisitions = jrsData?.data || [];
   const totalJRs = jrsData?.meta?.total || 0;
+  const totalPages = jrsData?.meta?.totalPages || 1;
+
+  // Fetch all JRs for stats calculation (without pagination)
+  const { data: allJrsData } = useQuery<any>({
+    queryKey: ["/job-requisitions", { page: 1, limit: 10000 }],
+  });
+  const allJobRequisitions = allJrsData?.data || [];
+
+  // Reset to page 1 when filters change
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, statusFilter, departmentFilter, workArrangementFilter, locationFilter]);
 
   // Delete mutation
   const deleteMutation = useMutation({
@@ -239,31 +258,19 @@ export default function Dashboard() {
     return jr.jrStatus === "Rejected" && jr.submittedBy === userProfile.id;
   };
 
-  // Filter requisitions client-side
+  // Client-side filtering for location only (not supported by backend yet)
   const filteredRequisitions = jobRequisitions.filter((req: any) => {
-    const matchesSearch = 
-      req.jrId?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      req.jobTitle?.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      req.department?.name?.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesStatus = statusFilter.length === 0 || statusFilter.includes(req.jrStatus);
-    const matchesDepartment = departmentFilter.length === 0 || departmentFilter.includes(req.department?.name);
-    const matchesWorkArrangement = workArrangementFilter.length === 0 || workArrangementFilter.includes(req.workArrangement);
-    
     const matchesLocation = locationFilter.length === 0 || (
       req.workArrangement === "Offshore"
         ? locationFilter.some(filter => req.workLocations?.some((loc: string) => loc.includes(filter)))
         : locationFilter.includes("Onsite")
     );
 
-    return matchesSearch && matchesStatus && matchesDepartment && matchesWorkArrangement && matchesLocation;
+    return matchesLocation;
   });
 
-  const totalPages = Math.ceil(filteredRequisitions.length / itemsPerPage);
-  const paginatedRequisitions = filteredRequisitions.slice(
-    (currentPage - 1) * itemsPerPage,
-    currentPage * itemsPerPage
-  );
+  // Use filtered requisitions directly (server handles most filtering)
+  const paginatedRequisitions = filteredRequisitions;
 
   const clearFilters = () => {
     setSearchQuery("");
@@ -277,14 +284,14 @@ export default function Dashboard() {
   const hasActiveFilters = searchQuery || statusFilter.length > 0 || departmentFilter.length > 0 || 
     workArrangementFilter.length > 0 || locationFilter.length > 0;
 
-  // Calculate status counts
-  const totalCount = jobRequisitions.length;
-  const pendingCount = jobRequisitions.filter((r: any) => 
+  // Calculate status counts from all JRs (not just current page)
+  const totalCount = allJobRequisitions.length;
+  const pendingCount = allJobRequisitions.filter((r: any) => 
     r.jrStatus?.startsWith("Pending") || r.jrStatus === "Submitted"
   ).length;
-  const approvedCount = jobRequisitions.filter((r: any) => r.jrStatus === "Approved" || r.jrStatus === "COO Approved").length;
-  const rejectedCount = jobRequisitions.filter((r: any) => r.jrStatus === "Rejected").length;
-  const draftCount = jobRequisitions.filter((r: any) => r.jrStatus === "Draft").length;
+  const approvedCount = allJobRequisitions.filter((r: any) => r.jrStatus === "Approved" || r.jrStatus === "COO Approved").length;
+  const rejectedCount = allJobRequisitions.filter((r: any) => r.jrStatus === "Rejected").length;
+  const draftCount = allJobRequisitions.filter((r: any) => r.jrStatus === "Draft").length;
 
   const stats = [
     {
@@ -319,12 +326,12 @@ export default function Dashboard() {
     },
   ];
 
-  // Dynamic filter options based on actual JR data
-  const statusOptions = Array.from(new Set(jobRequisitions.map((r: any) => r.jrStatus).filter(Boolean))) as string[];
-  const departmentOptions = Array.from(new Set(jobRequisitions.map((r: any) => r.department?.name).filter(Boolean))) as string[];
-  const workArrangementOptions = Array.from(new Set(jobRequisitions.map((r: any) => r.workArrangement).filter(Boolean))) as string[];
+  // Dynamic filter options based on all JR data (not just current page)
+  const statusOptionsFromData = Array.from(new Set(allJobRequisitions.map((r: any) => r.jrStatus).filter(Boolean))) as string[];
+  const departmentOptions = Array.from(new Set(allJobRequisitions.map((r: any) => r.department?.name).filter(Boolean))) as string[];
+  const workArrangementOptions = Array.from(new Set(allJobRequisitions.map((r: any) => r.workArrangement).filter(Boolean))) as string[];
   const locationOptions = Array.from(new Set(
-    jobRequisitions.flatMap((r: any) => {
+    allJobRequisitions.flatMap((r: any) => {
       if (r.workArrangement === "Offshore") {
         return r.workLocations || [];
       } else {
@@ -698,16 +705,18 @@ export default function Dashboard() {
               variant="outline"
               onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
               disabled={currentPage === 1}
+              data-testid="button-previous-page"
             >
               Previous
             </Button>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-muted-foreground" data-testid="text-page-info">
               Page {currentPage} of {totalPages}
             </span>
             <Button
               variant="outline"
               onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
               disabled={currentPage === totalPages}
+              data-testid="button-next-page"
             >
               Next
             </Button>
