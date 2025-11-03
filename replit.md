@@ -5,7 +5,24 @@ HireX is a full-stack job requisition management system designed to streamline t
 
 ## Recent Changes (November 3, 2025)
 
-### Role-Based Access Control for JR Creation (Latest)
+### Dashboard Pagination & Hiring Manager Status Fix (Latest)
+- **Server-Side Pagination**: Implemented proper server-side pagination for Dashboard
+  - Shows 10 Job Requisitions per page with Next/Previous buttons
+  - Page navigation with "Page X of Y" indicator
+  - Automatically resets to page 1 when filters change
+  - All filters (search, status, department, work arrangement) passed to backend
+  - Stats calculation uses all JRs, not just current page
+  - Added data-testid attributes for pagination controls
+
+- **Fixed Approval Workflow Bug**: Corrected status advancement for Hiring Managers
+  - **Root Cause**: Approval workflow was checking `hiringManagerId` field instead of `submittedBy` field to determine submitter role
+  - **Fix**: Updated `approvalWorkflow.ts` to check actual submitter's role (via `submittedBy`)
+  - **Result**: 
+    - Hiring Manager submits Draft → "Pending DU Head Approval" ✓
+    - DU Head submits Draft → "Pending CDO Approval" ✓
+  - Works correctly with both create and update flows
+
+### Role-Based Access Control for JR Creation (November 3)
 - **UI-Level Restriction**: Implemented role-based conditional rendering to restrict JR creation to Hiring Managers and DU Heads only
   - **Dashboard** (`client/src/modules/Dashboard.tsx`):
     - "Create New Requisition" button now only visible to Hiring Manager and DU Head roles
