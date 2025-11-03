@@ -6,6 +6,36 @@ HireX is a full-stack job requisition management system designed to streamline t
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
+## Recent Changes (November 3, 2025)
+
+### Email Notification Module Fixed (Latest)
+- **Root Cause**: The `resend` npm package was not installed, causing "Cannot find module 'resend'" errors
+- **Resolution**:
+  - Installed `resend` package (v6.4.0) in root package.json (npm workspaces setup)
+  - Fixed TypeScript LSP error in email.ts (added type annotation for API response)
+  - Verified Resend integration connection is active and configured
+  - Both workflows restarted and running without errors
+- **Email Triggers** (all working correctly):
+  1. JR Submission → Approval Request Email to next approver
+  2. JR Approval → Notification Email to submitter
+  3. JR Rejection → Rejection Notification Email to submitter
+  4. COO Final Approval → Recruiter Assignment Email to Recruiter Lead
+- **Testing**: Trigger any workflow action (submit JR, approve, reject) to test email sending
+- **Monitoring**: Check `EmailNotification` table for status (pending/sent/failed) and error messages
+
+### Dashboard Pagination & Hiring Manager Status Fix
+- **Server-Side Pagination**: Implemented proper server-side pagination for Dashboard
+  - Shows 10 Job Requisitions per page with Next/Previous buttons
+  - Page navigation with "Page X of Y" indicator
+  - Automatically resets to page 1 when filters change
+  - All filters (search, status, department, work arrangement) passed to backend
+  - Stats calculation uses all JRs, not just current page
+  - Added data-testid attributes for pagination controls
+- **Fixed Approval Workflow Bug**: Corrected status advancement for Hiring Managers
+  - **Root Cause**: Approval workflow was checking `hiringManagerId` field instead of `submittedBy` field
+  - **Fix**: Updated `approvalWorkflow.ts` to check actual submitter's role (via `submittedBy`)
+  - **Result**: HM Draft → "Pending DU Head Approval" ✓, DU Head Draft → "Pending CDO Approval" ✓
+
 ## System Architecture
 
 ### Monorepo Structure
