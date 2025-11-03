@@ -3,9 +3,25 @@
 ## Overview
 HireX is a full-stack job requisition management system designed to streamline the creation, management, and tracking of job requisitions. It provides organizations with an efficient tool for their hiring processes, supporting a comprehensive multi-step workflow for job requisition creation, including draft saving, approval tracking, and detailed job specifications encompassing skills, qualifications, project specifics, and location preferences.
 
-## Recent Changes (October 31, 2025)
+## Recent Changes (November 3, 2025)
 
-### Critical Bug Fix: submittedBy Field Population (Latest - Part 2)
+### Role-Based Access Control for JR Creation (Latest)
+- **UI-Level Restriction**: Implemented role-based conditional rendering to restrict JR creation to Hiring Managers and DU Heads only
+  - **Dashboard** (`client/src/modules/Dashboard.tsx`):
+    - "Create New Requisition" button now only visible to Hiring Manager and DU Head roles
+    - Other roles (CDO, COO, Recruiter Lead, Recruiter POC, Admin) cannot see the button
+  
+  - **Navigation Menu** (`client/src/components/Layout.tsx`):
+    - "Create Job Requisition" menu item filtered out for non-authorized roles
+    - Applied to both desktop and mobile navigation menus
+    - Uses UserContext to check user role from database profile
+  
+  - **Implementation Details**:
+    - Added `canCreateJR` check: `userProfile?.role === 'Hiring Manager' || userProfile?.role === 'DU Head'`
+    - Conditional rendering with `{canCreateJR && <CreateButton />}` pattern
+    - Mobile menu automatically inherits filtering from shared navigation array
+
+### Critical Bug Fix: submittedBy Field Population (October 31)
 - **Root Cause Analysis**: Identified that `submittedBy` field was not being populated during JR creation/update, causing three cascading failures:
   1. Auto-advancement logic unable to detect correct user role
   2. Rejected JRs not visible in Dashboard (role-based filter uses `submittedBy`)
