@@ -33,14 +33,14 @@ export class ApprovalWorkflowService {
       throw new Error('Department not found');
     }
 
-    const hiringManager = await prisma.user.findUnique({
-      where: { id: jr.hiringManagerId }
+    const submitter = await prisma.user.findUnique({
+      where: { id: jr.submittedBy }
     });
 
     const config = await getAppConfig();
 
-    // Determine submitter type
-    const isSubmitterDUHead = hiringManager?.role === 'DU Head';
+    // Determine submitter type based on who actually submitted the JR
+    const isSubmitterDUHead = submitter?.role === 'DU Head';
 
     switch (jr.jrStatus) {
       case 'Draft':
