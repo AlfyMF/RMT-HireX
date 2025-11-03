@@ -461,7 +461,7 @@ export default function Dashboard() {
           <h2 className="text-xl font-semibold">
             Job Requisitions 
             <span className="text-muted-foreground text-base ml-2">
-              ({filteredRequisitions.length} {filteredRequisitions.length === 1 ? 'result' : 'results'})
+              ({filteredRequisitions.length})
             </span>
           </h2>
         </div>
