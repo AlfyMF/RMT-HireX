@@ -344,6 +344,9 @@ export default function Dashboard() {
     );
   }
 
+  // Check if user can create JRs (only Hiring Manager and DU Head)
+  const canCreateJR = userProfile?.role === 'Hiring Manager' || userProfile?.role === 'DU Head';
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -354,12 +357,14 @@ export default function Dashboard() {
             Manage and track all job requisitions
           </p>
         </div>
-        <Link to="/create-jr">
-          <Button className="gap-2" data-testid="button-create-jr">
-            <Plus className="h-4 w-4" />
-            Create New Requisition
-          </Button>
-        </Link>
+        {canCreateJR && (
+          <Link to="/create-jr">
+            <Button className="gap-2" data-testid="button-create-jr">
+              <Plus className="h-4 w-4" />
+              Create New Requisition
+            </Button>
+          </Link>
+        )}
       </div>
 
       {/* Stats */}

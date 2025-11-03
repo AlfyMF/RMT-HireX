@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { LayoutDashboard, FileText, User, Menu, X, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useMsal } from "@azure/msal-react";
+import { useUser } from "@/contexts/UserContext";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +22,7 @@ export default function Layout({ children }: LayoutProps) {
   const location = useLocation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { instance, accounts } = useMsal();
+  const { userProfile } = useUser();
 
   const isActive = (path: string) => location.pathname === path;
 
@@ -48,11 +50,19 @@ export default function Layout({ children }: LayoutProps) {
       .toUpperCase()
       .substring(0, 2) || "U";
 
-  const navigation = [
+  // Check if user can create JRs (only Hiring Manager and DU Head)
+  const canCreateJR = userProfile?.role === 'Hiring Manager' || userProfile?.role === 'DU Head';
+
+  const allNavigation = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-    { name: "Create Job Requisition", path: "/create-jr", icon: FileText },
+    { name: "Create Job Requisition", path: "/create-jr", icon: FileText, requiresCreatePermission: true },
     { name: "Profile", path: "/profile", icon: User },
   ];
+
+  // Filter navigation based on user permissions
+  const navigation = allNavigation.filter(item => 
+    !item.requiresCreatePermission || canCreateJR
+  );
 
   return (
     <div className="min-h-screen bg-background">
