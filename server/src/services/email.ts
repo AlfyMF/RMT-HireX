@@ -62,6 +62,10 @@ export class EmailService {
     try {
       const { client, fromEmail } = await getResendClient();
 
+      console.log(`📧 Attempting to send email to: ${emailData.recipientEmail}`);
+      console.log(`📧 From: ${fromEmail}`);
+      console.log(`📧 Subject: ${emailData.subject}`);
+
       // Create email notification record
       const notification = await prisma.emailNotification.create({
         data: {
@@ -83,6 +87,9 @@ export class EmailService {
         html: emailData.body
       });
 
+      console.log(`✅ Email sent successfully via Resend API`);
+      console.log(`📧 Resend Response:`, JSON.stringify(response, null, 2));
+
       // Update notification status
       await prisma.emailNotification.update({
         where: { id: notification.id },
@@ -94,7 +101,13 @@ export class EmailService {
 
       return true;
     } catch (error: any) {
-      console.error('Failed to send email:', error);
+      console.error('❌ Failed to send email:', error);
+      console.error('Error details:', {
+        message: error.message,
+        name: error.name,
+        statusCode: error.statusCode,
+        cause: error.cause
+      });
       
       // Log error
       await prisma.emailNotification.updateMany({

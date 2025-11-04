@@ -8,20 +8,30 @@ Preferred communication style: Simple, everyday language.
 
 ## Recent Changes (November 3, 2025)
 
-### Email Notification Module Fixed (Latest)
-- **Root Cause**: The `resend` npm package was not installed, causing "Cannot find module 'resend'" errors
-- **Resolution**:
-  - Installed `resend` package (v6.4.0) in root package.json (npm workspaces setup)
-  - Fixed TypeScript LSP error in email.ts (added type annotation for API response)
-  - Verified Resend integration connection is active and configured
-  - Both workflows restarted and running without errors
-- **Email Triggers** (all working correctly):
+### Email Notification Module - Delivery Issue Diagnosed (Latest)
+- **Status**: Email triggering logic works correctly, but emails are not being delivered to recipients
+- **Root Cause Identified**: Domain verification issue with Resend
+  - Resend API accepts email send requests (marks as "sent" in database)
+  - However, emails are **not delivered** because the sender domain hasn't been verified
+  - Resend requires DNS configuration (SPF, DKIM, DMARC) for custom domains
+- **Current Setup**:
+  - Installed `resend` package (v6.4.0) in root package.json
+  - Resend integration connection active (conn_resend_01K8R4DNYY5R5QJSYAHBB2FD0Z)
+  - Enhanced logging added to email.ts for debugging
+  - Both workflows running without errors
+- **Email Triggers** (all implemented correctly):
   1. JR Submission → Approval Request Email to next approver
   2. JR Approval → Notification Email to submitter
   3. JR Rejection → Rejection Notification Email to submitter
   4. COO Final Approval → Recruiter Assignment Email to Recruiter Lead
-- **Testing**: Trigger any workflow action (submit JR, approve, reject) to test email sending
-- **Monitoring**: Check `EmailNotification` table for status (pending/sent/failed) and error messages
+- **Solution Required**: See `EMAIL_DELIVERY_GUIDE.md` for detailed fix instructions
+  - **Quick Fix (Development)**: Change `from_email` in Resend connection to `onboarding@resend.dev`
+  - **Production Fix**: Verify your custom domain at https://resend.com/domains and configure DNS records
+- **Testing**: After applying fix, create a test JR and check backend logs for email confirmation
+- **Monitoring**: 
+  - Check `EmailNotification` table for status (pending/sent/failed) and error messages
+  - Review backend logs for detailed email send information (📧 emojis)
+  - Check Resend dashboard at https://resend.com/emails for delivery status
 
 ### Dashboard Pagination & Hiring Manager Status Fix
 - **Server-Side Pagination**: Implemented proper server-side pagination for Dashboard
