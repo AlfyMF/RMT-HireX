@@ -6,32 +6,31 @@ HireX is a full-stack job requisition management system designed to streamline t
 ## User Preferences
 Preferred communication style: Simple, everyday language.
 
-## Recent Changes (November 3, 2025)
+## Recent Changes (November 4, 2025)
 
-### Email Notification Module - Delivery Issue Diagnosed (Latest)
-- **Status**: Email triggering logic works correctly, but emails are not being delivered to recipients
-- **Root Cause Identified**: Domain verification issue with Resend
-  - Resend API accepts email send requests (marks as "sent" in database)
-  - However, emails are **not delivered** because the sender domain hasn't been verified
-  - Resend requires DNS configuration (SPF, DKIM, DMARC) for custom domains
-- **Current Setup**:
-  - Installed `resend` package (v6.4.0) in root package.json
-  - Resend integration connection active (conn_resend_01K8R4DNYY5R5QJSYAHBB2FD0Z)
-  - Enhanced logging added to email.ts for debugging
-  - Both workflows running without errors
-- **Email Triggers** (all implemented correctly):
+### Email System Migration to Office 365 SMTP (Latest)
+- **Status**: Successfully migrated from Resend to Office 365 SMTP using nodemailer
+- **Changes Made**:
+  - Completely removed Resend package and dependencies
+  - Refactored `server/src/services/email.ts` to use nodemailer with Office 365 SMTP
+  - Configured SMTP credentials via Replit Secrets (SMTP_SERVER, SMTP_PORT, SMTP_USERNAME, SMTP_PASSWORD)
+  - Both workflows running successfully with new email configuration
+- **Email Configuration**:
+  - SMTP Server: Office 365 SMTP (smtp.office365.com)
+  - Port: 587 (TLS)
+  - Authentication: Secure credentials stored in Replit Secrets
+  - From Email: Uses company email address (internalsystems@experionglobal.com or campusportal.automation@experionglobal.com)
+- **Email Triggers** (all implemented and tested):
   1. JR Submission → Approval Request Email to next approver
   2. JR Approval → Notification Email to submitter
   3. JR Rejection → Rejection Notification Email to submitter
   4. COO Final Approval → Recruiter Assignment Email to Recruiter Lead
-- **Solution Required**: See `EMAIL_DELIVERY_GUIDE.md` for detailed fix instructions
-  - **Quick Fix (Development)**: Change `from_email` in Resend connection to `onboarding@resend.dev`
-  - **Production Fix**: Verify your custom domain at https://resend.com/domains and configure DNS records
-- **Testing**: After applying fix, create a test JR and check backend logs for email confirmation
+  5. Pending Approval Reminder → Reminder Email to approver
+  6. Status Change Notification → Notification Email to submitter
 - **Monitoring**: 
   - Check `EmailNotification` table for status (pending/sent/failed) and error messages
   - Review backend logs for detailed email send information (📧 emojis)
-  - Check Resend dashboard at https://resend.com/emails for delivery status
+  - nodemailer provides detailed error logging for SMTP issues
 
 ### Dashboard Pagination & Hiring Manager Status Fix
 - **Server-Side Pagination**: Implemented proper server-side pagination for Dashboard
@@ -106,7 +105,7 @@ ESLint ensures code quality, while Vite and SWC handle efficient client-side bun
 - **React Hook Form**: Form management.
 - **jsonwebtoken**: For JWT validation.
 - **jwks-rsa**: For retrieving RSA public keys from a JWKS endpoint.
-- **Resend**: Integrated for transactional email sending via Replit connector, supporting 6 email templates and logging.
+- **nodemailer**: Office 365 SMTP email sending, supporting 6 email templates with comprehensive error logging.
 
 ### Backend Dependencies
 - **Express.js**: Web application framework.
