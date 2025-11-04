@@ -18,6 +18,8 @@
     "preview": "npm run preview --workspace=client"
   },
   "dependencies": {
+    "@types/nodemailer": "^7.0.3",
+    "nodemailer": "^7.0.10",
     "resend": "^6.4.0"
   }
 }
