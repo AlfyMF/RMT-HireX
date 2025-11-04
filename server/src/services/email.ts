@@ -87,7 +87,7 @@ export class EmailService {
 
       return true;
     } catch (error: any) {
-      console.error('❌ Failed to send email:', error);
+      console.error('❌ Failed to send email: updated', error);
       console.error('Error details:', {
         message: error.message,
         name: error.name,
