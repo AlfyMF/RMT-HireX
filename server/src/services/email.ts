@@ -22,7 +22,7 @@ function createSMTPTransporter() {
       pass: smtpPassword
     },
     tls: {
-      ciphers: 'SSLv3',
+      minVersion: 'TLSv1.2',
       rejectUnauthorized: true
     }
   });
