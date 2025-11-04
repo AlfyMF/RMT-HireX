@@ -52,6 +52,10 @@ args = "cd server && bash start.sh"
 waitForPort = 3001
 
 [[ports]]
+localPort = 587
+externalPort = 4200
+
+[[ports]]
 localPort = 3001
 externalPort = 3001
 
