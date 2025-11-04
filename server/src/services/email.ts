@@ -1,48 +1,31 @@
 import { PrismaClient } from '@prisma/client';
+import nodemailer from 'nodemailer';
 
 const prisma = new PrismaClient();
 
-// Resend client setup
-let connectionSettings: any;
+function createSMTPTransporter() {
+  const smtpServer = process.env.SMTP_SERVER;
+  const smtpPort = parseInt(process.env.SMTP_PORT || '587');
+  const smtpUsername = process.env.SMTP_USERNAME;
+  const smtpPassword = process.env.SMTP_PASSWORD;
 
-async function getCredentials() {
-  const hostname = process.env.REPLIT_CONNECTORS_HOSTNAME;
-  const xReplitToken = process.env.REPL_IDENTITY
-    ? 'repl ' + process.env.REPL_IDENTITY
-    : process.env.WEB_REPL_RENEWAL
-    ? 'depl ' + process.env.WEB_REPL_RENEWAL
-    : null;
-
-  if (!xReplitToken) {
-    throw new Error('X_REPLIT_TOKEN not found for repl/depl');
+  if (!smtpServer || !smtpUsername || !smtpPassword) {
+    throw new Error('SMTP configuration missing. Please ensure SMTP_SERVER, SMTP_USERNAME, and SMTP_PASSWORD are set in environment variables.');
   }
 
-  connectionSettings = await fetch(
-    'https://' + hostname + '/api/v2/connection?include_secrets=true&connector_names=resend',
-    {
-      headers: {
-        'Accept': 'application/json',
-        'X_REPLIT_TOKEN': xReplitToken
-      }
+  return nodemailer.createTransport({
+    host: smtpServer,
+    port: smtpPort,
+    secure: smtpPort === 465,
+    auth: {
+      user: smtpUsername,
+      pass: smtpPassword
+    },
+    tls: {
+      ciphers: 'SSLv3',
+      rejectUnauthorized: true
     }
-  ).then(res => res.json()).then((data: any) => data.items?.[0]);
-
-  if (!connectionSettings || (!connectionSettings.settings.api_key)) {
-    throw new Error('Resend not connected');
-  }
-  return {
-    apiKey: connectionSettings.settings.api_key,
-    fromEmail: connectionSettings.settings.from_email
-  };
-}
-
-async function getResendClient() {
-  const { apiKey, fromEmail } = await getCredentials();
-  const { Resend } = await import('resend');
-  return {
-    client: new Resend(apiKey),
-    fromEmail
-  };
+  });
 }
 
 export interface EmailData {
@@ -56,18 +39,20 @@ export interface EmailData {
 
 export class EmailService {
   /**
-   * Send email using Resend
+   * Send email using Office 365 SMTP
    */
   async sendEmail(emailData: EmailData): Promise<boolean> {
+    let notification;
+    
     try {
-      const { client, fromEmail } = await getResendClient();
+      const transporter = createSMTPTransporter();
+      const fromEmail = process.env.SMTP_USERNAME!;
 
       console.log(`📧 Attempting to send email to: ${emailData.recipientEmail}`);
       console.log(`📧 From: ${fromEmail}`);
       console.log(`📧 Subject: ${emailData.subject}`);
 
-      // Create email notification record
-      const notification = await prisma.emailNotification.create({
+      notification = await prisma.emailNotification.create({
         data: {
           recipientEmail: emailData.recipientEmail,
           recipientName: emailData.recipientName,
@@ -79,18 +64,19 @@ export class EmailService {
         }
       });
 
-      // Send email via Resend
-      const response = await client.emails.send({
+      const mailOptions = {
         from: fromEmail,
         to: emailData.recipientEmail,
         subject: emailData.subject,
         html: emailData.body
-      });
+      };
 
-      console.log(`✅ Email sent successfully via Resend API`);
-      console.log(`📧 Resend Response:`, JSON.stringify(response, null, 2));
+      const info = await transporter.sendMail(mailOptions);
 
-      // Update notification status
+      console.log(`✅ Email sent successfully via Office 365 SMTP`);
+      console.log(`📧 Message ID: ${info.messageId}`);
+      console.log(`📧 Response: ${info.response}`);
+
       await prisma.emailNotification.update({
         where: { id: notification.id },
         data: {
@@ -105,22 +91,19 @@ export class EmailService {
       console.error('Error details:', {
         message: error.message,
         name: error.name,
-        statusCode: error.statusCode,
-        cause: error.cause
+        code: error.code,
+        command: error.command
       });
       
-      // Log error
-      await prisma.emailNotification.updateMany({
-        where: {
-          recipientEmail: emailData.recipientEmail,
-          emailType: emailData.emailType,
-          status: 'pending'
-        },
-        data: {
-          status: 'failed',
-          error: error.message
-        }
-      });
+      if (notification) {
+        await prisma.emailNotification.update({
+          where: { id: notification.id },
+          data: {
+            status: 'failed',
+            error: error.message
+          }
+        });
+      }
 
       return false;
     }
