@@ -1,31 +1,60 @@
-import { PrismaClient } from '@prisma/client';
-import nodemailer from 'nodemailer';
+import { PrismaClient } from "@prisma/client";
+import nodemailer from "nodemailer";
 
 const prisma = new PrismaClient();
 
 function createSMTPTransporter() {
   const smtpServer = process.env.SMTP_SERVER;
-  const smtpPort = parseInt(process.env.SMTP_PORT || '587');
+  const smtpPort = parseInt(process.env.SMTP_PORT || "587");
   const smtpUsername = process.env.SMTP_USERNAME;
   const smtpPassword = process.env.SMTP_PASSWORD;
 
   if (!smtpServer || !smtpUsername || !smtpPassword) {
-    throw new Error('SMTP configuration missing. Please ensure SMTP_SERVER, SMTP_USERNAME, and SMTP_PASSWORD are set in environment variables.');
+    throw new Error(
+      "SMTP configuration missing. Please ensure SMTP_SERVER, SMTP_USERNAME, and SMTP_PASSWORD are set in environment variables.",
+    );
   }
 
-  return nodemailer.createTransport({
+  // return nodemailer.createTransport({
+  //   host: smtpServer,
+  //   port: smtpPort,
+  //   // secure: smtpPort === 465,
+  //   secure: false,
+  //   auth: {
+  //     user: smtpUsername,
+  //     pass: smtpPassword
+  //   },
+  //   tls: {
+  //     minVersion: 'TLSv1.2',
+  //     rejectUnauthorized: true
+  //   }
+  // });
+
+  const transporter = nodemailer.createTransport({
     host: smtpServer,
     port: smtpPort,
-    secure: smtpPort === 465,
+    secure: false, // use STARTTLS, not SSL
     auth: {
       user: smtpUsername,
-      pass: smtpPassword
+      pass: smtpPassword,
     },
     tls: {
-      minVersion: 'TLSv1.2',
-      rejectUnauthorized: true
+      // minVersion: "TLSv1.2",
+      ciphers: "SSLv3",
+      rejectUnauthorized: false,
+    },
+  });
+  console.log("Inside createSMTPTransporter");
+  // 🔍 Add this block to verify the SMTP connection
+  transporter.verify((error) => {
+    if (error) {
+      console.error("❌ SMTP connection error:", error);
+    } else {
+      console.log("✅ SMTP connection successful!");
     }
   });
+
+  return transporter;
 }
 
 export interface EmailData {
@@ -43,12 +72,14 @@ export class EmailService {
    */
   async sendEmail(emailData: EmailData): Promise<boolean> {
     let notification;
-    
+
     try {
       const transporter = createSMTPTransporter();
       const fromEmail = process.env.SMTP_USERNAME!;
 
-      console.log(`📧 Attempting to send email to: ${emailData.recipientEmail}`);
+      console.log(
+        `📧 Attempting to send email to: ${emailData.recipientEmail}`,
+      );
       console.log(`📧 From: ${fromEmail}`);
       console.log(`📧 Subject: ${emailData.subject}`);
 
@@ -60,15 +91,15 @@ export class EmailService {
           subject: emailData.subject,
           body: emailData.body,
           jrId: emailData.jrId,
-          status: 'pending'
-        }
+          status: "pending",
+        },
       });
 
       const mailOptions = {
         from: fromEmail,
         to: emailData.recipientEmail,
         subject: emailData.subject,
-        html: emailData.body
+        html: emailData.body,
       };
 
       const info = await transporter.sendMail(mailOptions);
@@ -80,28 +111,28 @@ export class EmailService {
       await prisma.emailNotification.update({
         where: { id: notification.id },
         data: {
-          status: 'sent',
-          sentAt: new Date()
-        }
+          status: "sent",
+          sentAt: new Date(),
+        },
       });
 
       return true;
     } catch (error: any) {
-      console.error('❌ Failed to send email: updated', error);
-      console.error('Error details:', {
+      console.error("❌ Failed to send email: updated", error);
+      console.error("Error details:", {
         message: error.message,
         name: error.name,
         code: error.code,
-        command: error.command
+        command: error.command,
       });
-      
+
       if (notification) {
         await prisma.emailNotification.update({
           where: { id: notification.id },
           data: {
-            status: 'failed',
-            error: error.message
-          }
+            status: "failed",
+            error: error.message,
+          },
         });
       }
 
@@ -122,10 +153,12 @@ export class EmailService {
       location: string;
       experience: string;
       mandatorySkills: string;
-    }
+    },
   ): Promise<boolean> {
-    const portalLink = process.env.REPLIT_DOMAINS?.split(',')[0] || 'https://your-portal-url.com';
-    
+    const portalLink =
+      process.env.REPLIT_DOMAINS?.split(",")[0] ||
+      "https://your-portal-url.com";
+
     const subject = `[Action Required] Approval Needed for JR: ${jrDetails.jrId}`;
     const body = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
@@ -155,10 +188,10 @@ export class EmailService {
     return this.sendEmail({
       recipientEmail: approverEmail,
       recipientName: approverName,
-      emailType: 'approval_request',
+      emailType: "approval_request",
       subject,
       body,
-      jrId: jrDetails.jrId
+      jrId: jrDetails.jrId,
     });
   }
 
@@ -171,7 +204,7 @@ export class EmailService {
     jrId: string,
     approverName: string,
     approverRole: string,
-    remarks?: string
+    remarks?: string,
   ): Promise<boolean> {
     const subject = `JR ${jrId} – Approved by ${approverName}`;
     const body = `
@@ -182,7 +215,7 @@ export class EmailService {
         <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <p><strong>JR ID:</strong> ${jrId}</p>
           <p><strong>Approved By:</strong> ${approverName} (${approverRole})</p>
-          ${remarks ? `<p><strong>Remarks:</strong> ${remarks}</p>` : ''}
+          ${remarks ? `<p><strong>Remarks:</strong> ${remarks}</p>` : ""}
         </div>
         
         <p>You may proceed to the next step.</p>
@@ -195,10 +228,10 @@ export class EmailService {
     return this.sendEmail({
       recipientEmail: submitterEmail,
       recipientName: submitterName,
-      emailType: 'approval_notification',
+      emailType: "approval_notification",
       subject,
       body,
-      jrId
+      jrId,
     });
   }
 
@@ -210,7 +243,7 @@ export class EmailService {
     submitterName: string,
     jrId: string,
     approverName: string,
-    remarks: string
+    remarks: string,
   ): Promise<boolean> {
     const subject = `JR ${jrId} – Rejected by ${approverName}`;
     const body = `
@@ -232,10 +265,10 @@ export class EmailService {
     return this.sendEmail({
       recipientEmail: submitterEmail,
       recipientName: submitterName,
-      emailType: 'rejection_notification',
+      emailType: "rejection_notification",
       subject,
       body,
-      jrId
+      jrId,
     });
   }
 
@@ -246,15 +279,15 @@ export class EmailService {
     approverEmail: string,
     approverName: string,
     jrId: string,
-    assignedDate: Date
+    assignedDate: Date,
   ): Promise<boolean> {
     const subject = `Reminder: JR ${jrId} Still Awaits Your Review`;
-    const formattedDate = assignedDate.toLocaleDateString('en-US', { 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
+    const formattedDate = assignedDate.toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
     });
-    
+
     const body = `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
         <h2 style="color: #333;">Hi ${approverName},</h2>
@@ -274,10 +307,10 @@ export class EmailService {
     return this.sendEmail({
       recipientEmail: approverEmail,
       recipientName: approverName,
-      emailType: 'pending_reminder',
+      emailType: "pending_reminder",
       subject,
       body,
-      jrId
+      jrId,
     });
   }
 
@@ -288,7 +321,7 @@ export class EmailService {
     submitterEmail: string,
     submitterName: string,
     jrId: string,
-    newStatus: string
+    newStatus: string,
   ): Promise<boolean> {
     const subject = `JR ${jrId} – Status Changed: ${newStatus}`;
     const body = `
@@ -299,7 +332,7 @@ export class EmailService {
         <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
           <p><strong>JR ID:</strong> ${jrId}</p>
           <p><strong>New Status:</strong> ${newStatus}</p>
-          <p><strong>Date:</strong> ${new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
+          <p><strong>Date:</strong> ${new Date().toLocaleDateString("en-US", { year: "numeric", month: "long", day: "numeric" })}</p>
         </div>
         
         <p>View details in the system.</p>
@@ -311,10 +344,10 @@ export class EmailService {
     return this.sendEmail({
       recipientEmail: submitterEmail,
       recipientName: submitterName,
-      emailType: 'status_change',
+      emailType: "status_change",
       subject,
       body,
-      jrId
+      jrId,
     });
   }
 
@@ -326,7 +359,7 @@ export class EmailService {
     recruiterName: string,
     jrId: string,
     jobTitle: string,
-    location: string
+    location: string,
   ): Promise<boolean> {
     const subject = `JR ${jrId} Assigned to You`;
     const body = `
@@ -348,10 +381,10 @@ export class EmailService {
     return this.sendEmail({
       recipientEmail: recruiterEmail,
       recipientName: recruiterName,
-      emailType: 'recruiter_assignment',
+      emailType: "recruiter_assignment",
       subject,
       body,
-      jrId
+      jrId,
     });
   }
 }

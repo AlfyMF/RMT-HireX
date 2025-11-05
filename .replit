@@ -42,6 +42,7 @@ outputType = "webview"
 [[workflows.workflow]]
 name = "Backend Server"
 author = "agent"
+mode = "sequential"
 
 [workflows.workflow.metadata]
 outputType = "console"
